@@ -7,6 +7,7 @@ import {
   Manrope_800ExtraBold,
 } from "@expo-google-fonts/manrope";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { DarkTheme, ThemeProvider } from "expo-router/react-navigation";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -18,6 +19,18 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { theme } from "@/theme";
 
 SplashScreen.preventAutoHideAsync();
+
+const navigationTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    background: theme.colors.background,
+    card: theme.colors.card,
+    text: theme.colors.text,
+    border: theme.colors.border,
+    primary: theme.colors.primary,
+  },
+};
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -39,15 +52,16 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={styles.root}>
-      <BottomSheetModalProvider>
-        <StatusBar style="light" />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: styles.content,
-          }}
-        />
-      </BottomSheetModalProvider>
+      <ThemeProvider value={navigationTheme}>
+        <BottomSheetModalProvider>
+          <StatusBar style="light" />
+          <Stack screenOptions={{ headerShown: false, contentStyle: styles.content }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="history/[workoutId]" />
+            <Stack.Screen name="exercise/[exerciseId]" />
+          </Stack>
+        </BottomSheetModalProvider>
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }

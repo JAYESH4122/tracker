@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { ImageBackground, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/app-text";
 import { Card } from "@/components/card";
@@ -9,27 +9,25 @@ type StatCardProps = {
   label: string;
   value: string;
   iconName: keyof typeof Ionicons.glyphMap;
+  tone?: "primary" | "neutral" | "danger";
 };
 
-export function StatCard({ label, value, iconName }: StatCardProps) {
+export function StatCard({ label, value, iconName, tone = "primary" }: StatCardProps) {
   return (
     <Card elevated style={styles.card}>
-      <ImageBackground
-        source={require("@/assets/images/ui/stats-premium.png")}
-        resizeMode="cover"
-        style={styles.bg}
-        imageStyle={styles.bgImage}
-      >
-        <View style={styles.overlay}>
-          <View style={styles.iconWrap}>
-            <Ionicons name={iconName} size={16} color={theme.colors.primary} />
-          </View>
-          <AppText variant="statValue">{value}</AppText>
-          <AppText variant="caption" color="subtext">
-            {label}
-          </AppText>
+      <View style={styles.overlay}>
+        <View style={[styles.iconWrap, tone === "danger" ? styles.iconDanger : null]}>
+          <Ionicons
+            name={iconName}
+            size={16}
+            color={tone === "danger" ? theme.colors.danger : theme.colors.primary}
+          />
         </View>
-      </ImageBackground>
+        <AppText variant="statValue">{value}</AppText>
+        <AppText variant="caption" color="subtext">
+          {label}
+        </AppText>
+      </View>
     </Card>
   );
 }
@@ -40,16 +38,10 @@ const styles = StyleSheet.create({
     padding: 0,
     overflow: "hidden",
   },
-  bg: {
-    minHeight: 132,
-  },
-  bgImage: {
-    borderRadius: theme.radius.lg,
-  },
   overlay: {
-    minHeight: 132,
+    minHeight: 116,
     borderRadius: theme.radius.lg,
-    backgroundColor: "rgba(13, 14, 20, 0.62)",
+    backgroundColor: "rgba(255, 255, 255, 0.02)",
     paddingVertical: theme.spacing.md,
     paddingHorizontal: theme.spacing.md,
     gap: theme.spacing.xs,
@@ -62,5 +54,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 4,
+  },
+  iconDanger: {
+    backgroundColor: "rgba(255, 90, 106, 0.12)",
   },
 });

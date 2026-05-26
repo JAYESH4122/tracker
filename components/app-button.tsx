@@ -15,7 +15,7 @@ export function AppButton({ children, onPress }: AppButtonProps) {
       style={({ pressed }) => [styles.button, pressed ? styles.pressed : null]}
     >
       <ImageBackground
-        source={require("@/assets/images/ui/cta-premium.png")}
+        source={require("../assets/images/ui/cta-premium.png")}
         resizeMode="cover"
         style={styles.bg}
         imageStyle={styles.bgImage}

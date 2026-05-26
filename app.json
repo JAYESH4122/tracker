@@ -6,7 +6,8 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "tracker",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0B0B0F",
     "ios": {
       "icon": "./assets/expo.icon"
     },
@@ -21,6 +22,7 @@
     },
     "web": {
       "output": "static",
+      "backgroundColor": "#0B0B0F",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
@@ -28,7 +30,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#0B0B0F",
           "android": {
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 76

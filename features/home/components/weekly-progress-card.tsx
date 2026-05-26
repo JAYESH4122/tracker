@@ -13,7 +13,7 @@ export function WeeklyProgressCard({ progress }: WeeklyProgressCardProps) {
   return (
     <Card elevated style={styles.card}>
       <ImageBackground
-        source={require("@/assets/images/ui/progress-premium.png")}
+        source={require("../../../assets/images/ui/progress-premium.png")}
         resizeMode="cover"
         style={styles.bg}
         imageStyle={styles.bgImage}

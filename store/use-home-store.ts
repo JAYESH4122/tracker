@@ -1,36 +1,30 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
-
-import { StatItem, WeeklyProgressItem, WorkoutSummary } from "@/types/home";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 type HomeState = {
   greeting: string;
   userName: string;
-  summary: WorkoutSummary;
-  stats: StatItem[];
-  weeklyProgress: WeeklyProgressItem[];
+  userId: string;
+  setUserName: (name: string) => void;
+  setUserId: (id: string) => void;
+  setGreeting: (greeting: string) => void;
 };
 
-export const useHomeStore = create<HomeState>(() => ({
-  greeting: "Welcome back",
-  userName: "Jayesh",
-  summary: {
-    title: "Workout of the Day",
-    subtitle: "Upper Body Strength",
-    duration: "42 min",
-    calories: "560 kcal",
-  },
-  stats: [
-    { id: "calories", label: "Calories", value: "1,840", iconName: "flame" },
-    { id: "time", label: "Time", value: "6h 20m", iconName: "time" },
-    { id: "sessions", label: "Sessions", value: "18", iconName: "barbell" },
-  ],
-  weeklyProgress: [
-    { id: "mon", day: "M", value: 68 },
-    { id: "tue", day: "T", value: 55 },
-    { id: "wed", day: "W", value: 72 },
-    { id: "thu", day: "T", value: 80 },
-    { id: "fri", day: "F", value: 60 },
-    { id: "sat", day: "S", value: 88 },
-    { id: "sun", day: "S", value: 74 },
-  ],
-}));
+export const useHomeStore = create<HomeState>()(
+  persist(
+    (set) => ({
+      greeting: "Welcome back",
+      userName: "Jayesh Patel",
+      userId: "jayesh-patel-4122",
+
+      setUserName: (name) => set({ userName: name }),
+      setUserId: (id) => set({ userId: id }),
+      setGreeting: (greeting) => set({ greeting }),
+    }),
+    {
+      name: "home-profile-store",
+      storage: createJSONStorage(() => AsyncStorage),
+    },
+  ),
+);

@@ -14,7 +14,7 @@ export function WorkoutHeroCard({ summary }: WorkoutHeroCardProps) {
   return (
     <Card style={styles.card}>
       <ImageBackground
-        source={require("@/assets/images/ui/hero-premium.png")}
+        source={require("../../../assets/images/ui/hero-premium.png")}
         resizeMode="cover"
         style={styles.bg}
         imageStyle={styles.bgImage}

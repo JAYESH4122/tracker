@@ -11,9 +11,9 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: theme.colors.card,
           borderTopColor: theme.colors.border,
-          height: 72,
-          paddingTop: theme.spacing.xs,
-          paddingBottom: theme.spacing.sm,
+          height: 68,
+          paddingTop: 8,
+          paddingBottom: 10,
         },
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.subtext,
@@ -25,8 +25,8 @@ export default function TabsLayout() {
           const iconByRoute: Record<string, keyof typeof Ionicons.glyphMap> = {
             index: "home",
             workout: "barbell",
-            stats: "stats-chart",
-            profile: "person",
+            history: "time",
+            library: "library",
           };
 
           const iconName = iconByRoute[route.name] ?? "ellipse";
@@ -36,8 +36,8 @@ export default function TabsLayout() {
     >
       <Tabs.Screen name="index" options={{ title: "Home" }} />
       <Tabs.Screen name="workout" options={{ title: "Workout" }} />
-      <Tabs.Screen name="stats" options={{ title: "Stats" }} />
-      <Tabs.Screen name="profile" options={{ title: "Profile" }} />
+      <Tabs.Screen name="history" options={{ title: "History" }} />
+      <Tabs.Screen name="library" options={{ title: "Library" }} />
     </Tabs>
   );
 }
