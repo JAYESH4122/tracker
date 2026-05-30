@@ -15,8 +15,8 @@ export const useHomeStore = create<HomeState>()(
   persist(
     (set) => ({
       greeting: "Welcome back",
-      userName: "Jayesh Patel",
-      userId: "jayesh-patel-4122",
+      userName: "Jayesh",
+      userId: "jayesh-4122",
 
       setUserName: (name) => set({ userName: name }),
       setUserId: (id) => set({ userId: id }),

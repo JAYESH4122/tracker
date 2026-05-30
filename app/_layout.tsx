@@ -1,11 +1,12 @@
+import "../global.css";
 import "react-native-reanimated";
 
 import {
-  Manrope_500Medium,
-  Manrope_600SemiBold,
-  Manrope_700Bold,
-  Manrope_800ExtraBold,
-} from "@expo-google-fonts/manrope";
+  ArchivoNarrow_600SemiBold,
+  ArchivoNarrow_700Bold,
+} from "@expo-google-fonts/archivo-narrow";
+import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from "@expo-google-fonts/inter";
+import { SpecialGothicExpandedOne_400Regular } from "@expo-google-fonts/special-gothic-expanded-one";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { DarkTheme, ThemeProvider } from "expo-router/react-navigation";
 import { useFonts } from "expo-font";
@@ -34,10 +35,12 @@ const navigationTheme = {
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    Manrope_500Medium,
-    Manrope_600SemiBold,
-    Manrope_700Bold,
-    Manrope_800ExtraBold,
+    ArchivoNarrow_600SemiBold,
+    ArchivoNarrow_700Bold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    SpecialGothicExpandedOne_400Regular,
   });
 
   useEffect(() => {

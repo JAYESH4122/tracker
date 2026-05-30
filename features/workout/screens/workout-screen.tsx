@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -9,16 +9,16 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  Text,
   TextInput,
   View,
 } from "react-native";
 
-import { AppText, Button, Card, SectionHeader, SetInputRow } from "@/components";
+import { SetInputRow } from "@/components/set-input-row";
 import { MUSCLE_GROUPS } from "@/data/exercise-library";
 import { useExerciseStore } from "@/store/use-exercise-store";
 import { useHistoryStore } from "@/store/use-history-store";
 import { useWorkoutStore } from "@/store/use-workout-store";
-import { theme } from "@/theme";
 import {
   computeWorkoutVolume,
   formatDuration,
@@ -28,261 +28,231 @@ import {
   getWorkoutSetCount,
 } from "@/utils/workout";
 
+const GOLD = "#fde400";
+const DARK_GOLD = "#201c00";
+const BG = "#131313";
+const SURFACE = "#1e1e1e";
+const SURFACE_HIGH = "#272727";
+const SURFACE_LOW = "#1a1a1a";
+const BORDER = "#3a3a3a";
+const TEXT = "#e5e2e1";
+const TEXT_SUB = "#cdc7aa";
+const TEXT_DIM = "#636565";
+
 type InputRefMap = Record<string, { weight: TextInput | null; reps: TextInput | null }>;
 
 export function WorkoutScreen() {
   const router = useRouter();
-  const activeWorkout = useWorkoutStore((state) => state.activeWorkout);
-  const workoutExercises = activeWorkout?.exercises ?? [];
-  const startWorkout = useWorkoutStore((state) => state.startWorkout);
-  const discardWorkout = useWorkoutStore((state) => state.discardWorkout);
-  const addExercise = useWorkoutStore((state) => state.addExercise);
-  const addSet = useWorkoutStore((state) => state.addSet);
-  const updateSet = useWorkoutStore((state) => state.updateSet);
-  const toggleSetComplete = useWorkoutStore((state) => state.toggleSetComplete);
-  const removeSet = useWorkoutStore((state) => state.removeSet);
-  const completeWorkout = useWorkoutStore((state) => state.completeWorkout);
-  const exerciseList = useExerciseStore((state) => state.exerciseList);
-  const workouts = useHistoryStore((state) => state.workouts);
+  const activeWorkout = useWorkoutStore((s) => s.activeWorkout);
+  const exercises = activeWorkout?.exercises ?? [];
+  const startWorkout = useWorkoutStore((s) => s.startWorkout);
+  const discardWorkout = useWorkoutStore((s) => s.discardWorkout);
+  const addExercise = useWorkoutStore((s) => s.addExercise);
+  const addSet = useWorkoutStore((s) => s.addSet);
+  const updateSet = useWorkoutStore((s) => s.updateSet);
+  const toggleSetComplete = useWorkoutStore((s) => s.toggleSetComplete);
+  const removeSet = useWorkoutStore((s) => s.removeSet);
+  const completeWorkout = useWorkoutStore((s) => s.completeWorkout);
+  const exerciseList = useExerciseStore((s) => s.exerciseList);
+  const workouts = useHistoryStore((s) => s.workouts);
 
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const [isPickerOpen, setIsPickerOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [elapsed, setElapsed] = useState(0);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const [groupFilter, setGroupFilter] = useState<(typeof MUSCLE_GROUPS)[number]>("All");
-
   const inputRefs = useRef<InputRefMap>({});
+
+  // ─── Custom Exercise Creator States ────────────────────────────────────────
+  const [modalTab, setModalTab] = useState<"catalog" | "new">("catalog");
+  const [customName, setCustomName] = useState("");
+  const [customGroup, setCustomGroup] = useState<string>("Chest");
+  const [customYoutube, setCustomYoutube] = useState("");
+
+  const formMuscleGroups = useMemo(() => {
+    return MUSCLE_GROUPS.filter((g) => g !== "All");
+  }, []);
+
+  const handleOpenPicker = () => {
+    setModalTab("catalog");
+    setSearch("");
+    setGroupFilter("All");
+    setCustomName("");
+    setCustomYoutube("");
+    setCustomGroup("Chest");
+    setPickerOpen(true);
+  };
+
+  const handleCreateCustomAndAdd = () => {
+    const nameTrimmed = customName.trim();
+    if (!nameTrimmed) {
+      Alert.alert("Invalid Input", "Please enter a movement name.");
+      return;
+    }
+
+    const addCustomExercise = useExerciseStore.getState().addCustomExercise;
+    const newEx = addCustomExercise({
+      name: nameTrimmed,
+      muscleGroup: customGroup,
+      youtubeUrl: customYoutube.trim(),
+    });
+
+    // Reset states & close modal
+    setCustomName("");
+    setCustomYoutube("");
+    setCustomGroup("Chest");
+    setModalTab("catalog");
+    setPickerOpen(false);
+
+    // Add to active session
+    handleAddExercise(newEx.id);
+  };
 
   useEffect(() => {
     if (!activeWorkout) {
-      setElapsedSeconds(0);
+      setElapsed(0);
       return;
     }
-
-    const tick = () => {
-      setElapsedSeconds(
+    const tick = () =>
+      setElapsed(
         Math.max(0, Math.round((Date.now() - new Date(activeWorkout.startedAt).getTime()) / 1000)),
       );
-    };
-
     tick();
-    const interval = setInterval(tick, 1000);
-
-    return () => clearInterval(interval);
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
   }, [activeWorkout]);
 
-  const filteredExercises = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-
-    return exerciseList.filter((exercise) => {
-      const matchesGroup = groupFilter === "All" || exercise.muscleGroup === groupFilter;
-      const matchesQuery =
-        query.length === 0 ||
-        exercise.name.toLowerCase().includes(query) ||
-        exercise.muscleGroup.toLowerCase().includes(query);
-
-      return matchesGroup && matchesQuery;
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return exerciseList.filter((e) => {
+      const g = groupFilter === "All" || e.muscleGroup === groupFilter;
+      const s = !q || e.name.toLowerCase().includes(q) || e.muscleGroup.toLowerCase().includes(q);
+      return g && s;
     });
-  }, [exerciseList, groupFilter, searchQuery]);
+  }, [exerciseList, groupFilter, search]);
 
-  const currentSetCount = getWorkoutSetCount({ exercises: workoutExercises });
-  const currentVolume = computeWorkoutVolume({ exercises: workoutExercises });
-  const isWorkoutLive = Boolean(activeWorkout);
-
-  const openExercisePicker = () => {
-    if (!activeWorkout) {
-      startWorkout("Strength Session");
-    }
-    setIsPickerOpen(true);
-  };
+  const setCount = getWorkoutSetCount({ exercises });
+  const volume = computeWorkoutVolume({ exercises });
+  const isLive = Boolean(activeWorkout);
 
   const handleAddExercise = (exerciseId: string) => {
     const workout = activeWorkout ?? startWorkout("Strength Session");
-    const workoutExercise = addExercise(exerciseId);
-    setIsPickerOpen(false);
-
-    if (workoutExercise && workout.id && workoutExercise.id) {
-      const key = `${workoutExercise.id}:${workoutExercise.sets[0]?.id ?? ""}`;
-      setTimeout(() => {
-        inputRefs.current[key]?.weight?.focus();
-      }, 0);
+    const ex = addExercise(exerciseId);
+    setPickerOpen(false);
+    if (ex && workout.id) {
+      const key = `${ex.id}:${ex.sets[0]?.id ?? ""}`;
+      setTimeout(() => inputRefs.current[key]?.weight?.focus(), 300);
     }
   };
 
-  const handleStartWorkout = () => {
-    startWorkout("Strength Session");
-  };
-
-  const handleFinishWorkout = () => {
-    const workout = completeWorkout();
-    if (!workout) {
-      Alert.alert("No workout saved", "Add at least one exercise before saving your workout.");
+  const handleFinish = () => {
+    const w = completeWorkout();
+    if (!w) {
+      Alert.alert("No workout saved", "Add at least one exercise first.");
       return;
     }
-
-    const newPrExercises = workout.exercises.filter((exercise) => exercise.newPr).length;
+    const prs = w.exercises.filter((e) => e.newPr).length;
     Alert.alert(
-      "Workout saved",
-      `${workout.name} • ${workout.exerciseCount} exercises • ${getWorkoutSetCount(workout)} sets${newPrExercises > 0 ? `\n${newPrExercises} new PR${newPrExercises === 1 ? "" : "s"}` : ""}`,
-      [
-        {
-          text: "View workout",
-          onPress: () => router.push(`/history/${workout.id}`),
-        },
-      ],
+      "Workout saved! 💪",
+      `${w.name} • ${w.exerciseCount} exercises • ${getWorkoutSetCount(w)} sets${prs > 0 ? `\n${prs} new PR${prs > 1 ? "s" : ""}` : ""}`,
+      [{ text: "View", onPress: () => router.push(`/history/${w.id}`) }, { text: "OK" }],
     );
   };
 
-  const handleDiscardWorkout = () => {
-    Alert.alert("Discard workout?", "This clears the active session and all logged sets.", [
+  const handleDiscard = () => {
+    Alert.alert("Discard workout?", "This will clear the active session.", [
       { text: "Cancel", style: "cancel" },
       { text: "Discard", style: "destructive", onPress: discardWorkout },
     ]);
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.root}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      <ScrollView
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.header}>
-          <View style={styles.headerCopy}>
-            <AppText variant="caption" color="subtext">
-              Active workout
-            </AppText>
-            <AppText variant="display">{activeWorkout?.name ?? "Strength Session"}</AppText>
-            <AppText variant="body" color="subtext">
-              {isWorkoutLive
-                ? "Log each set quickly. The table keeps your next load visible without clutter."
-                : "Start a session and begin logging in a single tap."}
-            </AppText>
-          </View>
-
-          <View style={styles.timer}>
-            <Ionicons name="time-outline" size={16} color={theme.colors.primary} />
-            <AppText variant="sectionTitle">{formatDuration(elapsedSeconds)}</AppText>
-            <AppText variant="caption" color="subtext">
-              elapsed
-            </AppText>
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={s.root}>
+      {/* ── App Bar ── */}
+      <View style={s.appBar}>
+        <View style={s.appBarLeft}>
+          <Pressable
+            onPress={handleDiscard}
+            style={({ pressed }) => [s.iconBtn, pressed && s.iconBtnActive]}
+          >
+            <MaterialIcons name="close" size={22} color={TEXT_SUB} />
+          </Pressable>
+          {isLive && (
+            <View style={s.timerRow}>
+              <View style={s.timerDot} />
+              <Text style={s.timerText}>{formatDuration(elapsed)}</Text>
+            </View>
+          )}
+        </View>
+        <View style={s.appBarRight}>
+          {isLive && (
+            <Pressable onPress={handleFinish} style={s.finishChip}>
+              <Text style={s.finishChipText}>FINISH</Text>
+            </Pressable>
+          )}
+          <View style={s.avatar}>
+            <Text style={s.avatarText}>J</Text>
           </View>
         </View>
+      </View>
 
-        <Card elevated style={styles.summaryCard}>
-          <View style={styles.summaryTop}>
-            <View style={styles.liveBadge}>
-              <View style={styles.liveDot} />
-              <AppText variant="caption" color="primary">
-                {isWorkoutLive ? "Live session" : "Not started"}
-              </AppText>
-            </View>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={s.scroll}
+      >
+        <Text style={s.screenTitle}>{activeWorkout?.name ?? "Strength Session"}</Text>
+        <Text style={s.screenSub}>Log each set quickly.</Text>
 
-            <View style={styles.summaryMetrics}>
-              <View style={styles.metric}>
-                <AppText variant="caption" color="subtext">
-                  Exercises
-                </AppText>
-                <AppText variant="sectionTitle">{workoutExercises.length}</AppText>
-              </View>
-              <View style={styles.metric}>
-                <AppText variant="caption" color="subtext">
-                  Sets
-                </AppText>
-                <AppText variant="sectionTitle">{currentSetCount}</AppText>
-              </View>
-              <View style={styles.metric}>
-                <AppText variant="caption" color="subtext">
-                  Volume
-                </AppText>
-                <AppText variant="sectionTitle">{formatWorkoutValue(currentVolume)} kg</AppText>
-              </View>
-            </View>
-          </View>
-
-          {!isWorkoutLive ? (
-            <View style={styles.emptyWorkout}>
-              <AppText variant="sectionTitle">Ready to train</AppText>
-              <AppText variant="body" color="subtext">
-                Start the workout, add an exercise, and keep logging without leaving the screen.
-              </AppText>
-              <Button onPress={handleStartWorkout}>Start Workout</Button>
-            </View>
-          ) : null}
-        </Card>
-
-        {isWorkoutLive ? (
-          <View style={styles.exerciseList}>
-            {workoutExercises.map((exercise, exerciseIndex) => (
-              <Card key={exercise.id} style={styles.exerciseCard}>
-                <View style={styles.exerciseHeader}>
-                  <View style={styles.exerciseTitle}>
-                    <AppText variant="sectionTitle">{exercise.exerciseName}</AppText>
-                    <AppText variant="caption" color="subtext">
-                      {exercise.muscleGroup}
-                    </AppText>
+        {/* ── Exercise list or empty state ── */}
+        {isLive ? (
+          <View>
+            {exercises.map((ex, exIdx) => (
+              <View key={ex.id} style={s.exCard}>
+                {/* Exercise header */}
+                <View style={s.exHeader}>
+                  <View style={s.exHeaderRow}>
+                    <View style={s.prBadge}>
+                      <MaterialIcons name="local-fire-department" size={11} color={DARK_GOLD} />
+                      <Text style={s.prBadgeText}>PR ZONE</Text>
+                    </View>
+                    <Pressable onPress={() => router.push(`/exercise/${ex.exerciseId}`)}>
+                      <MaterialIcons name="info-outline" size={20} color={TEXT_SUB} />
+                    </Pressable>
                   </View>
-
-                  <Pressable
-                    onPress={() => router.push(`/exercise/${exercise.exerciseId}`)}
-                    style={styles.videoButton}
-                  >
-                    <Ionicons name="logo-youtube" size={16} color="#FF2D2D" />
-                  </Pressable>
+                  <Text style={s.exName}>{ex.exerciseName}</Text>
+                  <Text style={s.exMeta}>Target: {ex.sets.length} Sets</Text>
                 </View>
 
-                <View style={styles.tableHeader}>
-                  <AppText variant="caption" color="subtext" style={styles.tableSet}>
-                    Set
-                  </AppText>
-                  <AppText variant="caption" color="subtext" style={styles.tablePrev}>
-                    Previous
-                  </AppText>
-                  <AppText variant="caption" color="subtext" style={styles.tableInput}>
-                    Weight
-                  </AppText>
-                  <AppText variant="caption" color="subtext" style={styles.tableInput}>
-                    Reps
-                  </AppText>
-                  <AppText variant="caption" color="subtext" style={styles.tableCheck}>
-                    ✓
-                  </AppText>
+                {/* Table header */}
+                <View style={s.tableHead}>
+                  {["Set", "Previous", "kg", "Reps", "✓"].map((h) => (
+                    <Text key={h} style={[s.tableHeadTxt, h === "Previous" && { flex: 1 }]}>
+                      {h}
+                    </Text>
+                  ))}
                 </View>
 
-                <View style={styles.setRows}>
-                  {exercise.sets.map((setItem, setIndex) => {
-                    const rowKey = `${exercise.id}:${setItem.id}`;
-                    const nextSet = exercise.sets[setIndex + 1] ?? null;
-                    const previousSet = exercise.sets[setIndex - 1];
-                    const historyPreview = getExercisePreviousSetPreview(
-                      workouts,
-                      exercise.exerciseId,
-                    );
-                    const previousValue =
-                      setIndex > 0 && previousSet
-                        ? formatSetPreview(previousSet)
-                        : (historyPreview ?? undefined);
-
+                {/* Sets */}
+                <View style={s.setsWrap}>
+                  {ex.sets.map((set, setIdx) => {
+                    const rowKey = `${ex.id}:${set.id}`;
+                    const nextSet = ex.sets[setIdx + 1] ?? null;
+                    const prev =
+                      setIdx > 0 && ex.sets[setIdx - 1]
+                        ? formatSetPreview(ex.sets[setIdx - 1]!)
+                        : (getExercisePreviousSetPreview(workouts, ex.exerciseId) ?? undefined);
                     return (
                       <SetInputRow
-                        key={setItem.id}
-                        setNumber={setIndex + 1}
-                        previousValue={previousValue}
-                        reps={setItem.reps}
-                        weight={setItem.weight}
-                        isCompleted={setItem.isCompleted}
-                        onChangeReps={(value) => updateSet(exercise.id, setItem.id, "reps", value)}
-                        onChangeWeight={(value) =>
-                          updateSet(exercise.id, setItem.id, "weight", value)
-                        }
-                        onToggleComplete={() => toggleSetComplete(exercise.id, setItem.id)}
-                        onRemove={
-                          exercise.sets.length > 1
-                            ? () => removeSet(exercise.id, setItem.id)
-                            : undefined
-                        }
+                        key={set.id}
+                        setNumber={setIdx + 1}
+                        previousValue={prev}
+                        reps={set.reps}
+                        weight={set.weight}
+                        isCompleted={set.isCompleted}
+                        onChangeReps={(v) => updateSet(ex.id, set.id, "reps", v)}
+                        onChangeWeight={(v) => updateSet(ex.id, set.id, "weight", v)}
+                        onToggleComplete={() => toggleSetComplete(ex.id, set.id)}
+                        onRemove={ex.sets.length > 1 ? () => removeSet(ex.id, set.id) : undefined}
                         weightInputRef={(node) => {
                           inputRefs.current[rowKey] = {
                             weight: node,
@@ -295,138 +265,276 @@ export function WorkoutScreen() {
                             reps: node,
                           };
                         }}
-                        onWeightSubmitEditing={() => {
-                          inputRefs.current[rowKey]?.reps?.focus();
-                        }}
+                        onWeightSubmitEditing={() => inputRefs.current[rowKey]?.reps?.focus()}
                         onRepsSubmitEditing={() => {
                           if (nextSet) {
-                            const nextKey = `${exercise.id}:${nextSet.id}`;
-                            inputRefs.current[nextKey]?.weight?.focus();
+                            inputRefs.current[`${ex.id}:${nextSet.id}`]?.weight?.focus();
                             return;
                           }
-
-                          if (exerciseIndex < workoutExercises.length - 1) {
-                            const nextExercise = workoutExercises[exerciseIndex + 1];
-                            if (nextExercise) {
-                              const nextExerciseRowKey = `${nextExercise.id}:${nextExercise.sets[0]?.id ?? ""}`;
-                              inputRefs.current[nextExerciseRowKey]?.weight?.focus();
-                            }
-                          }
+                          const nex = exercises[exIdx + 1];
+                          if (nex)
+                            inputRefs.current[
+                              `${nex.id}:${nex.sets[0]?.id ?? ""}`
+                            ]?.weight?.focus();
                         }}
                       />
                     );
                   })}
                 </View>
 
-                <View style={styles.exerciseFooter}>
-                  <Pressable onPress={() => addSet(exercise.id)} style={styles.inlineAdd}>
-                    <Ionicons name="add" size={16} color={theme.colors.primary} />
-                    <AppText variant="caption" color="primary">
-                      Add set
-                    </AppText>
-                  </Pressable>
-
-                  <View style={styles.exerciseMeta}>
-                    <AppText variant="caption" color="subtext">
-                      Previous
-                    </AppText>
-                    <AppText variant="caption">
-                      {getExercisePreviousSetPreview(workouts, exercise.exerciseId) ?? "No history"}
-                    </AppText>
-                  </View>
-                </View>
-              </Card>
+                {/* Add Set */}
+                <Pressable
+                  onPress={() => addSet(ex.id)}
+                  style={({ pressed }) => [s.addSetBtn, pressed && s.addSetBtnActive]}
+                >
+                  <MaterialIcons name="add" size={16} color={TEXT_DIM} />
+                  <Text style={s.addSetTxt}>ADD SET</Text>
+                </Pressable>
+              </View>
             ))}
-          </View>
-        ) : null}
 
-        {isWorkoutLive ? (
-          <View style={styles.bottomActions}>
-            <Button onPress={openExercisePicker}>Add Exercise</Button>
-            <Button variant="ghost" onPress={handleFinishWorkout} disabled={currentSetCount === 0}>
-              Save Workout
-            </Button>
-            <Button variant="ghost" onPress={handleDiscardWorkout}>
-              Discard
-            </Button>
+            {/* Add Exercise button */}
+            <Pressable
+              onPress={handleOpenPicker}
+              style={({ pressed }) => [s.addExBtn, pressed && s.addExBtnActive]}
+            >
+              <MaterialIcons name="add-circle-outline" size={20} color={TEXT_SUB} />
+              <Text style={s.addExTxt}>ADD EXERCISE</Text>
+            </Pressable>
+
+            {/* Live stats */}
+            <View style={s.statsGrid}>
+              {[
+                { label: "Duration", value: `${Math.floor(elapsed / 60)}m` },
+                { label: "Volume", value: `${formatWorkoutValue(volume)} kg` },
+                { label: "Sets", value: String(setCount) },
+                { label: "Intensity", value: "85%" },
+              ].map((item) => (
+                <View key={item.label} style={s.statTile}>
+                  <Text style={s.statTileLbl}>{item.label}</Text>
+                  <Text style={s.statTileVal}>{item.value}</Text>
+                </View>
+              ))}
+            </View>
           </View>
-        ) : null}
+        ) : (
+          <View style={s.emptyCard}>
+            <MaterialIcons name="fitness-center" size={40} color={BORDER} />
+            <Text style={s.emptyTitle}>Ready to train</Text>
+            <Text style={s.emptySub}>
+              Start a session, add exercises, and log sets without leaving this screen.
+            </Text>
+            <Pressable onPress={() => startWorkout("Strength Session")} style={s.startBtn}>
+              <Text style={s.startBtnTxt}>START SESSION</Text>
+            </Pressable>
+          </View>
+        )}
       </ScrollView>
 
-      {isWorkoutLive ? (
-        <Pressable onPress={openExercisePicker} style={styles.fab}>
-          <Ionicons name="add" size={22} color={theme.colors.background} />
-        </Pressable>
-      ) : null}
+      {/* ── Complete button (floating) ── */}
+      {isLive && (
+        <View style={s.footer}>
+          <Pressable
+            onPress={handleFinish}
+            disabled={setCount === 0}
+            style={[s.completeBtn, setCount === 0 && s.completeBtnDisabled]}
+          >
+            <MaterialIcons
+              name="check-circle"
+              size={20}
+              color={setCount === 0 ? TEXT_DIM : DARK_GOLD}
+            />
+            <Text style={[s.completeBtnTxt, setCount === 0 && s.completeBtnTxtDisabled]}>
+              COMPLETE WORKOUT
+            </Text>
+          </Pressable>
+        </View>
+      )}
 
+      {/* ── Exercise Picker Modal ── */}
       <Modal
-        visible={isPickerOpen}
+        visible={pickerOpen}
         transparent
         animationType="slide"
-        onRequestClose={() => setIsPickerOpen(false)}
+        onRequestClose={() => setPickerOpen(false)}
       >
-        <View style={styles.modalBackdrop}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={() => setIsPickerOpen(false)} />
-          <View style={styles.sheet}>
-            <View style={styles.sheetHandle} />
-            <SectionHeader title="Add Exercise" subtitle="Pick a movement for this workout" />
+        <View style={s.modalOverlay}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={() => setPickerOpen(false)} />
+          <View style={s.modalSheet}>
+            <View style={s.modalHandle} />
+            <Text style={s.modalTitle}>Add Exercise</Text>
+            <Text style={s.modalSub}>Select from catalog or register a custom movement</Text>
 
-            <TextInput
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholder="Search exercises"
-              placeholderTextColor={theme.colors.subtext}
-              style={styles.searchInput}
-            />
+            {/* Sliding Tabs */}
+            <View style={s.modalTabContainer}>
+              <Pressable
+                onPress={() => setModalTab("catalog")}
+                style={[s.modalTab, modalTab === "catalog" && s.modalTabActive]}
+              >
+                <MaterialIcons
+                  name="search"
+                  size={16}
+                  color={modalTab === "catalog" ? DARK_GOLD : TEXT_SUB}
+                  style={{ marginRight: 6 }}
+                />
+                <Text style={[s.modalTabText, modalTab === "catalog" && s.modalTabTextActive]}>
+                  CATALOG
+                </Text>
+              </Pressable>
 
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.filterRow}
-            >
-              {MUSCLE_GROUPS.map((group) => (
-                <Pressable
-                  key={group}
-                  onPress={() => setGroupFilter(group)}
-                  style={[
-                    styles.filterChip,
-                    groupFilter === group ? styles.filterChipActive : null,
-                  ]}
+              <Pressable
+                onPress={() => setModalTab("new")}
+                style={[s.modalTab, modalTab === "new" && s.modalTabActive]}
+              >
+                <MaterialIcons
+                  name="add-box"
+                  size={16}
+                  color={modalTab === "new" ? DARK_GOLD : TEXT_SUB}
+                  style={{ marginRight: 6 }}
+                />
+                <Text style={[s.modalTabText, modalTab === "new" && s.modalTabTextActive]}>
+                  NEW MOVEMENT
+                </Text>
+              </Pressable>
+            </View>
+
+            {modalTab === "catalog" ? (
+              <View style={{ flex: 1 }}>
+                {/* Search */}
+                <View style={s.searchRow}>
+                  <MaterialIcons name="search" size={18} color={TEXT_DIM} style={s.searchIcon} />
+                  <TextInput
+                    value={search}
+                    onChangeText={setSearch}
+                    placeholder="Search exercises…"
+                    placeholderTextColor={TEXT_DIM}
+                    style={s.searchInput}
+                  />
+                </View>
+
+                {/* Muscle group chips */}
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={s.chipScroll}
+                  contentContainerStyle={s.chipContent}
                 >
-                  <AppText variant="caption" color={groupFilter === group ? "background" : "text"}>
-                    {group}
-                  </AppText>
-                </Pressable>
-              ))}
-            </ScrollView>
+                  {MUSCLE_GROUPS.map((g) => (
+                    <Pressable
+                      key={g}
+                      onPress={() => setGroupFilter(g)}
+                      style={[s.chip, g === groupFilter && s.chipActive]}
+                    >
+                      <Text style={[s.chipTxt, g === groupFilter && s.chipTxtActive]}>{g}</Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
 
-            <ScrollView
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.sheetContent}
-            >
-              <View style={styles.exercisePickerList}>
-                {filteredExercises.map((exercise) => (
-                  <Pressable
-                    key={exercise.id}
-                    onPress={() => handleAddExercise(exercise.id)}
-                    style={({ pressed }) => [styles.exercisePickerRow, pressed && styles.pressed]}
-                  >
-                    <View style={styles.exercisePickerCopy}>
-                      <AppText variant="body">{exercise.name}</AppText>
-                      <AppText variant="caption" color="subtext">
-                        {exercise.muscleGroup}
-                      </AppText>
+                {/* Exercise list */}
+                <ScrollView
+                  keyboardShouldPersistTaps="handled"
+                  showsVerticalScrollIndicator={false}
+                  style={s.exList}
+                >
+                  {filtered.map((ex) => (
+                    <Pressable
+                      key={ex.id}
+                      onPress={() => handleAddExercise(ex.id)}
+                      style={({ pressed }) => [s.exRow, pressed && s.exRowActive]}
+                    >
+                      <View style={s.exRowLeft}>
+                        <Text style={s.exRowName}>{ex.name}</Text>
+                        <Text style={s.exRowGroup}>{ex.muscleGroup}</Text>
+                      </View>
+                      <View style={s.addBadge}>
+                        <Text style={s.addBadgeTxt}>Add</Text>
+                      </View>
+                    </Pressable>
+                  ))}
+                  {filtered.length === 0 && (
+                    <View style={s.noResults}>
+                      <Text style={s.noResultsTxt}>No exercises found</Text>
                     </View>
-                    <View style={styles.exercisePickerAction}>
-                      <AppText variant="caption" color="primary">
-                        Add
-                      </AppText>
-                    </View>
-                  </Pressable>
-                ))}
+                  )}
+                </ScrollView>
               </View>
-            </ScrollView>
+            ) : (
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+                style={{ flex: 1 }}
+                contentContainerStyle={s.formContainer}
+              >
+                {/* Movement Name */}
+                <View style={s.formGroup}>
+                  <Text style={s.formLabel}>MOVEMENT NAME</Text>
+                  <View style={s.inputWrapper}>
+                    <MaterialIcons
+                      name="fitness-center"
+                      size={16}
+                      color={TEXT_DIM}
+                      style={s.inputIcon}
+                    />
+                    <TextInput
+                      value={customName}
+                      onChangeText={setCustomName}
+                      placeholder="e.g. Dumbbell Hammer Curl"
+                      placeholderTextColor={TEXT_DIM}
+                      style={s.formInput}
+                    />
+                  </View>
+                </View>
+
+                {/* Target Muscle Group */}
+                <View style={s.formGroup}>
+                  <Text style={s.formLabel}>TARGET MUSCLE GROUP</Text>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={s.formChipScroll}
+                    contentContainerStyle={s.formChipContent}
+                  >
+                    {formMuscleGroups.map((g) => (
+                      <Pressable
+                        key={g}
+                        onPress={() => setCustomGroup(g)}
+                        style={[s.formChip, g === customGroup && s.formChipActive]}
+                      >
+                        <Text style={[s.formChipTxt, g === customGroup && s.formChipTxtActive]}>
+                          {g}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </ScrollView>
+                </View>
+
+                {/* YouTube Link */}
+                <View style={s.formGroup}>
+                  <Text style={s.formLabel}>YOUTUBE VIDEO LINK (OPTIONAL)</Text>
+                  <View style={s.inputWrapper}>
+                    <MaterialIcons name="link" size={16} color={TEXT_DIM} style={s.inputIcon} />
+                    <TextInput
+                      value={customYoutube}
+                      onChangeText={setCustomYoutube}
+                      placeholder="e.g. https://youtube.com/watch?v=..."
+                      placeholderTextColor={TEXT_DIM}
+                      autoCapitalize="none"
+                      keyboardType="url"
+                      style={s.formInput}
+                    />
+                  </View>
+                </View>
+
+                {/* Action Button */}
+                <Pressable
+                  onPress={handleCreateCustomAndAdd}
+                  style={({ pressed }) => [s.formSubmitBtn, pressed && s.formSubmitBtnActive]}
+                >
+                  <MaterialIcons name="add" size={20} color={DARK_GOLD} />
+                  <Text style={s.formSubmitBtnText}>CREATE & ADD TO WORKOUT</Text>
+                </Pressable>
+              </ScrollView>
+            )}
           </View>
         </View>
       </Modal>
@@ -434,239 +542,461 @@ export function WorkoutScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    padding: theme.spacing.lg,
-    paddingBottom: 136,
-    gap: theme.spacing.lg,
-    width: "100%",
-    maxWidth: 640,
-    alignSelf: "center",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: theme.spacing.md,
-  },
-  headerCopy: {
-    flex: 1,
-    gap: theme.spacing.xs,
-  },
-  timer: {
-    minWidth: 92,
-    paddingVertical: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.sm,
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.cardElevated,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    alignItems: "center",
-    gap: 4,
-  },
-  summaryCard: {
-    gap: theme.spacing.md,
-  },
-  summaryTop: {
-    gap: theme.spacing.md,
-  },
-  liveBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    alignSelf: "flex-start",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: theme.radius.pill,
-    backgroundColor: "rgba(0, 255, 136, 0.08)",
-  },
-  liveDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 999,
-    backgroundColor: theme.colors.primary,
-  },
-  summaryMetrics: {
-    flexDirection: "row",
-    gap: theme.spacing.sm,
-  },
-  metric: {
-    flex: 1,
-    gap: 4,
-    padding: theme.spacing.sm,
-    borderRadius: theme.radius.md,
-    backgroundColor: "rgba(255, 255, 255, 0.02)",
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  emptyWorkout: {
-    gap: theme.spacing.sm,
-  },
-  exerciseList: {
-    gap: theme.spacing.md,
-  },
-  exerciseCard: {
-    gap: theme.spacing.sm,
-  },
-  exerciseHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: theme.spacing.sm,
-  },
-  exerciseTitle: {
-    flex: 1,
-    gap: 4,
-  },
-  videoButton: {
-    width: 38,
-    height: 38,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: theme.radius.pill,
-    backgroundColor: theme.colors.cardElevated,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  tableHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingHorizontal: theme.spacing.sm,
-    paddingTop: 2,
-  },
-  tableSet: {
-    width: 30,
-    textAlign: "center",
-  },
-  tablePrev: {
-    flex: 1,
-    minWidth: 68,
-  },
-  tableInput: {
-    width: 78,
-    textAlign: "center",
-  },
-  tableCheck: {
-    width: 26,
-    textAlign: "center",
-  },
-  setRows: {
-    gap: 8,
-    marginTop: 2,
-  },
-  exerciseFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: theme.spacing.sm,
-    paddingTop: 2,
-  },
-  inlineAdd: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: theme.radius.pill,
-    backgroundColor: theme.colors.primaryMuted,
-  },
-  exerciseMeta: {
-    alignItems: "flex-end",
-  },
-  bottomActions: {
-    gap: theme.spacing.sm,
-  },
-  fab: {
-    position: "absolute",
-    right: theme.spacing.lg,
-    bottom: theme.spacing.xl,
-    width: 58,
+const s = StyleSheet.create({
+  root: { flex: 1, backgroundColor: BG },
+
+  // App Bar
+  appBar: {
     height: 58,
-    borderRadius: 29,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: BORDER,
+    backgroundColor: BG,
+  },
+  appBarLeft: { flexDirection: "row", alignItems: "center" },
+  appBarRight: { flexDirection: "row", alignItems: "center" },
+  iconBtn: { padding: 8, borderRadius: 8 },
+  iconBtnActive: { backgroundColor: SURFACE_HIGH },
+  timerRow: { flexDirection: "row", alignItems: "center", marginLeft: 10 },
+  timerDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: GOLD, marginRight: 6 },
+  timerText: {
+    fontFamily: "ArchivoNarrow_700Bold",
+    fontSize: 18,
+    color: TEXT,
+    letterSpacing: -0.5,
+  },
+  finishChip: {
+    borderWidth: 1,
+    borderColor: "rgba(253,228,0,0.4)",
+    borderRadius: 99,
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    marginRight: 10,
+  },
+  finishChipText: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 10,
+    color: GOLD,
+    letterSpacing: 1.5,
+  },
+  avatar: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: GOLD,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: theme.colors.primary,
   },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.72)",
-    justifyContent: "flex-end",
+  avatarText: { fontFamily: "ArchivoNarrow_700Bold", fontSize: 12, color: DARK_GOLD },
+
+  // Scroll
+  scroll: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 140 },
+  screenTitle: {
+    fontFamily: "SpecialGothicExpandedOne_400Regular",
+    fontSize: 18,
+    color: TEXT,
+    letterSpacing: 0.5,
+    marginBottom: 4,
   },
-  sheet: {
-    maxHeight: "92%",
-    backgroundColor: theme.colors.background,
-    borderTopLeftRadius: theme.radius.xl,
-    borderTopRightRadius: theme.radius.xl,
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.sm,
-    paddingBottom: theme.spacing.xxl,
-    gap: theme.spacing.md,
-  },
-  sheetHandle: {
-    width: 42,
-    height: 4,
-    borderRadius: 999,
-    backgroundColor: theme.colors.border,
-    alignSelf: "center",
-  },
-  searchInput: {
-    height: 48,
-    borderRadius: theme.radius.md,
+  screenSub: { fontFamily: "Inter_400Regular", fontSize: 13, color: TEXT_DIM, marginBottom: 20 },
+
+  // Exercise Card
+  exCard: {
+    backgroundColor: SURFACE,
     borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.cardElevated,
-    paddingHorizontal: theme.spacing.md,
-    color: theme.colors.text,
+    borderColor: BORDER,
+    borderRadius: 12,
+    overflow: "hidden",
+    marginBottom: 16,
   },
-  filterRow: {
-    gap: theme.spacing.sm,
+  exHeader: {
+    padding: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: BORDER,
+    backgroundColor: SURFACE_HIGH,
+  },
+  exHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  prBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: GOLD,
+    borderRadius: 4,
+    paddingHorizontal: 6,
     paddingVertical: 2,
   },
-  filterChip: {
-    paddingHorizontal: 12,
+  prBadgeText: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 9,
+    color: DARK_GOLD,
+    letterSpacing: 1,
+    marginLeft: 3,
+  },
+  exName: { fontFamily: "ArchivoNarrow_700Bold", fontSize: 17, color: TEXT, marginBottom: 2 },
+  exMeta: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 10,
+    color: TEXT_DIM,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+
+  // Table header
+  tableHead: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
     paddingVertical: 8,
-    borderRadius: theme.radius.pill,
-    backgroundColor: theme.colors.cardElevated,
+    backgroundColor: "#161616",
+    borderBottomWidth: 1,
+    borderBottomColor: BORDER,
+  },
+  tableHeadTxt: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 9,
+    color: TEXT_DIM,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    width: 36,
+    textAlign: "center",
+  },
+
+  // Sets
+  setsWrap: { paddingHorizontal: 6, paddingVertical: 4 },
+  addSetBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: BORDER,
+    backgroundColor: SURFACE_LOW,
+  },
+  addSetBtnActive: { backgroundColor: SURFACE_HIGH },
+  addSetTxt: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 10,
+    color: TEXT_DIM,
+    letterSpacing: 1.2,
+    marginLeft: 4,
+  },
+
+  // Add Exercise button
+  addExBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: BORDER,
+    borderStyle: "dashed",
+    borderRadius: 12,
+    paddingVertical: 16,
+    marginBottom: 20,
   },
-  filterChipActive: {
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.primary,
+  addExBtnActive: { backgroundColor: SURFACE },
+  addExTxt: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 11,
+    color: TEXT_DIM,
+    letterSpacing: 1.2,
+    marginLeft: 8,
   },
-  sheetContent: {
-    paddingBottom: theme.spacing.xl,
+
+  // Live stats grid
+  statsGrid: { flexDirection: "row", flexWrap: "wrap", marginBottom: 10 },
+  statTile: {
+    width: "48%",
+    backgroundColor: SURFACE_HIGH,
+    borderWidth: 1,
+    borderColor: BORDER,
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 8,
+    marginRight: "2%",
   },
-  exercisePickerList: {
-    gap: 10,
+  statTileLbl: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 9,
+    color: TEXT_DIM,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    marginBottom: 4,
   },
-  exercisePickerRow: {
+  statTileVal: { fontFamily: "ArchivoNarrow_700Bold", fontSize: 22, color: GOLD },
+
+  // Empty
+  emptyCard: {
+    backgroundColor: SURFACE,
+    borderWidth: 1,
+    borderColor: BORDER,
+    borderRadius: 12,
+    padding: 32,
+    alignItems: "center",
+  },
+  emptyTitle: {
+    fontFamily: "ArchivoNarrow_700Bold",
+    fontSize: 18,
+    color: TEXT,
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  emptySub: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 13,
+    color: TEXT_DIM,
+    textAlign: "center",
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  startBtn: { backgroundColor: GOLD, paddingVertical: 12, paddingHorizontal: 32, borderRadius: 8 },
+  startBtnTxt: {
+    fontFamily: "ArchivoNarrow_700Bold",
+    fontSize: 13,
+    color: DARK_GOLD,
+    letterSpacing: 1.5,
+  },
+
+  // Footer
+  footer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 24,
+    backgroundColor: "rgba(19,19,19,0.96)",
+    borderTopWidth: 1,
+    borderTopColor: BORDER,
+  },
+  completeBtn: {
+    backgroundColor: GOLD,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 15,
+    borderRadius: 12,
+  },
+  completeBtnDisabled: { backgroundColor: SURFACE_HIGH, opacity: 0.6 },
+  completeBtnTxt: {
+    fontFamily: "ArchivoNarrow_700Bold",
+    fontSize: 15,
+    color: DARK_GOLD,
+    letterSpacing: 1.5,
+    marginLeft: 8,
+  },
+  completeBtnTxtDisabled: { color: TEXT_DIM },
+
+  // Modal
+  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.75)", justifyContent: "flex-end" },
+  modalSheet: {
+    maxHeight: "92%",
+    backgroundColor: SURFACE,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 16,
+    paddingBottom: 32,
+  },
+  modalHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: BORDER,
+    alignSelf: "center",
+    marginTop: 10,
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontFamily: "SpecialGothicExpandedOne_400Regular",
+    fontSize: 16,
+    color: TEXT,
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  modalSub: { fontFamily: "Inter_400Regular", fontSize: 13, color: TEXT_DIM, marginBottom: 16 },
+
+  // Search
+  searchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: SURFACE_HIGH,
+    borderWidth: 1,
+    borderColor: BORDER,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+    height: 44,
+  },
+  searchIcon: { marginRight: 8 },
+  searchInput: { flex: 1, fontFamily: "Inter_400Regular", fontSize: 14, color: TEXT, height: 44 },
+
+  // Chips
+  chipScroll: { marginBottom: 12, flexGrow: 0 },
+  chipContent: { paddingRight: 8, alignItems: "center", flexDirection: "row" },
+  chip: {
+    height: 32,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: BORDER,
+    backgroundColor: SURFACE_HIGH,
+    marginRight: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  chipActive: { backgroundColor: GOLD, borderColor: GOLD },
+  chipTxt: { fontFamily: "Inter_600SemiBold", fontSize: 11, color: TEXT_SUB },
+  chipTxtActive: { color: DARK_GOLD },
+
+  // Exercise list in modal
+  exList: { flex: 1 },
+  exRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: theme.spacing.sm,
-    padding: theme.spacing.md,
-    borderRadius: theme.radius.lg,
+    paddingVertical: 13,
+    paddingHorizontal: 14,
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.card,
+    borderColor: BORDER,
+    backgroundColor: SURFACE_HIGH,
+    marginBottom: 8,
   },
-  exercisePickerCopy: {
-    flex: 1,
+  exRowActive: { backgroundColor: "#2f2f2f" },
+  exRowLeft: { flex: 1, marginRight: 12 },
+  exRowName: { fontFamily: "ArchivoNarrow_700Bold", fontSize: 15, color: TEXT, marginBottom: 2 },
+  exRowGroup: { fontFamily: "Inter_400Regular", fontSize: 11, color: TEXT_DIM },
+  addBadge: {
+    backgroundColor: "rgba(253,228,0,0.15)",
+    borderRadius: 99,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+  },
+  addBadgeTxt: { fontFamily: "Inter_600SemiBold", fontSize: 11, color: GOLD },
+  noResults: { alignItems: "center", paddingVertical: 32 },
+  noResultsTxt: { fontFamily: "Inter_400Regular", fontSize: 14, color: TEXT_DIM },
+
+  // Sliding Tab Bar in Modal
+  modalTabContainer: {
+    flexDirection: "row",
+    backgroundColor: SURFACE_LOW,
+    borderWidth: 1,
+    borderColor: BORDER,
+    borderRadius: 10,
+    padding: 3,
+    marginBottom: 16,
     gap: 4,
   },
-  exercisePickerAction: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: theme.radius.pill,
-    backgroundColor: theme.colors.primaryMuted,
+  modalTab: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    borderRadius: 8,
   },
-  pressed: {
-    opacity: 0.92,
+  modalTabActive: {
+    backgroundColor: GOLD,
+  },
+  modalTabText: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 11,
+    color: TEXT_SUB,
+    letterSpacing: 0.5,
+  },
+  modalTabTextActive: {
+    color: DARK_GOLD,
+  },
+
+  // Custom Movement Form
+  formContainer: {
+    paddingTop: 4,
+    paddingBottom: 20,
+    gap: 14,
+  },
+  formGroup: {
+    gap: 6,
+  },
+  formLabel: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 9,
+    color: TEXT_DIM,
+    letterSpacing: 1.2,
+  },
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: SURFACE_HIGH,
+    borderWidth: 1,
+    borderColor: BORDER,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    height: 48,
+  },
+  inputIcon: {
+    marginRight: 8,
+  },
+  formInput: {
+    flex: 1,
+    fontFamily: "Inter_400Regular",
+    fontSize: 14,
+    color: TEXT,
+    height: 48,
+  },
+  formChipScroll: {
+    flexGrow: 0,
+  },
+  formChipContent: {
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  formChip: {
+    height: 32,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: BORDER,
+    backgroundColor: SURFACE_HIGH,
+    marginRight: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  formChipActive: {
+    backgroundColor: GOLD,
+    borderColor: GOLD,
+  },
+  formChipTxt: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 11,
+    color: TEXT_SUB,
+  },
+  formChipTxtActive: {
+    color: DARK_GOLD,
+  },
+  formSubmitBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: GOLD,
+    paddingVertical: 14,
+    borderRadius: 10,
+    marginTop: 8,
+  },
+  formSubmitBtnActive: {
+    opacity: 0.9,
+  },
+  formSubmitBtnText: {
+    fontFamily: "ArchivoNarrow_700Bold",
+    fontSize: 13,
+    color: DARK_GOLD,
+    letterSpacing: 1.2,
+    marginLeft: 6,
   },
 });

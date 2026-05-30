@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .gold-glow {
+    text-shadow: 0 0 15px rgba(255, 230, 0, 0.3);
+  }
+}

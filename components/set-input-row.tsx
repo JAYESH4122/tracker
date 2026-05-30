@@ -1,9 +1,7 @@
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import type { Ref } from "react";
-import { Pressable, StyleSheet, TextInput, View } from "react-native";
+import { Pressable, TextInput, View, Text } from "react-native";
 
-import { AppText } from "@/components/app-text";
-import { theme } from "@/theme";
 import { formatWorkoutValue } from "@/utils/workout";
 
 type SetInputRowProps = {
@@ -37,119 +35,101 @@ export function SetInputRow({
   onWeightSubmitEditing,
   onRepsSubmitEditing,
 }: SetInputRowProps) {
+  const handleIncWeight = () => {
+    onChangeWeight(String((weight || 0) + 2.5));
+  };
+  const handleDecWeight = () => {
+    onChangeWeight(String(Math.max(0, (weight || 0) - 2.5)));
+  };
+  const handleIncReps = () => {
+    onChangeReps(String((reps || 0) + 1));
+  };
+  const handleDecReps = () => {
+    onChangeReps(String(Math.max(0, (reps || 0) - 1)));
+  };
+
   return (
-    <View style={[styles.row, isCompleted ? styles.completed : null]}>
-      <View style={styles.cellSet}>
-        <AppText variant="caption" color="subtext">
-          {setNumber}
-        </AppText>
+    <View
+      className={`flex-row items-center gap-2 py-2 px-2 rounded-lg ${isCompleted ? "bg-success-emerald/5" : ""}`}
+    >
+      {/* Set Number */}
+      <View className="w-6 items-center justify-center">
+        <Text className="font-numeric-data text-on-surface-variant text-sm">{setNumber}</Text>
       </View>
 
-      <View style={styles.cellPrev}>
-        <AppText variant="caption" color="subtext">
+      {/* Previous */}
+      <View className="flex-1 min-w-[50px]">
+        <Text className="font-numeric-data text-xs text-on-surface-variant" numberOfLines={1}>
           {previousValue ?? "—"}
-        </AppText>
+        </Text>
       </View>
 
-      <TextInput
-        ref={weightInputRef}
-        value={formatWorkoutValue(weight)}
-        placeholder="0"
-        placeholderTextColor={theme.colors.subtext}
-        keyboardType="numeric"
-        returnKeyType="next"
-        blurOnSubmit={false}
-        onSubmitEditing={onWeightSubmitEditing}
-        onChangeText={onChangeWeight}
-        selectTextOnFocus
-        style={[styles.input, styles.weightInput]}
-      />
-      <TextInput
-        ref={repsInputRef}
-        value={formatWorkoutValue(reps)}
-        placeholder="0"
-        placeholderTextColor={theme.colors.subtext}
-        keyboardType="numeric"
-        returnKeyType="done"
-        blurOnSubmit
-        onSubmitEditing={onRepsSubmitEditing}
-        onChangeText={onChangeReps}
-        selectTextOnFocus
-        style={[styles.input, styles.repsInput]}
-      />
-
-      <Pressable onPress={onToggleComplete} style={styles.checkbox}>
-        <Ionicons
-          name={isCompleted ? "checkmark-circle" : "ellipse-outline"}
-          size={20}
-          color={isCompleted ? theme.colors.primary : theme.colors.subtext}
-        />
-      </Pressable>
-
-      {onRemove ? (
-        <Pressable onPress={onRemove} style={styles.removeButton}>
-          <Ionicons name="trash-outline" size={16} color={theme.colors.danger} />
+      {/* Weight Input Group */}
+      <View className="flex-row items-center gap-1">
+        <Pressable
+          onPress={handleDecWeight}
+          className="w-7 h-7 rounded-full bg-surface-elevated items-center justify-center border border-border-subtle active:scale-95"
+        >
+          <MaterialIcons name="remove" size={16} color="#e5e2e1" />
         </Pressable>
-      ) : (
-        <View style={styles.removeSpacer} />
-      )}
+        <TextInput
+          ref={weightInputRef}
+          value={formatWorkoutValue(weight)}
+          placeholder="0"
+          placeholderTextColor="#636565"
+          keyboardType="numeric"
+          returnKeyType="next"
+          blurOnSubmit={false}
+          onSubmitEditing={onWeightSubmitEditing}
+          onChangeText={onChangeWeight}
+          selectTextOnFocus
+          className="w-12 h-8 bg-surface-elevated border border-border-subtle rounded-md text-center font-numeric-data text-on-surface text-sm focus:border-primary-fixed"
+        />
+        <Pressable
+          onPress={handleIncWeight}
+          className="w-7 h-7 rounded-full bg-surface-elevated items-center justify-center border border-border-subtle active:scale-95"
+        >
+          <MaterialIcons name="add" size={16} color="#e5e2e1" />
+        </Pressable>
+      </View>
+
+      {/* Reps Input Group */}
+      <View className="flex-row items-center gap-1 ml-1">
+        <Pressable
+          onPress={handleDecReps}
+          className="w-7 h-7 rounded-full bg-surface-elevated items-center justify-center border border-border-subtle active:scale-95"
+        >
+          <MaterialIcons name="remove" size={16} color="#e5e2e1" />
+        </Pressable>
+        <TextInput
+          ref={repsInputRef}
+          value={formatWorkoutValue(reps)}
+          placeholder="0"
+          placeholderTextColor="#636565"
+          keyboardType="numeric"
+          returnKeyType="done"
+          blurOnSubmit
+          onSubmitEditing={onRepsSubmitEditing}
+          onChangeText={onChangeReps}
+          selectTextOnFocus
+          className="w-10 h-8 bg-surface-elevated border border-border-subtle rounded-md text-center font-numeric-data text-on-surface text-sm focus:border-primary-fixed"
+        />
+        <Pressable
+          onPress={handleIncReps}
+          className="w-7 h-7 rounded-full bg-surface-elevated items-center justify-center border border-border-subtle active:scale-95"
+        >
+          <MaterialIcons name="add" size={16} color="#e5e2e1" />
+        </Pressable>
+      </View>
+
+      {/* Check */}
+      <Pressable
+        onPress={onToggleComplete}
+        onLongPress={onRemove}
+        className={`w-9 h-9 ml-1 rounded-xl items-center justify-center border ${isCompleted ? "bg-success-emerald/20 border-success-emerald/30" : "bg-surface-elevated border-border-subtle"}`}
+      >
+        <MaterialIcons name="check" size={20} color={isCompleted ? "#00E676" : "#636565"} />
+      </Pressable>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingVertical: 10,
-    paddingHorizontal: theme.spacing.sm,
-    borderRadius: theme.radius.md,
-    backgroundColor: "rgba(255, 255, 255, 0.02)",
-  },
-  completed: {
-    backgroundColor: "rgba(0, 255, 136, 0.04)",
-  },
-  input: {
-    height: 38,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.card,
-    paddingHorizontal: 10,
-    color: theme.colors.text,
-    fontFamily: theme.fonts.semibold,
-    textAlign: "center",
-  },
-  weightInput: {
-    width: 78,
-  },
-  repsInput: {
-    width: 68,
-  },
-  cellSet: {
-    width: 30,
-    alignItems: "center",
-  },
-  cellPrev: {
-    flex: 1,
-    minWidth: 68,
-  },
-  checkbox: {
-    width: 26,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  removeButton: {
-    width: 34,
-    height: 34,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 17,
-    backgroundColor: "rgba(255, 90, 106, 0.12)",
-  },
-  removeSpacer: {
-    width: 34,
-    height: 34,
-  },
-});

@@ -1,7 +1,37 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
+import { useEffect } from "react";
+import { Platform } from "react-native";
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 
-import { theme } from "@/theme";
+function AnimatedTabIcon({
+  name,
+  color,
+  size,
+  focused,
+}: {
+  name: keyof typeof Ionicons.glyphMap;
+  color: string;
+  size: number;
+  focused: boolean;
+}) {
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    scale.value = withSpring(focused ? 1.2 : 1, { damping: 12, stiffness: 220 });
+  }, [focused, scale]);
+
+  const style = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  return (
+    <Animated.View style={style}>
+      <Ionicons name={name} size={size} color={color} />
+    </Animated.View>
+  );
+}
+
+const TAB_HEIGHT = Platform.OS === "ios" ? 82 : 62;
+const BOTTOM_PAD = Platform.OS === "ios" ? 28 : 10;
 
 export default function TabsLayout() {
   return (
@@ -9,28 +39,45 @@ export default function TabsLayout() {
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: theme.colors.card,
-          borderTopColor: theme.colors.border,
-          height: 68,
+          backgroundColor: "#131313",
+          borderTopColor: "#3a3a3a",
+          borderTopWidth: 1,
+          height: TAB_HEIGHT,
+          paddingBottom: BOTTOM_PAD,
           paddingTop: 8,
-          paddingBottom: 10,
+          elevation: 0,
         },
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.subtext,
+        tabBarActiveTintColor: "#fde400",
+        tabBarInactiveTintColor: "#636565",
         tabBarLabelStyle: {
-          fontFamily: theme.fonts.semibold,
-          fontSize: 12,
+          fontFamily: "Inter_600SemiBold",
+          fontSize: 9,
+          textTransform: "uppercase",
+          letterSpacing: 0.6,
+          marginTop: 2,
         },
         tabBarIcon: ({ color, size, focused }) => {
-          const iconByRoute: Record<string, keyof typeof Ionicons.glyphMap> = {
-            index: "home",
-            workout: "barbell",
-            history: "time",
-            library: "library",
+          const icons: Record<
+            string,
+            [keyof typeof Ionicons.glyphMap, keyof typeof Ionicons.glyphMap]
+          > = {
+            index: ["home", "home-outline"],
+            workout: ["barbell", "barbell-outline"],
+            history: ["time", "time-outline"],
+            library: ["library", "library-outline"],
           };
-
-          const iconName = iconByRoute[route.name] ?? "ellipse";
-          return <Ionicons name={iconName} size={focused ? size + 1 : size} color={color} />;
+          const [activeIcon, inactiveIcon] = icons[route.name] ?? [
+            "ellipse-outline",
+            "ellipse-outline",
+          ];
+          return (
+            <AnimatedTabIcon
+              name={focused ? activeIcon : inactiveIcon}
+              color={color as string}
+              size={size}
+              focused={focused}
+            />
+          );
         },
       })}
     >

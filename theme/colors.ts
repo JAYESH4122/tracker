@@ -1,14 +1,14 @@
 export const colors = {
-  background: "#0B0B0F",
-  card: "#15151C",
-  cardElevated: "#1C1D27",
-  primary: "#00FF88",
-  primaryMuted: "#103826",
-  text: "#FFFFFF",
-  subtext: "#A1A1AA",
-  border: "#262836",
-  overlay: "rgba(255, 255, 255, 0.06)",
-  danger: "#FF5A6A",
+  background: "#121212",
+  card: "#2A2A2A",
+  cardElevated: "#333333",
+  primary: "#FFE600",
+  primaryMuted: "#716500",
+  text: "#E5E2E1",
+  subtext: "#CDC7AA",
+  border: "#3D3D3D",
+  overlay: "rgba(0, 0, 0, 0.4)",
+  danger: "#FF1744",
 } as const;
 
 export type AppColors = typeof colors;

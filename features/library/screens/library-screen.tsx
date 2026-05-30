@@ -1,256 +1,157 @@
-import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from "react-native";
-
-import { AppText, Button, Card, ExerciseCard, SectionHeader } from "@/components";
-import { MUSCLE_GROUPS } from "@/data/exercise-library";
-import { useExerciseStore } from "@/store/use-exercise-store";
-import { useWorkoutStore } from "@/store/use-workout-store";
-import { theme } from "@/theme";
-
-const EMPTY_CUSTOM_EXERCISE = {
-  name: "",
-  muscleGroup: "Chest",
-  youtubeUrl: "",
-};
+import { MaterialIcons } from "@expo/vector-icons";
+import { ScrollView, View, Text, Pressable, TextInput } from "react-native";
 
 export function LibraryScreen() {
-  const router = useRouter();
-  const exerciseList = useExerciseStore((state) => state.exerciseList);
-  const addCustomExercise = useExerciseStore((state) => state.addCustomExercise);
-  const activeWorkout = useWorkoutStore((state) => state.activeWorkout);
-  const startWorkout = useWorkoutStore((state) => state.startWorkout);
-  const addExercise = useWorkoutStore((state) => state.addExercise);
-
-  const [query, setQuery] = useState("");
-  const [groupFilter, setGroupFilter] = useState<(typeof MUSCLE_GROUPS)[number]>("All");
-  const [customExercise, setCustomExercise] = useState(EMPTY_CUSTOM_EXERCISE);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const filtered = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    return exerciseList.filter((exercise) => {
-      const matchesGroup = groupFilter === "All" || exercise.muscleGroup === groupFilter;
-      const matchesQuery =
-        normalized.length === 0 ||
-        exercise.name.toLowerCase().includes(normalized) ||
-        exercise.muscleGroup.toLowerCase().includes(normalized);
-      return matchesGroup && matchesQuery;
-    });
-  }, [exerciseList, groupFilter, query]);
-
-  const handleAddCustom = () => {
-    const name = customExercise.name.trim();
-    const muscleGroup = customExercise.muscleGroup.trim();
-    const youtubeUrl = customExercise.youtubeUrl.trim();
-
-    if (!name || !muscleGroup || !youtubeUrl) {
-      Alert.alert("Missing details", "Add a name, muscle group, and YouTube URL.");
-      return;
-    }
-
-    addCustomExercise({ name, muscleGroup, youtubeUrl });
-    setCustomExercise(EMPTY_CUSTOM_EXERCISE);
-    setIsModalOpen(false);
-  };
-
-  const handleAddToWorkout = (exerciseId: string) => {
-    if (!activeWorkout) {
-      startWorkout("Strength Session");
-    }
-
-    addExercise(exerciseId);
-    Alert.alert("Added to workout", "The exercise has been added to your active session.");
-  };
-
   return (
-    <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <SectionHeader
-        title="Exercise Library"
-        subtitle="Select exercises, view tutorials, and save custom movements"
-        actionLabel="Add custom"
-        onActionPress={() => setIsModalOpen(true)}
-      />
-
-      {activeWorkout ? (
-        <Card style={styles.activeCard}>
-          <AppText variant="caption" color="subtext">
-            Active workout
-          </AppText>
-          <AppText variant="sectionTitle">{activeWorkout.name}</AppText>
-          <AppText variant="body" color="subtext">
-            Add exercises directly to your live session.
-          </AppText>
-        </Card>
-      ) : null}
-
-      <TextInput
-        value={query}
-        onChangeText={setQuery}
-        placeholder="Search exercises"
-        placeholderTextColor={theme.colors.subtext}
-        style={styles.searchInput}
-      />
-
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filterRow}
-      >
-        {MUSCLE_GROUPS.map((group) => (
-          <Pressable
-            key={group}
-            onPress={() => setGroupFilter(group)}
-            style={[styles.filterChip, groupFilter === group ? styles.filterChipActive : null]}
-          >
-            <AppText variant="caption" color={groupFilter === group ? "background" : "text"}>
-              {group}
-            </AppText>
+    <View className="flex-1 bg-surface">
+      {/* Top App Bar */}
+      <View className="flex-row justify-between items-center px-4 h-16 border-b border-border-subtle bg-surface z-50">
+        <View className="flex-row items-center gap-4">
+          <Pressable className="p-2 rounded-lg active:bg-surface-variant transition-colors">
+            <MaterialIcons name="menu" size={24} color="#cdc7aa" />
           </Pressable>
-        ))}
-      </ScrollView>
-
-      <View style={styles.list}>
-        {filtered.map((exercise) => (
-          <ExerciseCard
-            key={exercise.id}
-            exercise={exercise}
-            subtitle={exercise.muscleGroup}
-            onPress={() => router.push(`/exercise/${exercise.id}`)}
-            actionLabel={activeWorkout ? "Add to workout" : "Open"}
-            onActionPress={
-              activeWorkout
-                ? () => handleAddToWorkout(exercise.id)
-                : () => router.push(`/exercise/${exercise.id}`)
-            }
-          />
-        ))}
-      </View>
-
-      {filtered.length === 0 ? (
-        <Card>
-          <AppText variant="sectionTitle">No exercises found</AppText>
-          <AppText variant="body" color="subtext">
-            Try a different search or add a custom exercise.
-          </AppText>
-        </Card>
-      ) : null}
-
-      <Modal
-        visible={isModalOpen}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setIsModalOpen(false)}
-      >
-        <View style={styles.modalBackdrop}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={() => setIsModalOpen(false)} />
-          <View style={styles.sheet}>
-            <View style={styles.sheetHandle} />
-            <SectionHeader
-              title="Custom Exercise"
-              subtitle="Add a new exercise with its YouTube URL"
-            />
-            <View style={styles.form}>
-              <TextInput
-                value={customExercise.name}
-                onChangeText={(value) =>
-                  setCustomExercise((current) => ({ ...current, name: value }))
-                }
-                placeholder="Exercise name"
-                placeholderTextColor={theme.colors.subtext}
-                style={styles.searchInput}
-              />
-              <TextInput
-                value={customExercise.muscleGroup}
-                onChangeText={(value) =>
-                  setCustomExercise((current) => ({ ...current, muscleGroup: value }))
-                }
-                placeholder="Muscle group"
-                placeholderTextColor={theme.colors.subtext}
-                style={styles.searchInput}
-              />
-              <TextInput
-                value={customExercise.youtubeUrl}
-                onChangeText={(value) =>
-                  setCustomExercise((current) => ({ ...current, youtubeUrl: value }))
-                }
-                placeholder="YouTube URL"
-                placeholderTextColor={theme.colors.subtext}
-                autoCapitalize="none"
-                style={styles.searchInput}
-              />
-              <Button onPress={handleAddCustom}>Save custom exercise</Button>
+          <Text className="font-display-lg text-2xl tracking-tighter text-primary-fixed">
+            FORGE
+          </Text>
+        </View>
+        <View className="flex-row items-center gap-4">
+          <View className="w-10 h-10 rounded-full border border-border-subtle overflow-hidden">
+            <View className="w-full h-full bg-surface-variant items-center justify-center">
+              <Text className="font-numeric-data text-on-surface">J</Text>
             </View>
           </View>
         </View>
-      </Modal>
-    </ScrollView>
+      </View>
+
+      <ScrollView
+        contentContainerClassName="pt-6 px-4 pb-24 space-y-8"
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="flex-row justify-between items-center mb-4">
+          <Text className="font-headline-lg text-3xl text-on-background">Routine Creator</Text>
+          <View className="bg-surface-container px-3 py-1 rounded-full border border-border-subtle">
+            <Text className="font-label-md text-xs text-on-surface-variant">DRAFT #04</Text>
+          </View>
+        </View>
+
+        {/* Main Panel */}
+        <View className="bg-surface-card border border-border-subtle p-6 rounded-xl space-y-6">
+          <View className="space-y-2">
+            <Text className="font-label-md text-sm text-on-surface-variant uppercase">
+              Routine Identity
+            </Text>
+            <TextInput
+              className="w-full bg-surface-container-lowest border-b-2 border-border-subtle focus:border-primary-fixed text-on-surface p-3 font-body-lg text-lg"
+              placeholderTextColor="#cdc7aa"
+              placeholder="e.g. Hypertrophy - Push Day A"
+            />
+          </View>
+
+          <View className="flex-row gap-4">
+            <View className="flex-1 space-y-2">
+              <Text className="font-label-md text-sm text-on-surface-variant uppercase">
+                Exercise Library
+              </Text>
+              <View className="relative justify-center">
+                <TextInput
+                  className="w-full bg-surface-container-lowest border-b-2 border-border-subtle focus:border-primary-fixed text-on-surface p-3 font-body-md text-base"
+                  placeholderTextColor="#cdc7aa"
+                  placeholder="Select Exercise..."
+                />
+                <View className="absolute right-3 top-3">
+                  <MaterialIcons name="expand-more" size={24} color="#cdc7aa" />
+                </View>
+              </View>
+            </View>
+          </View>
+
+          <View className="space-y-2">
+            <Text className="font-label-md text-sm text-on-surface-variant uppercase">
+              Custom Variation
+            </Text>
+            <View className="flex-row gap-2">
+              <TextInput
+                className="flex-1 bg-surface-container-lowest border-b-2 border-border-subtle focus:border-primary-fixed text-on-surface p-3 font-body-md text-base"
+                placeholderTextColor="#cdc7aa"
+                placeholder="Type custom exercise..."
+              />
+              <Pressable className="bg-surface-elevated px-4 py-2 flex-row items-center justify-center gap-2 border border-border-subtle active:scale-95">
+                <MaterialIcons name="add" size={20} color="#e5e2e1" />
+                <Text className="font-label-md text-sm text-on-surface">APPEND</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Exercise List */}
+          <View className="space-y-4 pt-4 border-t border-border-subtle">
+            <View className="flex-row justify-between items-center">
+              <Text className="font-headline-md text-2xl text-on-surface">Exercise Order</Text>
+              <Text className="text-on-surface-variant font-numeric-data text-xs">3 MOVEMENTS</Text>
+            </View>
+            <View className="space-y-3">
+              {[
+                { name: "Barbell Back Squat", tag: "Quads" },
+                { name: "Walking Lunges", tag: "Legs" },
+                { name: "Leg Extensions", tag: "Isolation" },
+              ].map((ex, i) => (
+                <View
+                  key={i}
+                  className="flex-row items-center gap-4 bg-surface-container border border-border-subtle p-4 rounded-lg"
+                >
+                  <MaterialIcons name="drag-indicator" size={24} color="#cdc7aa" />
+                  <View className="flex-1">
+                    <Text className="font-numeric-data text-lg text-on-surface">{ex.name}</Text>
+                    <View className="flex-row gap-2 mt-1">
+                      <View className="border border-border-subtle px-1.5 rounded">
+                        <Text className="text-[10px] font-label-md uppercase text-on-surface-variant">
+                          {ex.tag}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                  <MaterialIcons name="close" size={24} color="#cdc7aa" />
+                </View>
+              ))}
+            </View>
+          </View>
+        </View>
+
+        {/* Right Side / Settings Preview */}
+        <View className="space-y-6">
+          <View className="bg-surface-container-high border border-border-subtle rounded-xl p-6">
+            <Text className="font-label-md text-sm text-on-surface-variant uppercase mb-4">
+              Routine Settings
+            </Text>
+            <View className="space-y-4">
+              <View className="flex-row items-center justify-between">
+                <Text className="font-body-md text-base text-on-surface">Public Routine</Text>
+                <View className="w-10 h-6 bg-surface-container-lowest rounded-full p-1 border border-border-subtle">
+                  <View className="w-4 h-4 bg-on-surface-variant rounded-full" />
+                </View>
+              </View>
+              <View className="flex-row items-center justify-between">
+                <Text className="font-body-md text-base text-on-surface">Track PRs</Text>
+                <View className="w-10 h-6 bg-primary-fixed rounded-full p-1 border border-border-subtle">
+                  <View className="w-4 h-4 bg-on-primary-fixed rounded-full translate-x-4" />
+                </View>
+              </View>
+            </View>
+          </View>
+
+          <View className="h-48 rounded-xl overflow-hidden border border-border-subtle relative bg-surface-container-lowest">
+            <View className="absolute inset-0 bg-gradient-to-t from-surface to-transparent flex-col justify-end p-4 z-10">
+              <Text className="font-display-lg text-2xl text-on-surface font-bold">
+                PUSH YOUR LIMITS
+              </Text>
+            </View>
+          </View>
+
+          <Pressable className="w-full bg-primary-fixed py-4 rounded-xl flex-row items-center justify-center gap-3 active:scale-95 shadow-xl">
+            <MaterialIcons name="save" size={24} color="#201c00" />
+            <Text className="font-display-lg text-2xl text-on-primary-fixed">SAVE ROUTINE</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {
-    padding: theme.spacing.lg,
-    paddingBottom: theme.spacing.xxl,
-    gap: theme.spacing.lg,
-    width: "100%",
-    maxWidth: 640,
-    alignSelf: "center",
-  },
-  activeCard: {
-    gap: theme.spacing.xs,
-  },
-  searchInput: {
-    height: 48,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.cardElevated,
-    paddingHorizontal: theme.spacing.md,
-    color: theme.colors.text,
-  },
-  filterRow: {
-    gap: theme.spacing.sm,
-    paddingVertical: 2,
-  },
-  filterChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: theme.radius.pill,
-    backgroundColor: theme.colors.cardElevated,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  filterChipActive: {
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.primary,
-  },
-  list: {
-    gap: theme.spacing.sm,
-  },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-    justifyContent: "flex-end",
-  },
-  sheet: {
-    maxHeight: "92%",
-    backgroundColor: theme.colors.background,
-    borderTopLeftRadius: theme.radius.xl,
-    borderTopRightRadius: theme.radius.xl,
-    paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.xxl,
-    paddingTop: theme.spacing.sm,
-    gap: theme.spacing.md,
-  },
-  sheetHandle: {
-    width: 42,
-    height: 4,
-    borderRadius: 999,
-    backgroundColor: theme.colors.border,
-    alignSelf: "center",
-  },
-  form: {
-    gap: theme.spacing.sm,
-  },
-});

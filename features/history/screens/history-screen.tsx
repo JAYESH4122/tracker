@@ -1,11 +1,9 @@
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useMemo } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, View, Text } from "react-native";
 
-import { AppText, Card, SectionHeader } from "@/components";
 import { useHistoryStore } from "@/store/use-history-store";
-import { theme } from "@/theme";
 import { formatDateLabel, formatDuration, groupWorkoutsByDate } from "@/utils/workout";
 
 export function HistoryScreen() {
@@ -14,132 +12,108 @@ export function HistoryScreen() {
   const groupedWorkouts = useMemo(() => groupWorkoutsByDate(workouts), [workouts]);
 
   return (
-    <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <SectionHeader title="Workout History" subtitle="Completed sessions grouped by date" />
+    <View className="flex-1 bg-surface">
+      {/* Top App Bar */}
+      <View className="flex-row justify-between items-center px-4 h-16 border-b border-border-subtle bg-surface z-50">
+        <View className="flex-row items-center gap-4">
+          <Pressable className="p-2 rounded-lg active:bg-surface-variant transition-colors">
+            <MaterialIcons name="menu" size={24} color="#cdc7aa" />
+          </Pressable>
+          <Text className="font-display-lg text-2xl tracking-tighter text-primary-fixed">
+            FORGE
+          </Text>
+        </View>
+      </View>
 
-      {groupedWorkouts.length > 0 ? (
-        groupedWorkouts.map((group) => (
-          <View key={group.date} style={styles.group}>
-            <AppText variant="caption" color="subtext" style={styles.dateLabel}>
-              {formatDateLabel(group.date)}
-            </AppText>
-            <View style={styles.groupList}>
-              {group.workouts.map((workout) => {
-                const newPrs = workout.exercises.filter((exercise) => exercise.newPr).length;
-                return (
-                  <Pressable
-                    key={workout.id}
-                    onPress={() => router.push(`/history/${workout.id}`)}
-                    style={({ pressed }) => [pressed && styles.pressed]}
-                  >
-                    <Card style={styles.card}>
-                      <View style={styles.row}>
-                        <View style={styles.left}>
-                          <View style={styles.iconWrap}>
-                            <Ionicons name="barbell" size={16} color={theme.colors.primary} />
-                          </View>
-                          <View style={styles.copy}>
-                            <AppText variant="sectionTitle">{workout.name}</AppText>
-                            <AppText variant="caption" color="subtext">
+      <ScrollView
+        contentContainerClassName="pt-6 px-4 pb-24 space-y-8"
+        showsVerticalScrollIndicator={false}
+      >
+        <View>
+          <Text className="font-headline-lg text-3xl text-on-background mb-1">Workout History</Text>
+          <Text className="font-body-md text-on-surface-variant">
+            Completed sessions grouped by date
+          </Text>
+        </View>
+
+        {groupedWorkouts.length > 0 ? (
+          <View className="pl-8 relative pb-4 space-y-8">
+            <View className="absolute left-[11px] top-2 bottom-0 w-[2px] bg-border-subtle" />
+
+            {groupedWorkouts.map((group) => (
+              <View key={group.date} className="space-y-4">
+                <View className="relative">
+                  <View className="absolute -left-[28px] top-1 w-4 h-4 rounded-full border-4 border-surface z-10 bg-on-surface-variant" />
+                  <Text className="font-label-md text-xs text-on-surface-variant uppercase tracking-widest pl-2">
+                    {formatDateLabel(group.date)}
+                  </Text>
+                </View>
+
+                <View className="space-y-4 pl-2">
+                  {group.workouts.map((workout) => {
+                    const newPrs = workout.exercises.filter((exercise) => exercise.newPr).length;
+
+                    return (
+                      <Pressable
+                        key={workout.id}
+                        onPress={() => router.push(`/history/${workout.id}`)}
+                        className="bg-surface-container-low border border-border-subtle p-4 rounded-xl active:border-primary-fixed/50"
+                      >
+                        <View className="flex-row justify-between items-start mb-3">
+                          <View className="flex-1">
+                            <Text className="font-headline-md text-lg text-on-surface mb-1">
+                              {workout.name}
+                            </Text>
+                            <Text className="font-label-md text-[12px] text-on-surface-variant uppercase">
                               {workout.exerciseCount} exercises • {workout.setCount} sets
-                            </AppText>
+                            </Text>
                           </View>
+                          <MaterialIcons name="chevron-right" size={20} color="#cdc7aa" />
                         </View>
-                        <Ionicons name="chevron-forward" size={16} color={theme.colors.subtext} />
-                      </View>
 
-                      <View style={styles.metaRow}>
-                        <AppText variant="caption" color="subtext">
-                          {formatDuration(workout.durationSeconds)}
-                        </AppText>
-                        <AppText variant="caption" color="subtext">
-                          {workout.totalVolume.toLocaleString()} kg
-                        </AppText>
-                        {newPrs > 0 ? (
-                          <View style={styles.prBadge}>
-                            <AppText variant="caption" color="primary">
-                              New PR 🎉
-                            </AppText>
+                        <View className="flex-row gap-6">
+                          <View>
+                            <Text className="font-label-md text-[10px] text-on-surface-variant uppercase tracking-tighter">
+                              Volume
+                            </Text>
+                            <Text className="font-numeric-data text-sm text-on-surface">
+                              {workout.totalVolume.toLocaleString()} kg
+                            </Text>
                           </View>
-                        ) : null}
-                      </View>
-                    </Card>
-                  </Pressable>
-                );
-              })}
-            </View>
+                          <View>
+                            <Text className="font-label-md text-[10px] text-on-surface-variant uppercase tracking-tighter">
+                              Duration
+                            </Text>
+                            <Text className="font-numeric-data text-sm text-on-surface">
+                              {formatDuration(workout.durationSeconds)}
+                            </Text>
+                          </View>
+                          {newPrs > 0 && (
+                            <View className="bg-primary-fixed/10 px-2 py-1 rounded self-start border border-primary-fixed/30 mt-1 ml-auto">
+                              <Text className="font-label-md text-[10px] text-primary-fixed uppercase tracking-wider">
+                                New PR 🎉
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            ))}
           </View>
-        ))
-      ) : (
-        <Card>
-          <AppText variant="sectionTitle">No workouts saved yet</AppText>
-          <AppText variant="body" color="subtext">
-            Finish a workout session and it will appear here grouped by date.
-          </AppText>
-        </Card>
-      )}
-    </ScrollView>
+        ) : (
+          <View className="bg-surface-card border border-border-subtle rounded-xl p-6 items-center">
+            <Text className="font-headline-md text-xl text-on-surface mb-2">
+              No workouts saved yet
+            </Text>
+            <Text className="font-body-md text-on-surface-variant text-center">
+              Finish a workout session and it will appear here grouped by date.
+            </Text>
+          </View>
+        )}
+      </ScrollView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {
-    padding: theme.spacing.lg,
-    paddingBottom: theme.spacing.xxl,
-    gap: theme.spacing.lg,
-    width: "100%",
-    maxWidth: 640,
-    alignSelf: "center",
-  },
-  group: {
-    gap: theme.spacing.sm,
-  },
-  dateLabel: {
-    paddingHorizontal: theme.spacing.xs,
-  },
-  groupList: {
-    gap: theme.spacing.sm,
-  },
-  card: {
-    gap: theme.spacing.sm,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: theme.spacing.sm,
-  },
-  left: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: theme.spacing.sm,
-    flex: 1,
-  },
-  iconWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: theme.colors.primaryMuted,
-  },
-  copy: {
-    flex: 1,
-    gap: 4,
-  },
-  metaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: theme.spacing.sm,
-    flexWrap: "wrap",
-  },
-  prBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: theme.radius.pill,
-    backgroundColor: "rgba(0, 255, 136, 0.08)",
-  },
-  pressed: {
-    opacity: 0.92,
-  },
-});
