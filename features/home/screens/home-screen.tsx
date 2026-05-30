@@ -261,9 +261,12 @@ export function HomeScreen() {
           >
             <MaterialIcons name="search" size={22} color={TEXT_SUB} />
           </Pressable>
-          <View style={s.avatar}>
+          <Pressable
+            onPress={() => router.push("/profile" as any)}
+            style={({ pressed }) => [s.avatar, pressed && { opacity: 0.8 }]}
+          >
             <Text style={s.avatarLetter}>{userName?.charAt(0)?.toUpperCase() ?? "J"}</Text>
-          </View>
+          </Pressable>
         </View>
       </Animated.View>
 

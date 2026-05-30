@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+import { INITIAL_SEED_WORKOUTS } from "@/data/seed-workouts";
 import type { Workout } from "@/types/workout";
 import { groupWorkoutsByDate } from "@/utils/workout";
 
@@ -17,7 +18,7 @@ type HistoryStore = {
 export const useHistoryStore = create<HistoryStore>()(
   persist(
     (set, get) => ({
-      workouts: [],
+      workouts: INITIAL_SEED_WORKOUTS,
 
       addWorkout: (workout) =>
         set((state) => ({
@@ -37,6 +38,11 @@ export const useHistoryStore = create<HistoryStore>()(
     {
       name: "fitness-history-store",
       storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: () => (state, error) => {
+        if (!error && state && (!state.workouts || state.workouts.length === 0)) {
+          state.workouts = INITIAL_SEED_WORKOUTS;
+        }
+      },
     },
   ),
 );

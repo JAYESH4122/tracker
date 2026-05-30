@@ -1,8 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { useEffect } from "react";
-import { Platform } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import { theme } from "@/theme";
 
 function AnimatedTabIcon({
   name,
@@ -18,45 +20,61 @@ function AnimatedTabIcon({
   const scale = useSharedValue(1);
 
   useEffect(() => {
-    scale.value = withSpring(focused ? 1.2 : 1, { damping: 12, stiffness: 220 });
+    scale.value = withSpring(focused ? 1.15 : 1, { damping: 14, stiffness: 220 });
   }, [focused, scale]);
 
   const style = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
   return (
-    <Animated.View style={style}>
+    <Animated.View style={[style, { alignItems: "center", justifyContent: "center" }]}>
       <Ionicons name={name} size={size} color={color} />
     </Animated.View>
   );
 }
 
-const TAB_HEIGHT = Platform.OS === "ios" ? 82 : 62;
-const BOTTOM_PAD = Platform.OS === "ios" ? 28 : 10;
-
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
+
+  // Dynamic bottom padding and total height to fit safe areas on iOS and Android
+  const bottomPadding = insets.bottom > 0 ? insets.bottom : 10;
+  const tabHeight = 52 + bottomPadding;
+
   return (
     <Tabs
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: "#131313",
-          borderTopColor: "#3a3a3a",
+          backgroundColor: theme.colors.background,
+          borderTopColor: theme.colors.border,
           borderTopWidth: 1,
-          height: TAB_HEIGHT,
-          paddingBottom: BOTTOM_PAD,
+          height: tabHeight,
+          paddingBottom: bottomPadding,
           paddingTop: 8,
           elevation: 0,
+          shadowOpacity: 0,
         },
-        tabBarActiveTintColor: "#fde400",
-        tabBarInactiveTintColor: "#636565",
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: "#7E8080",
+        tabBarItemStyle: {
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          paddingTop: 4,
+          paddingBottom: 4,
+        },
+        tabBarIconStyle: {
+          marginBottom: 0,
+          marginTop: 0,
+        },
         tabBarLabelStyle: {
           fontFamily: "Inter_600SemiBold",
           fontSize: 9,
           textTransform: "uppercase",
-          letterSpacing: 0.6,
+          letterSpacing: 0.8,
           marginTop: 2,
+          marginBottom: 0,
         },
-        tabBarIcon: ({ color, size, focused }) => {
+        tabBarIcon: ({ color, focused }) => {
           const icons: Record<
             string,
             [keyof typeof Ionicons.glyphMap, keyof typeof Ionicons.glyphMap]
@@ -74,7 +92,7 @@ export default function TabsLayout() {
             <AnimatedTabIcon
               name={focused ? activeIcon : inactiveIcon}
               color={color as string}
-              size={size}
+              size={22}
               focused={focused}
             />
           );
@@ -85,6 +103,8 @@ export default function TabsLayout() {
       <Tabs.Screen name="workout" options={{ title: "Workout" }} />
       <Tabs.Screen name="history" options={{ title: "History" }} />
       <Tabs.Screen name="library" options={{ title: "Library" }} />
+      <Tabs.Screen name="profile" options={{ href: null }} />
+      <Tabs.Screen name="stats" options={{ href: null }} />
     </Tabs>
   );
 }
