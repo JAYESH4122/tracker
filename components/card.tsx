@@ -22,6 +22,6 @@ const styles = StyleSheet.create({
   },
   elevated: {
     backgroundColor: theme.colors.cardElevated,
-    borderColor: "#2B2E3D",
+    borderColor: "rgba(212, 175, 55, 0.12)",
   },
 });

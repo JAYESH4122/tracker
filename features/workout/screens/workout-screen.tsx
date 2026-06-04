@@ -1,8 +1,10 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
+  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -11,8 +13,17 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  useWindowDimensions,
+  Vibration,
   View,
 } from "react-native";
+import Animated, {
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
 
 import { SetInputRow } from "@/components/set-input-row";
 import { MUSCLE_GROUPS } from "@/data/exercise-library";
@@ -26,18 +37,145 @@ import {
   formatWorkoutValue,
   getExercisePreviousSetPreview,
   getWorkoutSetCount,
+  toIsoDate,
+  getTodayDefaultWorkoutName,
 } from "@/utils/workout";
 
-const GOLD = "#fde400";
-const DARK_GOLD = "#201c00";
-const BG = "#131313";
-const SURFACE = "#1e1e1e";
-const SURFACE_HIGH = "#272727";
-const SURFACE_LOW = "#1a1a1a";
-const BORDER = "#3a3a3a";
-const TEXT = "#e5e2e1";
-const TEXT_SUB = "#cdc7aa";
-const TEXT_DIM = "#636565";
+const GOLD = "#D4AF37";
+const GOLD_LIGHT = "#E5C158";
+const BG_DARK = "#0F0F0F";
+const GLASS_BG = "rgba(28, 28, 28, 0.8)";
+const GLASS_BORDER = "rgba(255, 255, 255, 0.08)";
+const TEXT_MAIN = "#E5E2E1";
+const TEXT_MUTED = "#A0A0A0";
+const ACCENT_GREEN = "#4AE176";
+const DARK_GOLD = "#1A1A1A";
+const BORDER = "rgba(255, 255, 255, 0.08)";
+const TEXT = "#E5E2E1";
+const TEXT_SUB = "#A0A0A0";
+const TEXT_DIM = "rgba(255, 255, 255, 0.4)";
+const SURFACE_HIGH = "rgba(255, 255, 255, 0.05)";
+
+const BG_HERO_IMAGE =
+  "https://lh3.googleusercontent.com/aida/AP1WRLu24nWykqZgevYWrQMAhU9O5LgBS6uhrv8kZkt-qWLqrh5ajV_SDAiglamnC3NvDMH372x4edKvbx-k-j25zf8loO3IpIH3g7jM30OqlaJ2uKaJCG4QX00E_wGUNrrE40-OQguDWv4lOa1w3f_83zHHR0vrk2-8bRDM3D9-V6CLshfW3OKB5q5wee_qT1yPfdtHL_YUU3tq5YfS0gCMGjqORk8K2HKT9bwdoeqgTW0bhM_XHw44gEaW9xg";
+const BG_PATTERN_OVERLAY =
+  "https://lh3.googleusercontent.com/aida/AP1WRLF0eRL9PCMph4Zj755O_n42jVLK-BqtvU2PyCWoY_bl8GLgdfgTZ9NNQH25m3FjrrA0uZQT4fUfUR6t5ycREAzDR16XrX55UzRVxSEMDIeEIMx1pL1IrPUH4IZZ44CBEky-rBaMYUD-slms2jqlRBTXZqiZ_lMQOalXwLptSGMJA1vOA5rOaF13R9oBZF6PxRT-Bngvci6u-bqj-Te8YOULhF-mEI_uTL-wq7PCWh0ytfAFyVsZVzl5w";
+const AVATAR_IMAGE =
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuBFYjvh7gzy6AiKmPJTpZZ_wFDahPj0dmlx-e1U_rbZWImwLsPNZ5Rx6t45WbPNrPkKyA2d-yHDUb0TGQxfT284KfPsI0WfKR5LcHGeC0DBjI6mJLU78LcuXXjp6tYPEjuABSy1ztkPKmA_gTbPFYzILTZUTNsKdLjZRVEyULOJWiZrIbSvfCBIHMV6wiSjk8tl1fVuvSlkZTX_Gm2uYc7Dq95ln5caLCCVw8LhZGqhDTfHCYvA8QLvriApsx-wAs53I4KnX96mk8U";
+
+function Particle({ delay, height }: { delay: number; height: number }) {
+  const left = useMemo(() => Math.random() * 100, []);
+  const top = useMemo(() => Math.random() * 100, []);
+  const size = useMemo(() => Math.random() * 3 + 1, []);
+
+  const translateY = useSharedValue(0);
+  const opacity = useSharedValue(0.6);
+
+  useEffect(() => {
+    const duration = Math.random() * 20000 + 30000;
+
+    const timeout = setTimeout(() => {
+      translateY.value = withRepeat(withTiming(-(height + 140), { duration }), -1, false);
+      opacity.value = withRepeat(withTiming(0.2, { duration: 2200 }), -1, true);
+    }, delay);
+
+    return () => clearTimeout(timeout);
+  }, [delay, height, opacity, translateY]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View
+      style={[
+        s.particle,
+        {
+          left: `${left}%`,
+          top: `${top}%`,
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+        },
+        animatedStyle,
+      ]}
+    />
+  );
+}
+
+function GoldDustParticles() {
+  const { height } = useWindowDimensions();
+
+  return (
+    <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+      {Array.from({ length: 20 }).map((_, index) => (
+        <Particle key={index} delay={index * 500} height={height} />
+      ))}
+    </View>
+  );
+}
+
+function PulsingDot() {
+  const pulse = useSharedValue(1);
+
+  useEffect(() => {
+    pulse.value = withRepeat(withTiming(1.8, { duration: 1500 }), -1, true);
+  }, [pulse]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulse.value }],
+    opacity: 1 - (pulse.value - 1) / 0.8,
+  }));
+
+  return (
+    <View
+      style={{
+        width: 14,
+        height: 14,
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: 8,
+      }}
+    >
+      <Animated.View
+        style={[
+          {
+            position: "absolute",
+            width: 8,
+            height: 8,
+            borderRadius: 4,
+            backgroundColor: "#4AE176",
+          },
+          animatedStyle,
+        ]}
+      />
+      <View
+        style={{
+          width: 8,
+          height: 8,
+          borderRadius: 4,
+          backgroundColor: "#4AE176",
+          zIndex: 1,
+        }}
+      />
+    </View>
+  );
+}
+
+function GlowingDivider() {
+  return (
+    <LinearGradient
+      colors={["transparent", "rgba(212, 175, 55, 0.14)", "transparent"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 0 }}
+      style={{
+        height: 1,
+        marginVertical: 24,
+      }}
+    />
+  );
+}
 
 type InputRefMap = Record<string, { weight: TextInput | null; reps: TextInput | null }>;
 
@@ -67,6 +205,12 @@ export function WorkoutScreen() {
   const [customName, setCustomName] = useState("");
   const [customGroup, setCustomGroup] = useState<string>("Chest");
   const [customYoutube, setCustomYoutube] = useState("");
+  const todayDate = toIsoDate();
+  const todayWorkout = useMemo(
+    () => workouts.find((workout) => workout.date === todayDate) ?? null,
+    [todayDate, workouts],
+  );
+  const hasWorkoutToday = Boolean(todayWorkout);
 
   const formMuscleGroups = useMemo(() => {
     return MUSCLE_GROUPS.filter((g) => g !== "All");
@@ -80,6 +224,18 @@ export function WorkoutScreen() {
     setCustomYoutube("");
     setCustomGroup("Chest");
     setPickerOpen(true);
+  };
+
+  const handleStartWorkout = () => {
+    if (hasWorkoutToday) {
+      if (todayWorkout) {
+        router.push(`/history/${todayWorkout.id}`);
+      }
+      return;
+    }
+
+    const defaultName = getTodayDefaultWorkoutName();
+    startWorkout(defaultName);
   };
 
   const handleCreateCustomAndAdd = () => {
@@ -130,9 +286,65 @@ export function WorkoutScreen() {
     });
   }, [exerciseList, groupFilter, search]);
 
-  const setCount = getWorkoutSetCount({ exercises });
+  const completedSetsCount = useMemo(() => {
+    return exercises.reduce((sum, ex) => sum + ex.sets.filter((s) => s.isCompleted).length, 0);
+  }, [exercises]);
+
+  const totalSetsCount = useMemo(() => {
+    return exercises.reduce((sum, ex) => sum + ex.sets.length, 0);
+  }, [exercises]);
+
   const volume = computeWorkoutVolume({ exercises });
   const isLive = Boolean(activeWorkout);
+  const hasExercises = exercises.length > 0;
+  const currentExercise = exercises[exercises.length - 1] ?? null;
+  const currentSetIndex = currentExercise
+    ? currentExercise.sets.findIndex((set) => !set.isCompleted)
+    : -1;
+  const workoutComplete =
+    isLive &&
+    hasExercises &&
+    exercises.every((exercise) => exercise.sets.every((set) => set.isCompleted));
+
+  const [startedExerciseIds, setStartedExerciseIds] = useState<Record<string, boolean>>({});
+
+  const handleStartExercise = (exerciseId: string) => {
+    setStartedExerciseIds((prev) => ({ ...prev, [exerciseId]: true }));
+    Vibration.vibrate(40);
+  };
+
+  const muscleFocusData = useMemo(() => {
+    if (exercises.length === 0) return [];
+    const counts: Record<string, number> = {};
+    let total = 0;
+    exercises.forEach((ex) => {
+      const muscle = ex.muscleGroup || "Other";
+      counts[muscle] = (counts[muscle] || 0) + ex.sets.length;
+      total += ex.sets.length;
+    });
+    if (total === 0) return [];
+    return Object.entries(counts)
+      .map(([muscle, count]) => ({
+        muscle,
+        percentage: Math.round((count / total) * 100),
+      }))
+      .sort((a, b) => b.percentage - a.percentage);
+  }, [exercises]);
+
+  const volumeComparison = useMemo(() => {
+    if (workouts.length === 0 || volume === 0) {
+      return { percentChange: 12, trend: "up" };
+    }
+    const lastWorkout = workouts[0];
+    if (!lastWorkout) return { percentChange: 12, trend: "up" };
+    const lastVolume = computeWorkoutVolume({ exercises: lastWorkout.exercises });
+    if (lastVolume === 0) return { percentChange: 12, trend: "up" };
+    const change = ((volume - lastVolume) / lastVolume) * 100;
+    return {
+      percentChange: Math.round(Math.abs(change)),
+      trend: change >= 0 ? "up" : "down",
+    };
+  }, [volume, workouts]);
 
   const handleAddExercise = (exerciseId: string) => {
     const workout = activeWorkout ?? startWorkout("Strength Session");
@@ -167,6 +379,15 @@ export function WorkoutScreen() {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={s.root}>
+      <Image source={{ uri: BG_HERO_IMAGE }} resizeMode="cover" style={s.backgroundImage} />
+      <Image source={{ uri: BG_PATTERN_OVERLAY }} resizeMode="cover" style={s.patternOverlay} />
+      <LinearGradient
+        colors={["rgba(15, 15, 15, 0.4)", "rgba(15, 15, 15, 0.88)"]}
+        locations={[0, 1]}
+        style={StyleSheet.absoluteFill}
+      />
+      <GoldDustParticles />
+
       {/* ── App Bar ── */}
       <View style={s.appBar}>
         <View style={s.appBarLeft}>
@@ -174,23 +395,26 @@ export function WorkoutScreen() {
             onPress={handleDiscard}
             style={({ pressed }) => [s.iconBtn, pressed && s.iconBtnActive]}
           >
-            <MaterialIcons name="close" size={22} color={TEXT_SUB} />
+            <MaterialIcons name="close" size={22} color={TEXT_MAIN} />
           </Pressable>
           {isLive && (
             <View style={s.timerRow}>
-              <View style={s.timerDot} />
+              <PulsingDot />
               <Text style={s.timerText}>{formatDuration(elapsed)}</Text>
             </View>
           )}
         </View>
         <View style={s.appBarRight}>
           {isLive && (
-            <Pressable onPress={handleFinish} style={s.finishChip}>
+            <Pressable
+              onPress={handleFinish}
+              style={({ pressed }) => [s.finishChip, pressed && { opacity: 0.8 }]}
+            >
               <Text style={s.finishChipText}>FINISH</Text>
             </Pressable>
           )}
-          <View style={s.avatar}>
-            <Text style={s.avatarText}>J</Text>
+          <View style={s.avatarRing}>
+            <Image source={{ uri: AVATAR_IMAGE }} style={s.avatarImg} />
           </View>
         </View>
       </View>
@@ -201,155 +425,334 @@ export function WorkoutScreen() {
         contentContainerStyle={s.scroll}
       >
         <Text style={s.screenTitle}>{activeWorkout?.name ?? "Strength Session"}</Text>
-        <Text style={s.screenSub}>Log each set quickly.</Text>
+        <Text style={s.screenSub}>
+          {hasWorkoutToday && !activeWorkout
+            ? "You already completed today’s workout."
+            : "Track your sets, reps, and weight."}
+        </Text>
 
         {/* ── Exercise list or empty state ── */}
         {isLive ? (
           <View>
-            {exercises.map((ex, exIdx) => (
-              <View key={ex.id} style={s.exCard}>
-                {/* Exercise header */}
-                <View style={s.exHeader}>
-                  <View style={s.exHeaderRow}>
-                    <View style={s.prBadge}>
-                      <MaterialIcons name="local-fire-department" size={11} color={DARK_GOLD} />
-                      <Text style={s.prBadgeText}>PR ZONE</Text>
-                    </View>
-                    <Pressable onPress={() => router.push(`/exercise/${ex.exerciseId}`)}>
-                      <MaterialIcons name="info-outline" size={20} color={TEXT_SUB} />
-                    </Pressable>
-                  </View>
-                  <Text style={s.exName}>{ex.exerciseName}</Text>
-                  <Text style={s.exMeta}>Target: {ex.sets.length} Sets</Text>
+            {/* ── Stats Bento Grid ── */}
+            {hasExercises && (
+              <View style={s.statsGrid}>
+                <View style={s.statTile}>
+                  <MaterialIcons name="timer" size={20} color={GOLD} style={{ marginBottom: 6 }} />
+                  <Text style={s.statTileVal}>{formatDuration(elapsed)}</Text>
+                  <Text style={s.statTileLbl}>DURATION</Text>
                 </View>
-
-                {/* Table header */}
-                <View style={s.tableHead}>
-                  {["Set", "Previous", "kg", "Reps", "✓"].map((h) => (
-                    <Text key={h} style={[s.tableHeadTxt, h === "Previous" && { flex: 1 }]}>
-                      {h}
-                    </Text>
-                  ))}
+                <View style={s.statTile}>
+                  <MaterialIcons
+                    name="fitness-center"
+                    size={20}
+                    color={GOLD}
+                    style={{ marginBottom: 6 }}
+                  />
+                  <Text style={s.statTileVal}>
+                    {formatWorkoutValue(volume)}
+                    <Text style={{ fontSize: 12, fontFamily: "Inter_600SemiBold" }}>kg</Text>
+                  </Text>
+                  <Text style={s.statTileLbl}>VOLUME</Text>
                 </View>
-
-                {/* Sets */}
-                <View style={s.setsWrap}>
-                  {ex.sets.map((set, setIdx) => {
-                    const rowKey = `${ex.id}:${set.id}`;
-                    const nextSet = ex.sets[setIdx + 1] ?? null;
-                    const prev =
-                      setIdx > 0 && ex.sets[setIdx - 1]
-                        ? formatSetPreview(ex.sets[setIdx - 1]!)
-                        : (getExercisePreviousSetPreview(workouts, ex.exerciseId) ?? undefined);
-                    return (
-                      <SetInputRow
-                        key={set.id}
-                        setNumber={setIdx + 1}
-                        previousValue={prev}
-                        reps={set.reps}
-                        weight={set.weight}
-                        isCompleted={set.isCompleted}
-                        onChangeReps={(v) => updateSet(ex.id, set.id, "reps", v)}
-                        onChangeWeight={(v) => updateSet(ex.id, set.id, "weight", v)}
-                        onToggleComplete={() => toggleSetComplete(ex.id, set.id)}
-                        onRemove={ex.sets.length > 1 ? () => removeSet(ex.id, set.id) : undefined}
-                        weightInputRef={(node) => {
-                          inputRefs.current[rowKey] = {
-                            weight: node,
-                            reps: inputRefs.current[rowKey]?.reps ?? null,
-                          };
-                        }}
-                        repsInputRef={(node) => {
-                          inputRefs.current[rowKey] = {
-                            weight: inputRefs.current[rowKey]?.weight ?? null,
-                            reps: node,
-                          };
-                        }}
-                        onWeightSubmitEditing={() => inputRefs.current[rowKey]?.reps?.focus()}
-                        onRepsSubmitEditing={() => {
-                          if (nextSet) {
-                            inputRefs.current[`${ex.id}:${nextSet.id}`]?.weight?.focus();
-                            return;
-                          }
-                          const nex = exercises[exIdx + 1];
-                          if (nex)
-                            inputRefs.current[
-                              `${nex.id}:${nex.sets[0]?.id ?? ""}`
-                            ]?.weight?.focus();
-                        }}
-                      />
-                    );
-                  })}
+                <View style={s.statTile}>
+                  <MaterialIcons
+                    name="reorder"
+                    size={20}
+                    color={GOLD}
+                    style={{ marginBottom: 6 }}
+                  />
+                  <Text style={s.statTileVal}>
+                    {completedSetsCount}/{totalSetsCount}
+                  </Text>
+                  <Text style={s.statTileLbl}>SETS</Text>
                 </View>
+                <View style={s.statTile}>
+                  <MaterialIcons name="bolt" size={20} color={GOLD} style={{ marginBottom: 6 }} />
+                  <Text style={s.statTileVal}>{workoutComplete ? "100%" : "85%"}</Text>
+                  <Text style={s.statTileLbl}>INTENSITY</Text>
+                </View>
+              </View>
+            )}
 
-                {/* Add Set */}
+            {hasExercises && <GlowingDivider />}
+
+            {!hasExercises && (
+              <View style={s.emptyWorkoutPrompt}>
+                <MaterialIcons name="add-circle-outline" size={32} color={GOLD} />
+                <Text style={s.emptyWorkoutPromptTitle}>Add your first exercise</Text>
+                <Text style={s.emptyWorkoutPromptText}>
+                  This workout starts empty on purpose. Add one movement, log the sets, then keep
+                  going one exercise at a time.
+                </Text>
                 <Pressable
-                  onPress={() => addSet(ex.id)}
-                  style={({ pressed }) => [s.addSetBtn, pressed && s.addSetBtnActive]}
+                  onPress={handleOpenPicker}
+                  style={({ pressed }) => [s.addFirstExerciseBtn, pressed && { opacity: 0.8 }]}
                 >
-                  <MaterialIcons name="add" size={16} color={TEXT_DIM} />
-                  <Text style={s.addSetTxt}>ADD SET</Text>
+                  <MaterialIcons name="add" size={18} color="#1A1A1A" />
+                  <Text style={s.addFirstExerciseText}>ADD FIRST EXERCISE</Text>
                 </Pressable>
               </View>
-            ))}
+            )}
 
-            {/* Add Exercise button */}
-            <Pressable
-              onPress={handleOpenPicker}
-              style={({ pressed }) => [s.addExBtn, pressed && s.addExBtnActive]}
-            >
-              <MaterialIcons name="add-circle-outline" size={20} color={TEXT_SUB} />
-              <Text style={s.addExTxt}>ADD EXERCISE</Text>
-            </Pressable>
+            {exercises.map((ex, exIdx) => {
+              const isStarted = startedExerciseIds[ex.id] ?? exIdx === 0;
+              if (!isStarted) {
+                return (
+                  <View key={ex.id} style={s.exCardMinimal}>
+                    <View style={s.exHeaderMinimal}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={s.exNameMinimal}>{ex.exerciseName}</Text>
+                        <Text style={s.exStatusMinimal}>READY FOR INPUT</Text>
+                      </View>
+                      <Pressable
+                        onPress={() => handleStartExercise(ex.id)}
+                        style={({ pressed }) => [
+                          s.startSetBtn,
+                          pressed && { transform: [{ scale: 0.96 }], opacity: 0.9 },
+                        ]}
+                      >
+                        <LinearGradient
+                          colors={[GOLD_LIGHT, GOLD]}
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 1 }}
+                          style={s.startSetBtnInner}
+                        >
+                          <Text style={s.startSetBtnTxt}>START SET</Text>
+                        </LinearGradient>
+                      </Pressable>
+                    </View>
+                  </View>
+                );
+              }
 
-            {/* Live stats */}
-            <View style={s.statsGrid}>
-              {[
-                { label: "Duration", value: `${Math.floor(elapsed / 60)}m` },
-                { label: "Volume", value: `${formatWorkoutValue(volume)} kg` },
-                { label: "Sets", value: String(setCount) },
-                { label: "Intensity", value: "85%" },
-              ].map((item) => (
-                <View key={item.label} style={s.statTile}>
-                  <Text style={s.statTileLbl}>{item.label}</Text>
-                  <Text style={s.statTileVal}>{item.value}</Text>
+              return (
+                <View key={ex.id} style={s.exCard}>
+                  {/* Exercise Header */}
+                  <View style={s.exHeader}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={s.exName}>{ex.exerciseName}</Text>
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 4 }}
+                      >
+                        <View style={s.setsCountBadge}>
+                          <Text style={s.setsCountBadgeText}>
+                            {ex.sets.length} {ex.sets.length === 1 ? "SET" : "SETS"}
+                          </Text>
+                        </View>
+                        <View style={s.prBadge}>
+                          <Text style={s.prBadgeText}>PR</Text>
+                        </View>
+                      </View>
+                    </View>
+                    <Pressable
+                      onPress={() => router.push(`/exercise/${ex.exerciseId}`)}
+                      style={{ padding: 4 }}
+                    >
+                      <MaterialIcons name="info-outline" size={20} color={TEXT_MUTED} />
+                    </Pressable>
+                  </View>
+
+                  {/* Table Header */}
+                  <View style={s.tableHead}>
+                    <Text style={[s.tableHeadTxt, { width: 32 }]}>SET</Text>
+                    <Text style={[s.tableHeadTxt, { flex: 1, textAlign: "left", paddingLeft: 8 }]}>
+                      PREVIOUS
+                    </Text>
+                    <Text style={[s.tableHeadTxt, { width: 64, marginRight: 8 }]}>KG</Text>
+                    <Text style={[s.tableHeadTxt, { width: 64, marginRight: 8 }]}>REPS</Text>
+                    <Text style={[s.tableHeadTxt, { width: 32 }]}>
+                      <MaterialIcons name="check-circle" size={14} color={TEXT_MUTED} />
+                    </Text>
+                  </View>
+
+                  {ex.id === currentExercise?.id && currentExercise && currentSetIndex === -1 && (
+                    <View style={s.exerciseCompletedBanner}>
+                      <MaterialIcons name="check-circle" size={18} color={GOLD} />
+                      <Text style={s.exerciseCompletedText}>
+                        This exercise is complete. Add another exercise or finish the workout.
+                      </Text>
+                    </View>
+                  )}
+
+                  {/* Sets Wrap */}
+                  <View style={s.setsWrap}>
+                    {ex.sets.map((set, setIdx) => {
+                      const rowKey = `${ex.id}:${set.id}`;
+                      const nextSet = ex.sets[setIdx + 1] ?? null;
+                      const prev =
+                        setIdx > 0 && ex.sets[setIdx - 1]
+                          ? formatSetPreview(ex.sets[setIdx - 1]!)
+                          : (getExercisePreviousSetPreview(workouts, ex.exerciseId) ?? undefined);
+                      return (
+                        <SetInputRow
+                          key={set.id}
+                          setNumber={setIdx + 1}
+                          previousValue={prev}
+                          reps={set.reps}
+                          weight={set.weight}
+                          isCompleted={set.isCompleted}
+                          onChangeReps={(v) => updateSet(ex.id, set.id, "reps", v)}
+                          onChangeWeight={(v) => updateSet(ex.id, set.id, "weight", v)}
+                          onToggleComplete={() => toggleSetComplete(ex.id, set.id)}
+                          onRemove={ex.sets.length > 1 ? () => removeSet(ex.id, set.id) : undefined}
+                          weightInputRef={(node) => {
+                            inputRefs.current[rowKey] = {
+                              weight: node,
+                              reps: inputRefs.current[rowKey]?.reps ?? null,
+                            };
+                          }}
+                          repsInputRef={(node) => {
+                            inputRefs.current[rowKey] = {
+                              weight: inputRefs.current[rowKey]?.weight ?? null,
+                              reps: node,
+                            };
+                          }}
+                          onWeightSubmitEditing={() => inputRefs.current[rowKey]?.reps?.focus()}
+                          onRepsSubmitEditing={() => {
+                            if (nextSet) {
+                              inputRefs.current[`${ex.id}:${nextSet.id}`]?.weight?.focus();
+                              return;
+                            }
+                            const nex = exercises[exIdx + 1];
+                            if (nex)
+                              inputRefs.current[
+                                `${nex.id}:${nex.sets[0]?.id ?? ""}`
+                              ]?.weight?.focus();
+                          }}
+                        />
+                      );
+                    })}
+                  </View>
+
+                  {/* Add Set Button */}
+                  <View style={{ paddingHorizontal: 10, paddingBottom: 12 }}>
+                    <Pressable
+                      onPress={() => addSet(ex.id)}
+                      style={({ pressed }) => [
+                        s.addSetBtn,
+                        pressed && { backgroundColor: "rgba(255, 255, 255, 0.05)" },
+                      ]}
+                    >
+                      <MaterialIcons name="add" size={16} color="rgba(255, 255, 255, 0.5)" />
+                      <Text style={s.addSetTxt}>ADD SET</Text>
+                    </Pressable>
+                  </View>
                 </View>
-              ))}
-            </View>
+              );
+            })}
+
+            {/* Dash border wide Add Exercise button */}
+            {hasExercises && (
+              <Pressable
+                onPress={handleOpenPicker}
+                style={({ pressed }) => [
+                  s.addExerciseBtn,
+                  pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+                ]}
+              >
+                <View style={s.addExerciseIconContainer}>
+                  <MaterialIcons name="add-circle" size={24} color={GOLD} />
+                </View>
+                <Text style={s.addExerciseText}>ADD EXERCISE</Text>
+              </Pressable>
+            )}
+
+            {/* Muscle Focus Section */}
+            {hasExercises && muscleFocusData.length > 0 && (
+              <View style={s.focusCard}>
+                <Text style={s.focusTitle}>MUSCLE FOCUS</Text>
+                <View style={s.focusList}>
+                  {muscleFocusData.map((item) => (
+                    <View key={item.muscle} style={s.focusRow}>
+                      <View style={s.focusLabelRow}>
+                        <Text style={s.focusName}>{item.muscle}</Text>
+                        <Text style={s.focusPercent}>{item.percentage}%</Text>
+                      </View>
+                      <View style={s.progressBarTrack}>
+                        <LinearGradient
+                          colors={[GOLD, "#E5C158"]}
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 0 }}
+                          style={[s.progressBarFill, { width: `${item.percentage}%` }]}
+                        />
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* Projected Gains Section */}
+            {hasExercises && (
+              <View style={s.gainsCard}>
+                <Text style={s.gainsTitle}>PROJECTED GAINS</Text>
+                <View style={s.gainsContent}>
+                  <View>
+                    <Text style={s.gainsSubLabel}>EST. TOTAL VOLUME</Text>
+                    <Text style={s.gainsVal}>
+                      {formatWorkoutValue(volume)}
+                      <Text style={s.gainsUnit}>kg</Text>
+                    </Text>
+                  </View>
+                  <View style={s.gainsTrend}>
+                    <MaterialIcons
+                      name={volumeComparison.trend === "up" ? "trending-up" : "trending-down"}
+                      size={20}
+                      color={volumeComparison.trend === "up" ? "#4AE176" : "#FF6B6B"}
+                    />
+                    <Text
+                      style={[
+                        s.gainsTrendText,
+                        { color: volumeComparison.trend === "up" ? "#4AE176" : "#FF6B6B" },
+                      ]}
+                    >
+                      {volumeComparison.trend === "up" ? "+" : "-"}
+                      {volumeComparison.percentChange}% vs last
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            )}
+          </View>
+        ) : hasWorkoutToday ? (
+          <View style={s.emptyCard}>
+            <MaterialIcons name="check-circle" size={40} color={GOLD} />
+            <Text style={s.emptyTitle}>Workout complete for today</Text>
+            <Text style={s.emptySub}>
+              You already logged one workout today. Come back tomorrow for the next session.
+            </Text>
+            <Pressable onPress={handleStartWorkout} style={s.startBtn}>
+              <LinearGradient
+                colors={[GOLD_LIGHT, GOLD]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={s.startBtnInner}
+              >
+                <Text style={s.startBtnTxt}>{"VIEW TODAY'S WORKOUT"}</Text>
+              </LinearGradient>
+            </Pressable>
           </View>
         ) : (
           <View style={s.emptyCard}>
-            <MaterialIcons name="fitness-center" size={40} color={BORDER} />
+            <MaterialIcons name="fitness-center" size={40} color="rgba(212, 175, 55, 0.4)" />
             <Text style={s.emptyTitle}>Ready to train</Text>
             <Text style={s.emptySub}>
-              Start a session, add exercises, and log sets without leaving this screen.
+              Start a session, then add exercises one by one as you finish each movement.
             </Text>
-            <Pressable onPress={() => startWorkout("Strength Session")} style={s.startBtn}>
-              <Text style={s.startBtnTxt}>START SESSION</Text>
+            <Pressable onPress={handleStartWorkout} style={s.startBtn}>
+              <LinearGradient
+                colors={[GOLD_LIGHT, GOLD]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={s.startBtnInner}
+              >
+                <Text style={s.startBtnTxt}>START SESSION</Text>
+              </LinearGradient>
             </Pressable>
           </View>
         )}
       </ScrollView>
-
-      {/* ── Complete button (floating) ── */}
-      {isLive && (
-        <View style={s.footer}>
-          <Pressable
-            onPress={handleFinish}
-            disabled={setCount === 0}
-            style={[s.completeBtn, setCount === 0 && s.completeBtnDisabled]}
-          >
-            <MaterialIcons
-              name="check-circle"
-              size={20}
-              color={setCount === 0 ? TEXT_DIM : DARK_GOLD}
-            />
-            <Text style={[s.completeBtnTxt, setCount === 0 && s.completeBtnTxtDisabled]}>
-              COMPLETE WORKOUT
-            </Text>
-          </Pressable>
-        </View>
-      )}
 
       {/* ── Exercise Picker Modal ── */}
       <Modal
@@ -543,224 +946,374 @@ export function WorkoutScreen() {
 }
 
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: BG },
+  root: { flex: 1, backgroundColor: BG_DARK },
+  backgroundImage: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    opacity: 0.25,
+  },
+  patternOverlay: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    opacity: 0.15,
+  },
+  particle: {
+    position: "absolute",
+    backgroundColor: GOLD,
+    shadowColor: GOLD,
+    shadowOpacity: 0.8,
+    shadowRadius: 4,
+    elevation: 2,
+  },
 
   // App Bar
   appBar: {
-    height: 58,
+    height: 64,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: BORDER,
-    backgroundColor: BG,
+    borderBottomWidth: 1,
+    borderBottomColor: GLASS_BORDER,
+    backgroundColor: "transparent",
   },
   appBarLeft: { flexDirection: "row", alignItems: "center" },
   appBarRight: { flexDirection: "row", alignItems: "center" },
   iconBtn: { padding: 8, borderRadius: 8 },
   iconBtnActive: { backgroundColor: SURFACE_HIGH },
   timerRow: { flexDirection: "row", alignItems: "center", marginLeft: 10 },
-  timerDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: GOLD, marginRight: 6 },
   timerText: {
-    fontFamily: "ArchivoNarrow_700Bold",
-    fontSize: 18,
-    color: TEXT,
-    letterSpacing: -0.5,
+    fontFamily: "Anta_400Regular",
+    fontSize: 20,
+    color: GOLD,
+    letterSpacing: 1.5,
   },
   finishChip: {
     borderWidth: 1,
-    borderColor: "rgba(253,228,0,0.4)",
+    borderColor: "rgba(212,175,55,0.3)",
     borderRadius: 99,
     paddingHorizontal: 14,
     paddingVertical: 5,
     marginRight: 10,
+    backgroundColor: "rgba(212,175,55,0.08)",
   },
   finishChipText: {
     fontFamily: "Inter_600SemiBold",
     fontSize: 10,
     color: GOLD,
-    letterSpacing: 1.5,
+    letterSpacing: 1,
   },
-  avatar: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: GOLD,
-    alignItems: "center",
-    justifyContent: "center",
+  avatarRing: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 2,
+    borderColor: "rgba(212, 175, 55, 0.5)",
+    overflow: "hidden",
   },
-  avatarText: { fontFamily: "ArchivoNarrow_700Bold", fontSize: 12, color: DARK_GOLD },
+  avatarImg: {
+    width: "100%",
+    height: "100%",
+  },
 
   // Scroll
-  scroll: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 140 },
+  scroll: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 200 },
   screenTitle: {
-    fontFamily: "SpecialGothicExpandedOne_400Regular",
-    fontSize: 18,
-    color: TEXT,
-    letterSpacing: 0.5,
+    fontFamily: "ArchivoNarrow_700Bold",
+    fontSize: 32,
+    color: GOLD,
+    letterSpacing: -0.5,
     marginBottom: 4,
   },
-  screenSub: { fontFamily: "Inter_400Regular", fontSize: 13, color: TEXT_DIM, marginBottom: 20 },
+  screenSub: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 14,
+    color: TEXT_MUTED,
+    marginBottom: 20,
+  },
 
   // Exercise Card
   exCard: {
-    backgroundColor: SURFACE,
+    backgroundColor: GLASS_BG,
     borderWidth: 1,
-    borderColor: BORDER,
-    borderRadius: 12,
+    borderColor: "rgba(212, 175, 55, 0.1)",
+    borderRadius: 16,
     overflow: "hidden",
     marginBottom: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 3,
   },
   exHeader: {
-    padding: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: BORDER,
-    backgroundColor: SURFACE_HIGH,
-  },
-  exHeaderRow: {
+    borderBottomColor: GLASS_BORDER,
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+  },
+  exName: {
+    fontFamily: "ArchivoNarrow_700Bold",
+    fontSize: 18,
+    color: TEXT_MAIN,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  setsCountBadge: {
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: 99,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  setsCountBadgeText: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 9,
+    color: "rgba(255, 255, 255, 0.6)",
+    textTransform: "uppercase",
   },
   prBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: GOLD,
-    borderRadius: 4,
-    paddingHorizontal: 6,
+    backgroundColor: "rgba(212, 175, 55, 0.15)",
+    borderRadius: 99,
+    paddingHorizontal: 8,
     paddingVertical: 2,
   },
   prBadgeText: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "ArchivoNarrow_700Bold",
     fontSize: 9,
-    color: DARK_GOLD,
-    letterSpacing: 1,
-    marginLeft: 3,
+    color: GOLD,
+    letterSpacing: 0.5,
   },
-  exName: { fontFamily: "ArchivoNarrow_700Bold", fontSize: 17, color: TEXT, marginBottom: 2 },
-  exMeta: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 10,
-    color: TEXT_DIM,
+
+  emptyWorkoutPrompt: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(28, 28, 28, 0.8)",
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: "rgba(212, 175, 55, 0.2)",
+    borderRadius: 16,
+    paddingVertical: 32,
+    paddingHorizontal: 24,
+    marginBottom: 24,
+  },
+  emptyWorkoutPromptTitle: {
+    fontFamily: "ArchivoNarrow_700Bold",
+    fontSize: 18,
+    color: TEXT_MAIN,
+    marginTop: 12,
+    marginBottom: 6,
     textTransform: "uppercase",
-    letterSpacing: 0.8,
+    letterSpacing: 0.5,
+  },
+  emptyWorkoutPromptText: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 13,
+    lineHeight: 20,
+    color: TEXT_MUTED,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  addFirstExerciseBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: GOLD,
+    borderRadius: 999,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  addFirstExerciseText: {
+    fontFamily: "ArchivoNarrow_700Bold",
+    fontSize: 12,
+    color: "#1A1A1A",
+    letterSpacing: 1,
+    marginLeft: 4,
+    textTransform: "uppercase",
   },
 
   // Table header
   tableHead: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
     paddingVertical: 8,
-    backgroundColor: "#161616",
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
     borderBottomWidth: 1,
-    borderBottomColor: BORDER,
+    borderBottomColor: GLASS_BORDER,
   },
   tableHeadTxt: {
     fontFamily: "Inter_600SemiBold",
     fontSize: 9,
-    color: TEXT_DIM,
+    color: TEXT_MUTED,
     textTransform: "uppercase",
-    letterSpacing: 1,
-    width: 36,
+    letterSpacing: 0.8,
     textAlign: "center",
   },
 
   // Sets
-  setsWrap: { paddingHorizontal: 6, paddingVertical: 4 },
+  setsWrap: { paddingHorizontal: 6, paddingVertical: 8 },
   addSetBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: BORDER,
-    backgroundColor: SURFACE_LOW,
+    marginTop: 6,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: "rgba(255, 255, 255, 0.15)",
+    borderRadius: 8,
+    backgroundColor: "transparent",
   },
-  addSetBtnActive: { backgroundColor: SURFACE_HIGH },
   addSetTxt: {
     fontFamily: "Inter_600SemiBold",
-    fontSize: 10,
-    color: TEXT_DIM,
-    letterSpacing: 1.2,
+    fontSize: 11,
+    color: "rgba(255, 255, 255, 0.6)",
+    letterSpacing: 1,
     marginLeft: 4,
+    textTransform: "uppercase",
   },
 
-  // Add Exercise button
-  addExBtn: {
+  // Dash wide Add Exercise button
+  addExerciseBtn: {
+    width: "100%",
+    paddingVertical: 20,
+    backgroundColor: "rgba(28, 28, 28, 0.8)",
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: "rgba(212, 175, 55, 0.2)",
+    borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: BORDER,
-    borderStyle: "dashed",
-    borderRadius: 12,
-    paddingVertical: 16,
-    marginBottom: 20,
+    gap: 12,
+    marginBottom: 24,
   },
-  addExBtnActive: { backgroundColor: SURFACE },
-  addExTxt: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 11,
-    color: TEXT_DIM,
-    letterSpacing: 1.2,
-    marginLeft: 8,
+  addExerciseIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(212, 175, 55, 0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  addExerciseText: {
+    fontFamily: "ArchivoNarrow_700Bold",
+    fontSize: 18,
+    color: GOLD,
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
   },
 
   // Live stats grid
-  statsGrid: { flexDirection: "row", flexWrap: "wrap", marginBottom: 10 },
+  statsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
   statTile: {
     width: "48%",
-    backgroundColor: SURFACE_HIGH,
+    backgroundColor: GLASS_BG,
     borderWidth: 1,
-    borderColor: BORDER,
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 8,
-    marginRight: "2%",
+    borderColor: "rgba(212, 175, 55, 0.1)",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.37,
+    shadowRadius: 16,
+    elevation: 4,
   },
   statTileLbl: {
     fontFamily: "Inter_600SemiBold",
-    fontSize: 9,
-    color: TEXT_DIM,
+    fontSize: 10,
+    color: "rgba(255, 255, 255, 0.4)",
     textTransform: "uppercase",
-    letterSpacing: 1,
-    marginBottom: 4,
+    letterSpacing: 1.5,
+    marginTop: 4,
+    textAlign: "center",
   },
-  statTileVal: { fontFamily: "ArchivoNarrow_700Bold", fontSize: 22, color: GOLD },
+  statTileVal: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 24,
+    color: TEXT_MAIN,
+    textAlign: "center",
+  },
+  exerciseCompletedBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: "rgba(253,228,0,0.08)",
+    borderBottomWidth: 1,
+    borderBottomColor: BORDER,
+  },
+  exerciseCompletedText: {
+    flex: 1,
+    fontFamily: "Inter_400Regular",
+    fontSize: 12,
+    lineHeight: 18,
+    color: TEXT_DIM,
+  },
 
   // Empty
   emptyCard: {
-    backgroundColor: SURFACE,
+    backgroundColor: GLASS_BG,
     borderWidth: 1,
-    borderColor: BORDER,
-    borderRadius: 12,
+    borderColor: "rgba(212, 175, 55, 0.1)",
+    borderRadius: 24,
     padding: 32,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 18,
+    elevation: 5,
   },
   emptyTitle: {
     fontFamily: "ArchivoNarrow_700Bold",
-    fontSize: 18,
-    color: TEXT,
-    marginTop: 12,
+    fontSize: 22,
+    color: GOLD,
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
+    marginTop: 16,
     marginBottom: 8,
   },
   emptySub: {
     fontFamily: "Inter_400Regular",
     fontSize: 13,
-    color: TEXT_DIM,
+    color: TEXT_MUTED,
     textAlign: "center",
     lineHeight: 20,
     marginBottom: 24,
   },
-  startBtn: { backgroundColor: GOLD, paddingVertical: 12, paddingHorizontal: 32, borderRadius: 8 },
+  startBtn: {
+    borderRadius: 99,
+    overflow: "hidden",
+  },
+  startBtnInner: {
+    paddingVertical: 14,
+    paddingHorizontal: 36,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   startBtnTxt: {
     fontFamily: "ArchivoNarrow_700Bold",
-    fontSize: 13,
-    color: DARK_GOLD,
-    letterSpacing: 1.5,
+    fontSize: 14,
+    color: "#1A1A1A",
+    letterSpacing: 1,
   },
 
   // Footer
@@ -772,35 +1325,38 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 24,
-    backgroundColor: "rgba(19,19,19,0.96)",
+    backgroundColor: "rgba(15, 15, 15, 0.9)",
     borderTopWidth: 1,
-    borderTopColor: BORDER,
+    borderTopColor: GLASS_BORDER,
   },
   completeBtn: {
-    backgroundColor: GOLD,
+    borderRadius: 16,
+    overflow: "hidden",
+  },
+  completeBtnInner: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 15,
-    borderRadius: 12,
   },
-  completeBtnDisabled: { backgroundColor: SURFACE_HIGH, opacity: 0.6 },
+  completeBtnDisabled: { opacity: 0.4 },
   completeBtnTxt: {
     fontFamily: "ArchivoNarrow_700Bold",
-    fontSize: 15,
-    color: DARK_GOLD,
-    letterSpacing: 1.5,
+    fontSize: 16,
+    color: "#1A1A1A",
+    letterSpacing: 0.5,
     marginLeft: 8,
   },
-  completeBtnTxtDisabled: { color: TEXT_DIM },
 
   // Modal
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.75)", justifyContent: "flex-end" },
+  modalOverlay: { flex: 1, backgroundColor: "rgba(0, 0, 0, 0.8)", justifyContent: "flex-end" },
   modalSheet: {
     maxHeight: "92%",
-    backgroundColor: SURFACE,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: "#161616",
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    borderWidth: 1,
+    borderColor: GLASS_BORDER,
     paddingHorizontal: 16,
     paddingBottom: 32,
   },
@@ -814,13 +1370,14 @@ const s = StyleSheet.create({
     marginBottom: 16,
   },
   modalTitle: {
-    fontFamily: "SpecialGothicExpandedOne_400Regular",
-    fontSize: 16,
-    color: TEXT,
+    fontFamily: "ArchivoNarrow_700Bold",
+    fontSize: 20,
+    color: GOLD,
     letterSpacing: 0.5,
+    textTransform: "uppercase",
     marginBottom: 4,
   },
-  modalSub: { fontFamily: "Inter_400Regular", fontSize: 13, color: TEXT_DIM, marginBottom: 16 },
+  modalSub: { fontFamily: "Inter_400Regular", fontSize: 13, color: TEXT_MUTED, marginBottom: 16 },
 
   // Search
   searchRow: {
@@ -845,15 +1402,15 @@ const s = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: BORDER,
-    backgroundColor: SURFACE_HIGH,
+    borderColor: GLASS_BORDER,
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
     marginRight: 8,
     justifyContent: "center",
     alignItems: "center",
   },
   chipActive: { backgroundColor: GOLD, borderColor: GOLD },
-  chipTxt: { fontFamily: "Inter_600SemiBold", fontSize: 11, color: TEXT_SUB },
-  chipTxtActive: { color: DARK_GOLD },
+  chipTxt: { fontFamily: "Inter_600SemiBold", fontSize: 11, color: TEXT_MUTED },
+  chipTxtActive: { color: "#1A1A1A" },
 
   // Exercise list in modal
   exList: { flex: 1 },
@@ -863,33 +1420,42 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 13,
     paddingHorizontal: 14,
-    borderRadius: 10,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: BORDER,
-    backgroundColor: SURFACE_HIGH,
+    borderColor: GLASS_BORDER,
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
     marginBottom: 8,
   },
-  exRowActive: { backgroundColor: "#2f2f2f" },
+  exRowActive: {
+    backgroundColor: "rgba(212, 175, 55, 0.08)",
+    borderColor: "rgba(212, 175, 55, 0.3)",
+  },
   exRowLeft: { flex: 1, marginRight: 12 },
-  exRowName: { fontFamily: "ArchivoNarrow_700Bold", fontSize: 15, color: TEXT, marginBottom: 2 },
-  exRowGroup: { fontFamily: "Inter_400Regular", fontSize: 11, color: TEXT_DIM },
+  exRowName: {
+    fontFamily: "ArchivoNarrow_700Bold",
+    fontSize: 16,
+    color: TEXT_MAIN,
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  exRowGroup: { fontFamily: "Inter_400Regular", fontSize: 11, color: TEXT_MUTED },
   addBadge: {
-    backgroundColor: "rgba(253,228,0,0.15)",
+    backgroundColor: "rgba(212, 175, 55, 0.15)",
     borderRadius: 99,
     paddingHorizontal: 12,
     paddingVertical: 5,
   },
-  addBadgeTxt: { fontFamily: "Inter_600SemiBold", fontSize: 11, color: GOLD },
+  addBadgeTxt: { fontFamily: "ArchivoNarrow_700Bold", fontSize: 11, color: GOLD },
   noResults: { alignItems: "center", paddingVertical: 32 },
   noResultsTxt: { fontFamily: "Inter_400Regular", fontSize: 14, color: TEXT_DIM },
 
   // Sliding Tab Bar in Modal
   modalTabContainer: {
     flexDirection: "row",
-    backgroundColor: SURFACE_LOW,
+    backgroundColor: "rgba(0, 0, 0, 0.3)",
     borderWidth: 1,
-    borderColor: BORDER,
-    borderRadius: 10,
+    borderColor: GLASS_BORDER,
+    borderRadius: 12,
     padding: 3,
     marginBottom: 16,
     gap: 4,
@@ -900,7 +1466,7 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 10,
-    borderRadius: 8,
+    borderRadius: 10,
   },
   modalTabActive: {
     backgroundColor: GOLD,
@@ -908,11 +1474,11 @@ const s = StyleSheet.create({
   modalTabText: {
     fontFamily: "Inter_600SemiBold",
     fontSize: 11,
-    color: TEXT_SUB,
-    letterSpacing: 0.5,
+    color: TEXT_MUTED,
+    letterSpacing: 1,
   },
   modalTabTextActive: {
-    color: DARK_GOLD,
+    color: "#1A1A1A",
   },
 
   // Custom Movement Form
@@ -933,10 +1499,10 @@ const s = StyleSheet.create({
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: SURFACE_HIGH,
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
     borderWidth: 1,
-    borderColor: BORDER,
-    borderRadius: 10,
+    borderColor: GLASS_BORDER,
+    borderRadius: 12,
     paddingHorizontal: 12,
     height: 48,
   },
@@ -947,7 +1513,7 @@ const s = StyleSheet.create({
     flex: 1,
     fontFamily: "Inter_400Regular",
     fontSize: 14,
-    color: TEXT,
+    color: TEXT_MAIN,
     height: 48,
   },
   formChipScroll: {
@@ -986,7 +1552,7 @@ const s = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: GOLD,
     paddingVertical: 14,
-    borderRadius: 10,
+    borderRadius: 12,
     marginTop: 8,
   },
   formSubmitBtnActive: {
@@ -995,8 +1561,184 @@ const s = StyleSheet.create({
   formSubmitBtnText: {
     fontFamily: "ArchivoNarrow_700Bold",
     fontSize: 13,
-    color: DARK_GOLD,
-    letterSpacing: 1.2,
+    color: "#1A1A1A",
+    letterSpacing: 1,
     marginLeft: 6,
+    textTransform: "uppercase",
+  },
+
+  // Minimalist / Ready State Exercise Card
+  exCardMinimal: {
+    backgroundColor: GLASS_BG,
+    borderWidth: 1,
+    borderColor: "rgba(212, 175, 55, 0.1)",
+    borderRadius: 16,
+    overflow: "hidden",
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  exHeaderMinimal: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  exNameMinimal: {
+    fontFamily: "ArchivoNarrow_700Bold",
+    fontSize: 18,
+    color: TEXT_MAIN,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    opacity: 0.8,
+  },
+  exStatusMinimal: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 10,
+    color: "rgba(255, 255, 255, 0.4)",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    marginTop: 4,
+  },
+  startSetBtn: {
+    borderRadius: 99,
+    overflow: "hidden",
+    shadowColor: GOLD,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  startSetBtnInner: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  startSetBtnTxt: {
+    fontFamily: "ArchivoNarrow_700Bold",
+    fontSize: 12,
+    color: "#1A1A1A",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
+  },
+
+  // Muscle Focus
+  focusCard: {
+    backgroundColor: GLASS_BG,
+    borderWidth: 1,
+    borderColor: "rgba(212, 175, 55, 0.1)",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  focusTitle: {
+    fontFamily: "ArchivoNarrow_700Bold",
+    fontSize: 16,
+    color: GOLD,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 16,
+  },
+  focusList: {
+    gap: 12,
+  },
+  focusRow: {
+    gap: 6,
+  },
+  focusLabelRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  focusName: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 13,
+    color: TEXT_MAIN,
+    textTransform: "uppercase",
+  },
+  focusPercent: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 13,
+    color: GOLD,
+  },
+  progressBarTrack: {
+    width: "100%",
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    borderRadius: 99,
+    height: 8,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    borderRadius: 99,
+  },
+
+  // Projected Gains
+  gainsCard: {
+    backgroundColor: GLASS_BG,
+    borderWidth: 1,
+    borderColor: "rgba(212, 175, 55, 0.1)",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 32,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  gainsTitle: {
+    fontFamily: "ArchivoNarrow_700Bold",
+    fontSize: 16,
+    color: GOLD,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 16,
+  },
+  gainsContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.05)",
+  },
+  gainsSubLabel: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 10,
+    color: "rgba(255, 255, 255, 0.4)",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  gainsVal: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 32,
+    color: TEXT_MAIN,
+  },
+  gainsUnit: {
+    fontFamily: "ArchivoNarrow_700Bold",
+    fontSize: 16,
+    color: "rgba(255, 255, 255, 0.4)",
+    marginLeft: 2,
+  },
+  gainsTrend: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  gainsTrendText: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 12,
+    textTransform: "uppercase",
   },
 });

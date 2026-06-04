@@ -2,8 +2,6 @@ import { MaterialIcons } from "@expo/vector-icons";
 import type { Ref } from "react";
 import { Pressable, TextInput, View, Text } from "react-native";
 
-import { formatWorkoutValue } from "@/utils/workout";
-
 type SetInputRowProps = {
   setNumber: number;
   previousValue?: string | undefined;
@@ -35,100 +33,129 @@ export function SetInputRow({
   onWeightSubmitEditing,
   onRepsSubmitEditing,
 }: SetInputRowProps) {
-  const handleIncWeight = () => {
-    onChangeWeight(String((weight || 0) + 2.5));
-  };
-  const handleDecWeight = () => {
-    onChangeWeight(String(Math.max(0, (weight || 0) - 2.5)));
-  };
-  const handleIncReps = () => {
-    onChangeReps(String((reps || 0) + 1));
-  };
-  const handleDecReps = () => {
-    onChangeReps(String(Math.max(0, (reps || 0) - 1)));
-  };
-
   return (
     <View
-      className={`flex-row items-center gap-2 py-2 px-2 rounded-lg ${isCompleted ? "bg-success-emerald/5" : ""}`}
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 8,
+        paddingVertical: 6,
+        borderRadius: 8,
+        backgroundColor: isCompleted ? "rgba(74, 225, 118, 0.08)" : "rgba(255, 255, 255, 0.03)",
+        borderWidth: 1,
+        borderColor: isCompleted ? "rgba(74, 225, 118, 0.2)" : "rgba(255, 255, 255, 0.08)",
+        marginBottom: 4,
+      }}
     >
       {/* Set Number */}
-      <View className="w-6 items-center justify-center">
-        <Text className="font-numeric-data text-on-surface-variant text-sm">{setNumber}</Text>
+      <View style={{ width: 32, alignItems: "center" }}>
+        <Text
+          style={{
+            fontFamily: "ArchivoNarrow_700Bold",
+            fontSize: 13,
+            color: isCompleted ? "#4AE176" : "#E5E2E1",
+          }}
+        >
+          {setNumber}
+        </Text>
       </View>
 
       {/* Previous */}
-      <View className="flex-1 min-w-[50px]">
-        <Text className="font-numeric-data text-xs text-on-surface-variant" numberOfLines={1}>
+      <View style={{ flex: 1, paddingLeft: 8 }}>
+        <Text
+          style={{
+            fontFamily: "Inter_400Regular",
+            fontSize: 12,
+            color: isCompleted ? "rgba(74, 225, 118, 0.7)" : "rgba(255, 255, 255, 0.5)",
+          }}
+          numberOfLines={1}
+        >
           {previousValue ?? "—"}
         </Text>
       </View>
 
-      {/* Weight Input Group */}
-      <View className="flex-row items-center gap-1">
-        <Pressable
-          onPress={handleDecWeight}
-          className="w-7 h-7 rounded-full bg-surface-elevated items-center justify-center border border-border-subtle active:scale-95"
-        >
-          <MaterialIcons name="remove" size={16} color="#e5e2e1" />
-        </Pressable>
+      {/* KG Input */}
+      <View style={{ width: 64, alignItems: "center", marginRight: 8 }}>
         <TextInput
           ref={weightInputRef}
-          value={formatWorkoutValue(weight)}
-          placeholder="0"
-          placeholderTextColor="#636565"
+          value={weight !== null ? String(weight) : ""}
+          placeholder="-"
+          placeholderTextColor="rgba(255, 255, 255, 0.3)"
           keyboardType="numeric"
           returnKeyType="next"
           blurOnSubmit={false}
           onSubmitEditing={onWeightSubmitEditing}
           onChangeText={onChangeWeight}
           selectTextOnFocus
-          className="w-12 h-8 bg-surface-elevated border border-border-subtle rounded-md text-center font-numeric-data text-on-surface text-sm focus:border-primary-fixed"
+          style={{
+            width: "100%",
+            height: 32,
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            borderRadius: 6,
+            textAlign: "center",
+            fontFamily: "Inter_400Regular",
+            fontSize: 14,
+            color: "#E5E2E1",
+            padding: 0,
+          }}
         />
-        <Pressable
-          onPress={handleIncWeight}
-          className="w-7 h-7 rounded-full bg-surface-elevated items-center justify-center border border-border-subtle active:scale-95"
-        >
-          <MaterialIcons name="add" size={16} color="#e5e2e1" />
-        </Pressable>
       </View>
 
-      {/* Reps Input Group */}
-      <View className="flex-row items-center gap-1 ml-1">
-        <Pressable
-          onPress={handleDecReps}
-          className="w-7 h-7 rounded-full bg-surface-elevated items-center justify-center border border-border-subtle active:scale-95"
-        >
-          <MaterialIcons name="remove" size={16} color="#e5e2e1" />
-        </Pressable>
+      {/* Reps Input */}
+      <View style={{ width: 64, alignItems: "center", marginRight: 8 }}>
         <TextInput
           ref={repsInputRef}
-          value={formatWorkoutValue(reps)}
-          placeholder="0"
-          placeholderTextColor="#636565"
+          value={reps !== null ? String(reps) : ""}
+          placeholder="-"
+          placeholderTextColor="rgba(255, 255, 255, 0.3)"
           keyboardType="numeric"
           returnKeyType="done"
           blurOnSubmit
           onSubmitEditing={onRepsSubmitEditing}
           onChangeText={onChangeReps}
           selectTextOnFocus
-          className="w-10 h-8 bg-surface-elevated border border-border-subtle rounded-md text-center font-numeric-data text-on-surface text-sm focus:border-primary-fixed"
+          style={{
+            width: "100%",
+            height: 32,
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            borderRadius: 6,
+            textAlign: "center",
+            fontFamily: "Inter_400Regular",
+            fontSize: 14,
+            color: "#E5E2E1",
+            padding: 0,
+          }}
         />
-        <Pressable
-          onPress={handleIncReps}
-          className="w-7 h-7 rounded-full bg-surface-elevated items-center justify-center border border-border-subtle active:scale-95"
-        >
-          <MaterialIcons name="add" size={16} color="#e5e2e1" />
-        </Pressable>
       </View>
 
-      {/* Check */}
+      {/* Check Checkbox */}
       <Pressable
         onPress={onToggleComplete}
         onLongPress={onRemove}
-        className={`w-9 h-9 ml-1 rounded-xl items-center justify-center border ${isCompleted ? "bg-success-emerald/20 border-success-emerald/30" : "bg-surface-elevated border-border-subtle"}`}
+        style={{
+          width: 32,
+          height: 32,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
       >
-        <MaterialIcons name="check" size={20} color={isCompleted ? "#00E676" : "#636565"} />
+        {isCompleted ? (
+          <MaterialIcons name="check-circle" size={22} color="#4AE176" />
+        ) : (
+          <View
+            style={{
+              width: 22,
+              height: 22,
+              borderRadius: 11,
+              borderWidth: 1,
+              borderColor: "rgba(255, 255, 255, 0.3)",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <MaterialIcons name="check" size={14} color="rgba(255, 255, 255, 0.3)" />
+          </View>
+        )}
       </Pressable>
     </View>
   );

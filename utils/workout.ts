@@ -285,3 +285,17 @@ export function flattenWorkoutExercises(workouts: Workout[]): Exercise[] {
 
   return Array.from(map.values());
 }
+
+export function getTodayDefaultWorkoutName(): string {
+  const day = new Date().getDay();
+  const names = [
+    "Rest Day Session", // Sunday
+    "Chest & Shoulders", // Monday
+    "Biceps & Back", // Tuesday
+    "Shoulders & Triceps", // Wednesday
+    "Back & Forearms", // Thursday
+    "Chest & Triceps", // Friday
+    "Legs Session", // Saturday
+  ];
+  return names[day] ?? "Strength Session";
+}

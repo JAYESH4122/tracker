@@ -182,7 +182,7 @@ export function StatsScreen() {
 const styles = StyleSheet.create({
   content: {
     padding: theme.spacing.lg,
-    paddingBottom: theme.spacing.xxl,
+    paddingBottom: 180,
     gap: theme.spacing.lg,
     width: "100%",
     maxWidth: 640,

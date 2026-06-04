@@ -1,0 +1,709 @@
+<!doctype html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Elite Performance Tracker</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Rajdhani:wght@500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed-variant": "#574500",
+              "primary-container": "#d4af37",
+              "surface-container-low": "#1C1C1C",
+              "primary-fixed": "#ffe088",
+              "on-secondary-container": "#004119",
+              "surface-container-highest": "#2A2A2A",
+              "on-tertiary-container": "#004291",
+              "secondary-container": "#00b954",
+              "on-primary": "#1A1A1A",
+              "on-tertiary-fixed": "#001a42",
+              "tertiary-fixed-dim": "#adc6ff",
+              "tertiary-fixed": "#d8e2ff",
+              "surface-dim": "#151515",
+              "on-tertiary": "#002e6a",
+              "on-background": "#E5E2E1",
+              "on-secondary-fixed-variant": "#005321",
+              "secondary-fixed": "#6bff8f",
+              "on-primary-fixed": "#241a00",
+              "inverse-on-surface": "#313030",
+              outline: "#4D4D4D",
+              "surface-container-lowest": "#0F0F0F",
+              "on-surface-variant": "#A0A0A0",
+              "tertiary-container": "#8eb2ff",
+              "on-secondary": "#003915",
+              "surface-tint": "#D4AF37",
+              secondary: "#4ae176",
+              "outline-variant": "#333333",
+              "error-container": "#93000a",
+              surface: "#1A1A1A",
+              "surface-container": "#1E1E1E",
+              tertiary: "#b9ceff",
+              "surface-variant": "#252525",
+              "primary-fixed-dim": "#D4AF37",
+              "on-tertiary-fixed-variant": "#004395",
+              "on-primary-container": "#554300",
+              "on-error": "#690005",
+              "inverse-primary": "#735c00",
+              "secondary-fixed-dim": "#4ae176",
+              error: "#ffb4ab",
+              "surface-bright": "#333333",
+              "inverse-surface": "#e5e2e1",
+              primary: "#D4AF37",
+              "on-error-container": "#ffdad6",
+              "on-surface": "#E5E2E1",
+              "on-secondary-fixed": "#002109",
+              background: "#0F0F0F",
+              "surface-container-high": "#242424",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+              bento: "24px",
+            },
+            spacing: {
+              xl: "48px",
+              "bento-gap": "16px",
+              xs: "8px",
+              lg: "32px",
+              "container-margin": "24px",
+              base: "4px",
+              sm: "14px",
+              md: "20px",
+            },
+            fontFamily: {
+              "headline-lg-mobile": ["Rajdhani", "sans-serif"],
+              "display-lg": ["Rajdhani", "sans-serif"],
+              "label-sm": ["Inter", "sans-serif"],
+              "headline-md": ["Rajdhani", "sans-serif"],
+              "label-lg": ["Rajdhani", "sans-serif"],
+              "headline-lg": ["Rajdhani", "sans-serif"],
+              "body-lg": ["Inter", "sans-serif"],
+              "body-md": ["Inter", "sans-serif"],
+            },
+            fontSize: {
+              "headline-lg-mobile": ["28px", { lineHeight: "32px", fontWeight: "700" }],
+              "display-lg": [
+                "48px",
+                { lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "700" },
+              ],
+              "label-sm": [
+                "11px",
+                { lineHeight: "14px", letterSpacing: "0.05em", fontWeight: "500" },
+              ],
+              "headline-md": ["24px", { lineHeight: "28px", fontWeight: "600" }],
+              "label-lg": [
+                "13px",
+                { lineHeight: "16px", letterSpacing: "0.04em", fontWeight: "600" },
+              ],
+              "headline-lg": [
+                "32px",
+                { lineHeight: "36px", letterSpacing: "-0.01em", fontWeight: "700" },
+              ],
+              "body-lg": ["17px", { lineHeight: "24px", fontWeight: "400" }],
+              "body-md": ["15px", { lineHeight: "20px", fontWeight: "400" }],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        background-color: #0f0f0f;
+        background-image:
+          linear-gradient(to bottom, rgba(15, 15, 15, 0.4), rgba(15, 15, 15, 0.85)),
+          url("https://lh3.googleusercontent.com/aida/AP1WRLu24nWykqZgevYWrQMAhU9O5LgBS6uhrv8kZkt-qWLqrh5ajV_SDAiglamnC3NvDMH372x4edKvbx-k-j25zf8loO3IpIH3g7jM30OqlaJ2uKaJCG4QX00E_wGUNrrE40-OQguDWv4lOa1w3f_83zHHR0vrk2-8bRDM3D9-V6CLshfW3OKB5q5wee_qT1yPfdtHL_YUU3tq5YfS0gCMGjqORk8K2HKT9bwdoeqgTW0bhM_XHw44gEaW9xg");
+        background-attachment: fixed;
+        background-size: cover;
+        background-position: center;
+        color: #e5e2e1;
+        font-family: "Inter", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .bg-overlay {
+        position: fixed;
+        inset: 0;
+        background-image: url("https://lh3.googleusercontent.com/aida/AP1WRLuF0eRL9PCMph4Zj755O_n42jVLK-BqtvU2PyCWoY_bl8GLgdfgTZ9NNQH25m3FjrrA0uZQT4fUfUR6t5ycREAzDR16XrX55UzRVxSEMDIeEIMx1pL1IrPUH4IZZ44CBEky-rBaMYUD-slms2jqlRBTXZqiZ_lMQOalXwLptSGMJA1vOA5rOaF13R9oBZF6PxRT-Bngvci6u-bqj-Te8YOULhF-mEI_uTL-wq7PCWh0ytfAFyVsZVzl5w");
+        background-size: cover;
+        background-position: center;
+        opacity: 0.15;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .font-rajdhani {
+        font-family: "Rajdhani", sans-serif;
+      }
+
+      .glass-card {
+        background: rgba(28, 28, 28, 0.8);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border-radius: 28px;
+        border: 1px solid transparent;
+        background-clip: padding-box;
+        position: relative;
+      }
+
+      .glass-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 28px;
+        padding: 1px;
+        background: linear-gradient(
+          135deg,
+          rgba(212, 175, 55, 0.3) 0%,
+          rgba(212, 175, 55, 0.05) 50%,
+          transparent 100%
+        );
+        -webkit-mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+        mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      .matte-gold-btn {
+        background: linear-gradient(135deg, #e5c158 0%, #d4af37 100%);
+        color: #1a1a1a;
+        box-shadow:
+          0 10px 25px -5px rgba(212, 175, 55, 0.4),
+          inset 0 1px 2px rgba(255, 255, 255, 0.4),
+          inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .matte-gold-btn::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), transparent);
+        pointer-events: none;
+      }
+
+      .section-glow {
+        position: relative;
+      }
+      .section-glow::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 160%;
+        height: 160%;
+        background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+
+      .premium-burger {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .burger-line {
+        height: 2px;
+        background-color: #d4af37;
+        border-radius: 1px;
+      }
+
+      .text-gold-accent {
+        color: #d4af37;
+        text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+      }
+
+      .inter-section-glow {
+        height: 1px;
+        width: 100%;
+        background: radial-gradient(circle, rgba(212, 175, 55, 0.2) 0%, transparent 80%);
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body class="px-container-margin pt-sm pb-24">
+    <div class="bg-overlay"></div>
+    <!-- 1. Header Section -->
+    <header class="flex justify-between items-center py-md mb-md">
+      <div class="w-12 h-12 flex items-center justify-start cursor-pointer group">
+        <div class="premium-burger">
+          <div class="burger-line w-7"></div>
+          <div class="burger-line w-5 group-hover:w-7 transition-all duration-300"></div>
+          <div class="burger-line w-6 group-hover:w-5 transition-all duration-300"></div>
+        </div>
+      </div>
+      <h1
+        class="font-rajdhani text-headline-md text-on-background tracking-[0.2em] font-bold uppercase"
+      >
+        Dashboard
+      </h1>
+      <div class="relative">
+        <div
+          class="w-11 h-11 rounded-full border-2 border-primary/40 p-0.5 overflow-hidden ring-4 ring-primary/5"
+        >
+          <img
+            alt="Profile"
+            class="w-full h-full rounded-full object-cover"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFYjvh7gzy6AiKmPJTpZZ_wFDahPj0dmlx-e1U_rbZWImwLsPNZ5Rx6t45WbPNrPkKyA2d-yHDUb0TGQxfT284KfPsI0WfKR5LcHGeC0DBjI6mJLU78LcuXXjp6tYPEjuABSy1ztkPKmA_gTbPFYzILTZUTNsKdLjZRVEyULOJWiZrIbSvfCBIHMV6wiSjk8tl1fVuvSlkZTX_Gm2uYc7Dq95ln5caLCCVw8LhZGqhDTfHCYvA8QLvriApsx-wAs53I4KnX96mk8U"
+          />
+        </div>
+        <div
+          class="absolute -bottom-1 -right-1 bg-primary text-on-primary text-[10px] font-rajdhani font-bold px-2 py-0.5 rounded-full border-2 border-background shadow-lg"
+        >
+          14
+        </div>
+      </div>
+    </header>
+    <!-- 2. Hero Card -->
+    <section class="section-glow mb-6">
+      <div
+        class="glass-card p-lg relative overflow-hidden active:scale-[0.98] transition-all duration-300"
+      >
+        <div class="flex flex-col gap-4">
+          <!-- Widget Header -->
+          <div class="flex justify-between items-center">
+            <div class="flex flex-col">
+              <h2
+                class="font-rajdhani text-label-sm text-on-surface-variant uppercase tracking-[0.2em] opacity-60"
+              >
+                Active Session
+              </h2>
+              <div class="flex items-center gap-2">
+                <span class="font-rajdhani text-headline-md text-on-background leading-none"
+                  >LEG DAY</span
+                >
+                <span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+              </div>
+            </div>
+            <div
+              class="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10"
+            >
+              <span class="material-symbols-outlined text-[18px] text-primary">timer</span>
+              <p class="font-rajdhani text-body-lg text-on-background font-bold tracking-widest">
+                00:42
+              </p>
+            </div>
+          </div>
+          <!-- Current Exercise -->
+          <div class="flex justify-between items-end border-t border-white/5 pt-3">
+            <div>
+              <p
+                class="font-rajdhani text-label-sm text-primary uppercase tracking-widest font-bold mb-0.5"
+              >
+                Current Exercise
+              </p>
+              <h3 class="font-rajdhani text-body-lg text-on-background font-bold uppercase">
+                Leg Press
+              </h3>
+            </div>
+            <p class="font-rajdhani text-label-sm text-on-surface-variant opacity-60">SET 2 OF 4</p>
+          </div>
+          <!-- Logging Row -->
+          <div class="flex items-center gap-3 bg-white/5 p-2 rounded-2xl border border-white/10">
+            <div class="flex-1 bg-black/20 rounded-xl py-2 px-3 border border-white/5">
+              <p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-tighter">
+                Weight
+              </p>
+              <p class="font-rajdhani text-body-lg font-bold">
+                90 <span class="text-xs opacity-60">KG</span>
+              </p>
+            </div>
+            <div class="flex-1 bg-black/20 rounded-xl py-2 px-3 border border-white/5">
+              <p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-tighter">
+                Reps
+              </p>
+              <p class="font-rajdhani text-body-lg font-bold">12</p>
+            </div>
+            <button
+              class="w-12 h-12 matte-gold-btn rounded-xl flex items-center justify-center active:scale-95 transition-transform"
+            >
+              <span class="material-symbols-outlined !text-2xl font-bold">check</span>
+            </button>
+          </div>
+          <!-- Progress Indicator -->
+          <div class="flex gap-1">
+            <div class="h-1 flex-1 bg-primary rounded-full"></div>
+            <div class="h-1 flex-1 bg-white/10 rounded-full"></div>
+            <div class="h-1 flex-1 bg-white/10 rounded-full"></div>
+            <div class="h-1 flex-1 bg-white/10 rounded-full"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="inter-section-glow"></div>
+    <!-- 3. Weekly Calendar -->
+    <section class="mb-6">
+      <div class="flex justify-between items-center mb-md px-1">
+        <h3 class="font-rajdhani text-label-lg text-primary uppercase tracking-[0.15em] font-bold">
+          Weekly Progress
+        </h3>
+        <span class="font-rajdhani text-label-sm text-on-surface-variant opacity-60"
+          >AUG 22 - 28</span
+        >
+      </div>
+      <div class="flex justify-between items-center gap-xs">
+        <!-- Mon -->
+        <div class="flex-1 flex flex-col items-center gap-sm">
+          <span class="font-rajdhani text-label-sm text-on-surface-variant opacity-60">M</span>
+          <div
+            class="w-11 h-11 rounded-full flex items-center justify-center bg-primary/10 border border-primary/20"
+          >
+            <div
+              class="w-2.5 h-2.5 bg-primary rounded-full shadow-[0_0_12px_rgba(212,175,55,0.8)]"
+            ></div>
+          </div>
+        </div>
+        <!-- Tue -->
+        <div class="flex-1 flex flex-col items-center gap-sm">
+          <span class="font-rajdhani text-label-sm text-on-surface-variant opacity-60">T</span>
+          <div
+            class="w-11 h-11 rounded-full flex items-center justify-center bg-primary/10 border border-primary/20"
+          >
+            <div
+              class="w-2.5 h-2.5 bg-primary rounded-full shadow-[0_0_12px_rgba(212,175,55,0.8)]"
+            ></div>
+          </div>
+        </div>
+        <!-- Wed -->
+        <div class="flex-1 flex flex-col items-center gap-sm">
+          <span class="font-rajdhani text-label-sm text-on-surface-variant opacity-60">W</span>
+          <div
+            class="w-11 h-11 rounded-full flex items-center justify-center glass-card border-white/5"
+          ></div>
+        </div>
+        <!-- Thu (Today) -->
+        <div class="flex-1 flex flex-col items-center gap-sm">
+          <span class="font-rajdhani text-label-sm text-primary font-bold">T</span>
+          <div
+            class="w-11 h-11 rounded-full flex items-center justify-center border-2 border-primary bg-primary/20 shadow-[0_0_20px_rgba(212,175,55,0.3)]"
+          >
+            <span class="font-rajdhani font-bold text-primary">25</span>
+          </div>
+        </div>
+        <!-- Fri -->
+        <div class="flex-1 flex flex-col items-center gap-sm">
+          <span class="font-rajdhani text-label-sm text-on-surface-variant opacity-60">F</span>
+          <div
+            class="w-11 h-11 rounded-full flex items-center justify-center glass-card border-white/5 opacity-40"
+          ></div>
+        </div>
+        <!-- Sat -->
+        <div class="flex-1 flex flex-col items-center gap-sm">
+          <span class="font-rajdhani text-label-sm text-on-surface-variant opacity-60">S</span>
+          <div
+            class="w-11 h-11 rounded-full flex items-center justify-center glass-card border-white/5 opacity-40"
+          ></div>
+        </div>
+        <!-- Sun -->
+        <div class="flex-1 flex flex-col items-center gap-sm">
+          <span class="font-rajdhani text-label-sm text-on-surface-variant opacity-60">S</span>
+          <div
+            class="w-11 h-11 rounded-full flex items-center justify-center glass-card border-white/5 opacity-40"
+          ></div>
+        </div>
+      </div>
+    </section>
+    <div class="inter-section-glow"></div>
+    <!-- 4. Yesterday's Session -->
+    <section class="mb-6">
+      <h3
+        class="font-rajdhani text-headline-md text-on-background mb-lg px-1 font-bold tracking-wide"
+      >
+        YESTERDAY
+      </h3>
+      <div class="glass-card p-lg flex items-center gap-md">
+        <div
+          class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10"
+        >
+          <span class="material-symbols-outlined text-primary/60 text-3xl"
+            >vertical_align_bottom</span
+          >
+        </div>
+        <div class="flex-1">
+          <div class="flex justify-between items-start mb-1">
+            <h4
+              class="font-rajdhani font-bold text-body-lg text-on-background uppercase tracking-wide"
+            >
+              PULL DAY
+            </h4>
+            <a
+              class="font-rajdhani text-label-lg text-primary font-bold hover:text-white transition-colors"
+              href="#"
+              >VIEW</a
+            >
+          </div>
+          <div class="flex gap-lg mt-2">
+            <div class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-xs text-on-surface-variant opacity-60"
+                >schedule</span
+              >
+              <span class="font-rajdhani text-xs text-on-surface-variant font-medium tracking-wider"
+                >68 MIN</span
+              >
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-xs text-on-surface-variant opacity-60"
+                >layers</span
+              >
+              <span class="font-rajdhani text-xs text-on-surface-variant font-medium tracking-wider"
+                >18 SETS</span
+              >
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-xs text-on-surface-variant opacity-60"
+                >weight</span
+              >
+              <span class="font-rajdhani text-xs text-on-surface-variant font-medium tracking-wider"
+                >12,450 KG</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="inter-section-glow"></div>
+    <!-- 5. Performance Snapshot Bento -->
+    <section class="section-glow mb-6">
+      <h3
+        class="font-rajdhani text-label-lg text-primary uppercase tracking-[0.2em] mb-lg px-1 font-bold"
+      >
+        Performance Snapshot
+      </h3>
+      <div class="grid grid-cols-2 gap-bento-gap">
+        <!-- Card 1 -->
+        <div class="glass-card p-md h-36 flex flex-col justify-between">
+          <span
+            class="material-symbols-outlined text-primary/40 !text-2xl"
+            style="font-variation-settings: &quot;FILL&quot; 1"
+            >calendar_month</span
+          >
+          <div>
+            <p
+              class="font-rajdhani text-label-sm text-on-surface-variant uppercase tracking-wider opacity-60 mb-1"
+            >
+              Weekly Workouts
+            </p>
+            <p class="font-rajdhani text-headline-md text-on-background font-bold">04</p>
+          </div>
+        </div>
+        <!-- Card 2 -->
+        <div class="glass-card p-md h-36 flex flex-col justify-between bg-primary/10">
+          <span
+            class="material-symbols-outlined text-primary shadow-primary/20 !text-2xl"
+            style="font-variation-settings: &quot;FILL&quot; 1"
+            >local_fire_department</span
+          >
+          <div>
+            <p
+              class="font-rajdhani text-label-sm text-primary uppercase tracking-wider font-bold mb-1"
+            >
+              Current Streak
+            </p>
+            <p class="font-rajdhani text-headline-md text-primary font-bold">
+              14 <span class="text-sm font-normal opacity-60 ml-0.5">DAYS</span>
+            </p>
+          </div>
+        </div>
+        <!-- Card 3 -->
+        <div class="glass-card p-md h-36 flex flex-col justify-between">
+          <span
+            class="material-symbols-outlined text-primary/40 !text-2xl"
+            style="font-variation-settings: &quot;FILL&quot; 1"
+            >timer</span
+          >
+          <div>
+            <p
+              class="font-rajdhani text-label-sm text-on-surface-variant uppercase tracking-wider opacity-60 mb-1"
+            >
+              Total Time
+            </p>
+            <p class="font-rajdhani text-headline-md text-on-background font-bold">18.5H</p>
+          </div>
+        </div>
+        <!-- Card 4 -->
+        <div class="glass-card p-md h-36 flex flex-col justify-between">
+          <span
+            class="material-symbols-outlined text-primary/40 !text-2xl"
+            style="font-variation-settings: &quot;FILL&quot; 1"
+            >monitoring</span
+          >
+          <div>
+            <p
+              class="font-rajdhani text-label-sm text-on-surface-variant uppercase tracking-wider opacity-60 mb-1"
+            >
+              Weekly Volume
+            </p>
+            <p class="font-rajdhani text-headline-md text-on-background font-bold">42.5T</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="inter-section-glow"></div>
+    <!-- 6. Recent Sessions -->
+    <section class="mb-6">
+      <div class="flex justify-between items-center mb-lg px-1">
+        <h3
+          class="font-rajdhani text-headline-md text-on-background uppercase tracking-wide font-bold"
+        >
+          RECENT SESSIONS
+        </h3>
+        <span class="material-symbols-outlined text-primary/60 !text-2xl">arrow_forward</span>
+      </div>
+      <div class="space-y-md">
+        <div
+          class="glass-card p-md flex items-center justify-between group cursor-pointer hover:bg-white/10 transition-all"
+        >
+          <div class="flex items-center gap-md">
+            <div
+              class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10"
+            >
+              <span class="material-symbols-outlined text-primary/60 text-2xl">directions_run</span>
+            </div>
+            <div>
+              <p
+                class="font-rajdhani font-bold text-on-background uppercase tracking-wider text-body-lg"
+              >
+                LEG DAY
+              </p>
+              <p
+                class="font-rajdhani text-xs text-on-surface-variant uppercase opacity-60 font-medium"
+              >
+                AUG 22 • 72 MIN
+              </p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="font-rajdhani text-body-lg text-on-background font-bold">14,200 KG</p>
+            <p class="font-rajdhani text-xs text-secondary font-bold">+2% VOL</p>
+          </div>
+        </div>
+        <div
+          class="glass-card p-md flex items-center justify-between group cursor-pointer hover:bg-white/10 transition-all"
+        >
+          <div class="flex items-center gap-md">
+            <div
+              class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10"
+            >
+              <span class="material-symbols-outlined text-primary/60 text-2xl"
+                >accessibility_new</span
+              >
+            </div>
+            <div>
+              <p
+                class="font-rajdhani font-bold text-on-background uppercase tracking-wider text-body-lg"
+              >
+                UPPER BODY
+              </p>
+              <p
+                class="font-rajdhani text-xs text-on-surface-variant uppercase opacity-60 font-medium"
+              >
+                AUG 20 • 58 MIN
+              </p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="font-rajdhani text-body-lg text-on-background font-bold">9,800 KG</p>
+            <p
+              class="font-rajdhani text-xs text-on-surface-variant font-medium opacity-60 tracking-wider uppercase"
+            >
+              ON TRACK
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- FAB and Nav Container -->
+    <div class="fixed bottom-0 left-0 right-0 px-container-margin pb-8 pointer-events-none z-50">
+      <div class="relative max-w-md mx-auto flex flex-col items-center">
+        <!-- Floating FAB: Quick Add -->
+        <button
+          class="pointer-events-auto w-16 h-16 matte-gold-btn rounded-full flex items-center justify-center mb-[-32px] z-[60] active:scale-90 transition-transform shadow-[0_12px_40px_rgba(212,175,55,0.5)] border border-white/20"
+        >
+          <span class="material-symbols-outlined !text-4xl font-bold">add</span>
+        </button>
+        <!-- 7. Navigation & Shell -->
+        <nav
+          class="pointer-events-auto glass-card h-20 w-full flex justify-around items-center px-sm shadow-2xl bg-black/60 !rounded-[32px]"
+        >
+          <div class="flex-1 flex flex-col items-center text-primary">
+            <span
+              class="material-symbols-outlined !text-2xl"
+              style="font-variation-settings: &quot;FILL&quot; 1"
+              >home</span
+            >
+            <span class="font-rajdhani text-[10px] uppercase mt-1 font-bold tracking-[0.2em]"
+              >Home</span
+            >
+          </div>
+          <div
+            class="flex-1 flex flex-col items-center text-on-surface-variant opacity-50 hover:opacity-100 transition-all"
+          >
+            <span class="material-symbols-outlined !text-2xl">history</span>
+            <span class="font-rajdhani text-[10px] uppercase mt-1 tracking-[0.2em]">History</span>
+          </div>
+          <!-- Middle Spacer for FAB -->
+          <div class="flex-1"></div>
+          <div
+            class="flex-1 flex flex-col items-center text-on-surface-variant opacity-50 hover:opacity-100 transition-all"
+          >
+            <span class="material-symbols-outlined !text-2xl">monitoring</span>
+            <span class="font-rajdhani text-[10px] uppercase mt-1 tracking-[0.2em]">Stats</span>
+          </div>
+          <div
+            class="flex-1 flex flex-col items-center text-on-surface-variant opacity-50 hover:opacity-100 transition-all"
+          >
+            <span class="material-symbols-outlined !text-2xl">person</span>
+            <span class="font-rajdhani text-[10px] uppercase mt-1 tracking-[0.2em]">Profile</span>
+          </div>
+        </nav>
+      </div>
+    </div>
+    <script>
+      // Interaction logic
+      document.querySelectorAll(".glass-card").forEach((card) => {
+        card.addEventListener("touchstart", () => {
+          card.style.transform = "scale(0.98)";
+        });
+        card.addEventListener("touchend", () => {
+          card.style.transform = "scale(1)";
+        });
+      });
+    </script>
+  </body>
+</html>

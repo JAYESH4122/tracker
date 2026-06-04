@@ -19,14 +19,17 @@ export function HistoryScreen() {
           <Pressable className="p-2 rounded-lg active:bg-surface-variant transition-colors">
             <MaterialIcons name="menu" size={24} color="#cdc7aa" />
           </Pressable>
-          <Text className="font-display-lg text-2xl tracking-tighter text-primary-fixed">
-            FORGE
-          </Text>
+          <Text className="font-display-lg text-2xl tracking-tighter text-primary-fixed">GRIT</Text>
         </View>
       </View>
 
       <ScrollView
-        contentContainerClassName="pt-6 px-4 pb-24 space-y-8"
+        contentContainerStyle={{
+          paddingTop: 24,
+          paddingHorizontal: 16,
+          paddingBottom: 180,
+          gap: 32,
+        }}
         showsVerticalScrollIndicator={false}
       >
         <View>

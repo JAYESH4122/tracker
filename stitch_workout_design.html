@@ -1,0 +1,982 @@
+<!doctype html>
+<html class="dark" lang="en" style="">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://fonts.googleapis.com/css2?family=Anta&amp;display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-fixed": "#241a00",
+              "surface-container-high": "#2a2a2a",
+              "on-primary-fixed": "#241a00",
+              "inverse-surface": "#e5e2e1",
+              tertiary: "#efcb60",
+              "surface-container-highest": "#353534",
+              "secondary-fixed": "#6bff8f",
+              "gold-dust": "rgba(212, 175, 55, 0.6)",
+              outline: "#99907c",
+              "on-secondary-fixed-variant": "#005321",
+              "surface-dim": "#131313",
+              background: "#131313",
+              "on-error-container": "#ffdad6",
+              "surface-glass": "rgba(28, 28, 28, 0.8)",
+              primary: "#f2ca50",
+              "surface-tint": "#e9c349",
+              "on-primary": "#3c2f00",
+              "surface-variant": "#353534",
+              "secondary-fixed-dim": "#4ae176",
+              "inverse-primary": "#735c00",
+              "outline-variant": "#4d4635",
+              "primary-fixed": "#ffe088",
+              "tertiary-container": "#d2af48",
+              "on-secondary": "#003915",
+              "primary-fixed-dim": "#e9c349",
+              "on-secondary-fixed": "#002109",
+              "on-error": "#690005",
+              "primary-container": "#d4af37",
+              "border-gold-low": "rgba(212, 175, 55, 0.05)",
+              "secondary-container": "#00b954",
+              secondary: "#4ae176",
+              "surface-container": "#201f1f",
+              "on-tertiary": "#3d2f00",
+              "on-tertiary-fixed-variant": "#584400",
+              "on-primary-fixed-variant": "#574500",
+              "tertiary-fixed": "#ffe08b",
+              "on-primary-container": "#554300",
+              "on-tertiary-container": "#554300",
+              "scrim-black": "rgba(0, 0, 0, 0.6)",
+              "surface-container-low": "#1c1b1b",
+              "tertiary-fixed-dim": "#e7c35a",
+              "surface-bright": "#3a3939",
+              "surface-container-lowest": "#0e0e0e",
+              "on-secondary-container": "#004119",
+              "on-surface": "#e5e2e1",
+              "error-container": "#93000a",
+              "on-background": "#e5e2e1",
+              "inverse-on-surface": "#313030",
+              error: "#ffb4ab",
+              "on-surface-variant": "#d0c5af",
+              surface: "#131313",
+            },
+            borderRadius: {
+              DEFAULT: "1rem",
+              lg: "2rem",
+              xl: "3rem",
+              full: "9999px",
+            },
+            spacing: {
+              "container-margin": "24px",
+              base: "4px",
+              sm: "14px",
+              md: "20px",
+              xl: "48px",
+              lg: "32px",
+              xs: "8px",
+              "bento-gap": "16px",
+            },
+            fontFamily: {
+              "display-lg": ["Anta"],
+              "label-sm": ["Anta"],
+              "body-lg": ["Anta"],
+              "headline-md": ["Anta"],
+              "stats-xl": ["Anta"],
+              "label-lg": ["Anta"],
+              "headline-lg": ["Anta"],
+              "body-md": ["Anta"],
+            },
+            fontSize: {
+              "display-lg": [
+                "48px",
+                { lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "400" },
+              ],
+              "label-sm": [
+                "11px",
+                { lineHeight: "14px", letterSpacing: "0.2em", fontWeight: "400" },
+              ],
+              "body-lg": ["17px", { lineHeight: "24px", fontWeight: "400" }],
+              "headline-md": [
+                "24px",
+                { lineHeight: "28px", letterSpacing: "0.1em", fontWeight: "400" },
+              ],
+              "stats-xl": [
+                "44px",
+                { lineHeight: "1.0", letterSpacing: "-0.05em", fontWeight: "400" },
+              ],
+              "label-lg": [
+                "13px",
+                { lineHeight: "16px", letterSpacing: "0.15em", fontWeight: "400" },
+              ],
+              "headline-lg": [
+                "32px",
+                { lineHeight: "36px", letterSpacing: "-0.01em", fontWeight: "400" },
+              ],
+              "body-md": ["15px", { lineHeight: "20px", fontWeight: "400" }],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        background-color: #131313;
+        color: #e5e2e1;
+        overflow-x: hidden;
+      }
+      .glass-card {
+        background: rgba(28, 28, 28, 0.8);
+        backdrop-filter: blur(24px);
+        border: 1px solid rgba(212, 175, 55, 0.1);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      }
+      .matte-gold-btn {
+        background: linear-gradient(135deg, #e5c158 0%, #d4af37 100%);
+        box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+        transition: all 0.2s ease;
+      }
+      .matte-gold-btn:active {
+        transform: scale(0.95);
+      }
+      .gold-glow-divider {
+        height: 1px;
+        background: radial-gradient(circle, rgba(242, 202, 80, 0.4) 0%, rgba(242, 202, 80, 0) 70%);
+        margin: 32px 0;
+      }
+      .status-pulse {
+        position: relative;
+      }
+      .status-pulse::after {
+        content: "";
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: #4ae176;
+        border-radius: 50%;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(2.5);
+          opacity: 0;
+        }
+      }
+      .gold-dust-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+      }
+      .particle {
+        position: absolute;
+        background: rgba(212, 175, 55, 0.4);
+        border-radius: 50%;
+        filter: blur(1px);
+        animation: moveUp var(--duration) linear infinite;
+      }
+      @keyframes moveUp {
+        from {
+          transform: translateY(100vh);
+          opacity: 0;
+        }
+        50% {
+          opacity: 0.8;
+        }
+        to {
+          transform: translateY(-10vh);
+          opacity: 0;
+        }
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      input::-webkit-outer-spin-button,
+      input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body class="font-body-md antialiased pb-24">
+    <!-- Gold Dust Particles -->
+    <div class="gold-dust-container" id="goldDust">
+      <div
+        class="particle"
+        style="
+          width: 1.86588px;
+          height: 1.86588px;
+          left: 17.9985vw;
+          --duration: 9.663920442934888s;
+          opacity: 0.143105;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 2.779px;
+          height: 2.779px;
+          left: 91.409vw;
+          --duration: 9.08152252735308s;
+          opacity: 0.394247;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 2.60545px;
+          height: 2.60545px;
+          left: 93.7749vw;
+          --duration: 9.627743126186683s;
+          opacity: 0.0152375;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 3.21091px;
+          height: 3.21091px;
+          left: 5.1983vw;
+          --duration: 9.715613352221943s;
+          opacity: 0.368452;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 2.03009px;
+          height: 2.03009px;
+          left: 6.48001vw;
+          --duration: 8.290180821596616s;
+          opacity: 0.801617;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 2.13314px;
+          height: 2.13314px;
+          left: 35.1965vw;
+          --duration: 8.715025045192686s;
+          opacity: 0.59642;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 3.66844px;
+          height: 3.66844px;
+          left: 91.0323vw;
+          --duration: 9.382738962146258s;
+          opacity: 0.0363781;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 3.0667px;
+          height: 3.0667px;
+          left: 69.2925vw;
+          --duration: 9.309794387313776s;
+          opacity: 0.268826;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 3.13385px;
+          height: 3.13385px;
+          left: 55.1458vw;
+          --duration: 8.484875477654557s;
+          opacity: 0.54936;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 3.89601px;
+          height: 3.89601px;
+          left: 38.3909vw;
+          --duration: 8.17701669291196s;
+          opacity: 0.57623;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 3.23389px;
+          height: 3.23389px;
+          left: 84.7383vw;
+          --duration: 6.7870291759361425s;
+          opacity: 0.269962;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 3.0924px;
+          height: 3.0924px;
+          left: 32.4792vw;
+          --duration: 9.453077996944979s;
+          opacity: 0.32166;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 3.12951px;
+          height: 3.12951px;
+          left: 59.2385vw;
+          --duration: 5.206628034552525s;
+          opacity: 0.177225;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 2.06351px;
+          height: 2.06351px;
+          left: 96.4751vw;
+          --duration: 5.945292962304737s;
+          opacity: 0.641643;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 1.52567px;
+          height: 1.52567px;
+          left: 23.9513vw;
+          --duration: 7.254564843989478s;
+          opacity: 0.724893;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 3.32878px;
+          height: 3.32878px;
+          left: 48.7202vw;
+          --duration: 7.601022820124783s;
+          opacity: 0.310958;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 3.72467px;
+          height: 3.72467px;
+          left: 87.9949vw;
+          --duration: 6.5810903355232035s;
+          opacity: 0.24803;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 2.47816px;
+          height: 2.47816px;
+          left: 47.7112vw;
+          --duration: 9.692101468796189s;
+          opacity: 0.662821;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 3.97967px;
+          height: 3.97967px;
+          left: 6.45706vw;
+          --duration: 7.852314413266225s;
+          opacity: 0.110558;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 3.04947px;
+          height: 3.04947px;
+          left: 50.8803vw;
+          --duration: 5.420513604363137s;
+          opacity: 0.752117;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 2.8508px;
+          height: 2.8508px;
+          left: 85.2856vw;
+          --duration: 5.578088234782086s;
+          opacity: 0.758479;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 2.96705px;
+          height: 2.96705px;
+          left: 20.4042vw;
+          --duration: 5.094115416437633s;
+          opacity: 0.905257;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 1.02329px;
+          height: 1.02329px;
+          left: 86.2275vw;
+          --duration: 7.188390244786243s;
+          opacity: 0.49811;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 3.9959px;
+          height: 3.9959px;
+          left: 95.7381vw;
+          --duration: 5.266500684055201s;
+          opacity: 0.989503;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 2.16229px;
+          height: 2.16229px;
+          left: 42.8937vw;
+          --duration: 8.263755076067444s;
+          opacity: 0.297461;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 1.45239px;
+          height: 1.45239px;
+          left: 40.6868vw;
+          --duration: 8.79641026223959s;
+          opacity: 0.89936;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 1.55484px;
+          height: 1.55484px;
+          left: 1.24796vw;
+          --duration: 6.13424234229817s;
+          opacity: 0.938235;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 1.11861px;
+          height: 1.11861px;
+          left: 89.7919vw;
+          --duration: 6.25648121158695s;
+          opacity: 0.201291;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 1.84671px;
+          height: 1.84671px;
+          left: 82.851vw;
+          --duration: 6.756986868250134s;
+          opacity: 0.970808;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 1.732px;
+          height: 1.732px;
+          left: 52.7926vw;
+          --duration: 5.8585983590183695s;
+          opacity: 0.412015;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 3.35438px;
+          height: 3.35438px;
+          left: 88.8181vw;
+          --duration: 7.475981928750445s;
+          opacity: 0.0645326;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 2.21427px;
+          height: 2.21427px;
+          left: 91.0753vw;
+          --duration: 9.28687353207447s;
+          opacity: 0.906131;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 1.72638px;
+          height: 1.72638px;
+          left: 17.5163vw;
+          --duration: 7.02497693198794s;
+          opacity: 0.215001;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 2.2363px;
+          height: 2.2363px;
+          left: 2.3134vw;
+          --duration: 9.906353124757114s;
+          opacity: 0.757888;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 2.57414px;
+          height: 2.57414px;
+          left: 76.9694vw;
+          --duration: 7.570283582589893s;
+          opacity: 0.795615;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 1.15316px;
+          height: 1.15316px;
+          left: 47.6279vw;
+          --duration: 9.994524979983076s;
+          opacity: 0.998872;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 2.98783px;
+          height: 2.98783px;
+          left: 18.0235vw;
+          --duration: 9.453996644365587s;
+          opacity: 0.102665;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 3.08123px;
+          height: 3.08123px;
+          left: 30.2824vw;
+          --duration: 6.484340913748918s;
+          opacity: 0.162581;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 3.68226px;
+          height: 3.68226px;
+          left: 35.8052vw;
+          --duration: 7.972731978110743s;
+          opacity: 0.832382;
+        "
+      ></div>
+      <div
+        class="particle"
+        style="
+          width: 1.67848px;
+          height: 1.67848px;
+          left: 14.4318vw;
+          --duration: 6.2034406200356464s;
+          opacity: 0.551997;
+        "
+      ></div>
+    </div>
+    <!-- Top App Bar -->
+    <header
+      class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-margin py-md backdrop-blur-xl border-b border-outline-variant/30 bg-surface-glass shadow-md"
+    >
+      <div class="flex items-center gap-3">
+        <button
+          class="flex items-center justify-center p-2 rounded-full hover:bg-white/5 transition-colors"
+        >
+          <span class="material-symbols-outlined text-on-surface">close</span>
+        </button>
+        <div class="flex items-center gap-2">
+          <div class="status-pulse w-4 h-4"></div>
+          <span
+            class="font-headline-md text-headline-md uppercase tracking-widest text-primary"
+            id="timer"
+            >20:33</span
+          >
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <button
+          class="font-label-lg text-label-lg px-4 py-2 border border-primary/30 rounded-full text-primary hover:bg-primary/10 transition-colors uppercase"
+        >
+          FINISH
+        </button>
+        <img
+          class="w-10 h-10 rounded-full border-2 border-primary/50"
+          data-alt="A professional headshot of a fit, athletic male model in a high-end luxury gym setting. The lighting is dramatic and moody with golden rim highlights, matching the Aureum Athletics premium brand aesthetic. The background is slightly blurred showing high-tech workout equipment in an obsidian-toned facility."
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2y3nHcDuCG24TBg8xKWEBhmkmqiOvO7jnp3AsG9W2jPwSGX3Hf19yIJlqzgZNgmCpZIMH7BVVj_E30JP1enhPwBvdMgNrR__-XK__2rCMI48SQrLs-gq09SlbPMAcj6QKdNAmxt8rr6Un5VT-O2s2C91qdcIQlZjlIIZ_jWAKujogyy8QRSIZu5YUMTuCyNDLWT_GIocn3vFwFUiFW-ctwd7oV8nRLX4AjRaOQO8hfqISiiAhr76ut1XJk7UBcpEcLTOdKRZ2aaUX"
+        />
+      </div>
+    </header>
+    <main class="mt-28 px-container-margin max-w-5xl mx-auto">
+      <!-- Session Header -->
+      <section class="mb-lg">
+        <h1 class="font-display-lg text-display-lg text-primary mb-1"><br /></h1>
+        <p class="font-body-lg text-body-lg text-on-surface-variant">
+          Track your sets, reps, and weight.
+        </p>
+      </section>
+      <!-- Stats Bento Grid -->
+      <section class="grid grid-cols-2 md:grid-cols-4 gap-bento-gap mb-lg">
+        <div class="glass-card p-md flex flex-col items-center justify-center text-center">
+          <span
+            class="material-symbols-outlined text-primary mb-2"
+            style="font-variation-settings: &quot;FILL&quot; 1"
+            >timer</span
+          >
+          <span class="font-stats-xl text-stats-xl text-on-surface">08m</span>
+          <span class="font-label-sm text-label-sm text-on-surface-variant uppercase"
+            >DURATION</span
+          >
+        </div>
+        <div class="glass-card p-md flex flex-col items-center justify-center text-center">
+          <span
+            class="material-symbols-outlined text-primary mb-2"
+            style="font-variation-settings: &quot;FILL&quot; 1"
+            >fitness_center</span
+          >
+          <span class="font-stats-xl text-stats-xl text-on-surface text-nowrap"
+            >1,240<span class="text-label-lg">kg</span></span
+          >
+          <span class="font-label-sm text-label-sm text-on-surface-variant uppercase">VOLUME</span>
+        </div>
+        <div class="glass-card p-md flex flex-col items-center justify-center text-center">
+          <span
+            class="material-symbols-outlined text-primary mb-2"
+            style="font-variation-settings: &quot;FILL&quot; 1"
+            >reorder</span
+          >
+          <span class="font-stats-xl text-stats-xl text-on-surface">4/12</span>
+          <span class="font-label-sm text-label-sm text-on-surface-variant uppercase">SETS</span>
+        </div>
+        <div class="glass-card p-md flex flex-col items-center justify-center text-center">
+          <span
+            class="material-symbols-outlined text-primary mb-2"
+            style="font-variation-settings: &quot;FILL&quot; 1"
+            >bolt</span
+          >
+          <span class="font-stats-xl text-stats-xl text-on-surface">85%</span>
+          <span class="font-label-sm text-label-sm text-on-surface-variant uppercase"
+            >INTENSITY</span
+          >
+        </div>
+      </section>
+      <div class="gold-glow-divider"></div>
+      <!-- Exercise Card 1 -->
+      <div class="glass-card rounded-lg overflow-hidden mb-md">
+        <div
+          class="p-md border-b border-outline-variant/20 flex justify-between items-center bg-white/5"
+        >
+          <div>
+            <h2 class="font-headline-md text-headline-md text-primary uppercase">Bench Press</h2>
+            <div class="flex items-center gap-3 mt-1">
+              <span
+                class="font-label-sm text-label-sm text-on-surface-variant uppercase px-2 py-0.5 bg-surface-container rounded-full"
+                >4 SETS</span
+              >
+              <span
+                class="font-label-sm text-label-sm text-inverse-on-surface px-2 py-0.5 bg-primary rounded-full uppercase"
+                >PR</span
+              >
+            </div>
+          </div>
+          <button class="p-2 text-on-surface-variant hover:text-on-surface transition-colors">
+            <span class="material-symbols-outlined">more_vert</span>
+          </button>
+        </div>
+        <div class="p-md">
+          <div class="grid grid-cols-[32px_1fr_64px_64px_32px] gap-2 mb-4 px-1">
+            <span class="font-label-sm text-[10px] text-on-surface-variant uppercase text-center"
+              >SET</span
+            >
+            <span class="font-label-sm text-[10px] text-on-surface-variant uppercase"
+              >PREVIOUS</span
+            >
+            <span class="font-label-sm text-[10px] text-on-surface-variant uppercase text-center"
+              >KG</span
+            >
+            <span class="font-label-sm text-[10px] text-on-surface-variant uppercase text-center"
+              >REPS</span
+            >
+            <span class="font-label-sm text-[10px] text-on-surface-variant uppercase text-center">
+              <span class="material-symbols-outlined text-[14px]">check_circle</span>
+            </span>
+          </div>
+          <!-- Set Rows -->
+          <div class="space-y-2">
+            <!-- Set 1 (Checked) -->
+            <div
+              class="grid grid-cols-[32px_1fr_64px_64px_32px] gap-2 items-center px-1 py-2 bg-secondary/10 border border-secondary/20 rounded-md"
+            >
+              <span class="font-label-lg text-label-lg text-on-surface text-center">1</span>
+              <span class="text-[11px] leading-tight text-on-surface-variant">80kg x 8</span>
+              <input
+                class="w-full bg-surface-container-highest border-none text-center font-body-md text-body-md text-on-surface rounded p-1 focus:ring-1 focus:ring-primary min-w-0"
+                type="number"
+                value="80"
+              />
+              <input
+                class="w-full bg-surface-container-highest border-none text-center font-body-md text-body-md text-on-surface rounded p-1 focus:ring-1 focus:ring-primary min-w-0"
+                type="number"
+                value="8"
+              />
+              <div class="flex justify-center">
+                <span
+                  class="material-symbols-outlined text-secondary"
+                  style="font-variation-settings: &quot;FILL&quot; 1"
+                  >check_circle</span
+                >
+              </div>
+            </div>
+            <!-- Set 2 (Active/Unchecked) -->
+            <div
+              class="grid grid-cols-[32px_1fr_64px_64px_32px] gap-2 items-center px-1 py-2 bg-white/5 border border-outline-variant/30 rounded-md"
+            >
+              <span class="font-label-lg text-label-lg text-on-surface text-center">2</span>
+              <span class="text-[11px] leading-tight text-on-surface-variant">80kg x 8</span>
+              <input
+                class="w-full bg-surface-container-highest border-none text-center font-body-md text-body-md text-on-surface rounded p-1 focus:ring-1 focus:ring-primary min-w-0"
+                type="number"
+                value="82.5"
+              />
+              <input
+                class="w-full bg-surface-container-highest border-none text-center font-body-md text-body-md text-on-surface rounded p-1 focus:ring-1 focus:ring-primary min-w-0"
+                type="number"
+                value="6"
+              />
+              <div class="flex justify-center">
+                <button
+                  class="w-7 h-7 rounded-full border border-outline-variant flex items-center justify-center hover:bg-secondary/20 hover:border-secondary transition-all"
+                >
+                  <span class="material-symbols-outlined text-on-surface-variant text-[18px]"
+                    >check</span
+                  >
+                </button>
+              </div>
+            </div>
+            <!-- Set 3 (Empty) -->
+            <div
+              class="grid grid-cols-[32px_1fr_64px_64px_32px] gap-2 items-center px-1 py-2 rounded-md"
+            >
+              <span class="font-label-lg text-label-lg text-on-surface text-center">3</span>
+              <span class="text-[11px] leading-tight text-on-surface-variant opacity-50"
+                >80kg x 8</span
+              >
+              <input
+                class="w-full bg-surface-container-highest border-none text-center font-body-md text-body-md text-on-surface rounded p-1 focus:ring-1 focus:ring-primary min-w-0"
+                placeholder="-"
+                type="number"
+              />
+              <input
+                class="w-full bg-surface-container-highest border-none text-center font-body-md text-body-md text-on-surface rounded p-1 focus:ring-1 focus:ring-primary min-w-0"
+                placeholder="-"
+                type="number"
+              />
+              <div class="flex justify-center">
+                <button
+                  class="w-7 h-7 rounded-full border border-outline-variant flex items-center justify-center"
+                >
+                  <span class="material-symbols-outlined text-on-surface-variant text-[18px]"
+                    >check</span
+                  >
+                </button>
+              </div>
+            </div>
+          </div>
+          <button
+            class="w-full mt-4 py-3 font-label-lg text-label-lg text-on-surface-variant uppercase flex items-center justify-center gap-2 border border-dashed border-outline-variant rounded hover:bg-white/5 transition-colors"
+          >
+            <span class="material-symbols-outlined text-[18px]">add</span> ADD SET
+          </button>
+        </div>
+      </div>
+      <!-- Exercise Card 2 (Minimalist State) -->
+      <div class="glass-card rounded-lg overflow-hidden mb-xl">
+        <div class="p-md flex justify-between items-center">
+          <div>
+            <h2 class="font-headline-md text-headline-md text-on-surface uppercase opacity-80">
+              Incline Fly
+            </h2>
+            <span class="font-label-sm text-label-sm text-on-surface-variant uppercase mt-1 block"
+              >READY FOR INPUT</span
+            >
+          </div>
+          <button
+            class="matte-gold-btn text-on-primary font-label-lg text-label-lg px-4 py-2 rounded-full uppercase"
+          >
+            START SET
+          </button>
+        </div>
+      </div>
+      <!-- Add Exercise Button -->
+      <button
+        class="w-full py-5 glass-card rounded-lg flex items-center justify-center gap-3 border-2 border-dashed border-primary/20 hover:border-primary/50 transition-all group"
+      >
+        <div
+          class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors"
+        >
+          <span class="material-symbols-outlined text-primary">add_circle</span>
+        </div>
+        <span class="font-headline-md text-headline-md text-primary uppercase">ADD EXERCISE</span>
+      </button>
+    </main>
+    <!-- Floating Footer -->
+
+    <script>
+      // Gold Dust Particle System
+      const container = document.getElementById("goldDust");
+      const particleCount = 40;
+
+      function createParticle() {
+        const p = document.createElement("div");
+        p.className = "particle";
+        const size = Math.random() * 3 + 1;
+        p.style.width = `${size}px`;
+        p.style.height = `${size}px`;
+        p.style.left = `${Math.random() * 100}vw`;
+        const duration = Math.random() * 5 + 5;
+        p.style.setProperty("--duration", `${duration}s`);
+        p.style.opacity = Math.random();
+
+        container.appendChild(p);
+
+        setTimeout(() => {
+          p.remove();
+          createParticle();
+        }, duration * 1000);
+      }
+
+      for (let i = 0; i < particleCount; i++) {
+        setTimeout(createParticle, Math.random() * 5000);
+      }
+
+      // Timer Logic
+      let seconds = 522; // 08:42
+      const timerElement = document.getElementById("timer");
+
+      setInterval(() => {
+        seconds++;
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        timerElement.textContent = `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+      }, 1000);
+    </script>
+
+    <div class="fixed bottom-8 left-0 w-full px-container-margin z-50 pointer-events-none">
+      <div class="max-w-5xl mx-auto relative flex flex-col items-center">
+        <!-- Floating Action Button (FAB) -->
+        <button
+          class="matte-gold-btn w-16 h-16 rounded-full flex items-center justify-center shadow-2xl pointer-events-auto absolute -top-8 z-20"
+        >
+          <span class="material-symbols-outlined text-on-primary text-3xl">add</span>
+        </button>
+
+        <!-- Glass Nav Bar -->
+        <nav
+          class="glass-card w-full bg-black/60 backdrop-blur-xl !rounded-[32px] px-8 py-4 pointer-events-auto flex justify-between items-center"
+        >
+          <!-- Home -->
+          <a href="#" class="flex flex-col items-center gap-1 group">
+            <span
+              class="material-symbols-outlined text-primary"
+              style="font-variation-settings: &quot;FILL&quot; 1"
+              >home</span
+            >
+            <span class="font-label-sm text-[10px] text-primary uppercase tracking-tighter"
+              >Home</span
+            >
+          </a>
+
+          <!-- History -->
+          <a href="#" class="flex flex-col items-center gap-1 group">
+            <span
+              class="material-symbols-outlined text-on-surface-variant opacity-50 group-hover:opacity-100 transition-opacity"
+              >history</span
+            >
+            <span
+              class="font-label-sm text-[10px] text-on-surface-variant opacity-50 group-hover:opacity-100 uppercase tracking-tighter"
+              >History</span
+            >
+          </a>
+
+          <!-- Spacer for FAB -->
+          <div class="w-12"></div>
+
+          <!-- Stats -->
+          <a href="#" class="flex flex-col items-center gap-1 group">
+            <span
+              class="material-symbols-outlined text-on-surface-variant opacity-50 group-hover:opacity-100 transition-opacity"
+              >monitoring</span
+            >
+            <span
+              class="font-label-sm text-[10px] text-on-surface-variant opacity-50 group-hover:opacity-100 uppercase tracking-tighter"
+              >Stats</span
+            >
+          </a>
+
+          <!-- Profile -->
+          <a href="#" class="flex flex-col items-center gap-1 group">
+            <span
+              class="material-symbols-outlined text-on-surface-variant opacity-50 group-hover:opacity-100 transition-opacity"
+              >person</span
+            >
+            <span
+              class="font-label-sm text-[10px] text-on-surface-variant opacity-50 group-hover:opacity-100 uppercase tracking-tighter"
+              >Profile</span
+            >
+          </a>
+        </nav>
+      </div>
+    </div>
+  </body>
+</html>

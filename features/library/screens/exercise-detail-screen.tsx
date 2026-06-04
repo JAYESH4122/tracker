@@ -133,7 +133,7 @@ export function ExerciseDetailScreen() {
         >
           <MaterialIcons name="chevron-left" size={24} color={GOLD} />
         </Pressable>
-        <Text style={s.logo}>FORGE PROFILE</Text>
+        <Text style={s.logo}>GRIT PROFILE</Text>
         <View style={{ width: 40 }} />
       </Animated.View>
 

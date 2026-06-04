@@ -57,7 +57,7 @@ export function ProfileScreen() {
 const styles = StyleSheet.create({
   content: {
     padding: theme.spacing.lg,
-    paddingBottom: theme.spacing.xxl,
+    paddingBottom: 180,
     gap: theme.spacing.lg,
   },
   profileCard: {

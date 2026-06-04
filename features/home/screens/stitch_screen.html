@@ -1,0 +1,2380 @@
+<!doctype html>
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Elite Performance Tracker</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Anta&amp;display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed-variant": "#574500",
+              "primary-container": "#d4af37",
+              "surface-container-low": "#1C1C1C",
+              "primary-fixed": "#ffe088",
+              "on-secondary-container": "#004119",
+              "surface-container-highest": "#2A2A2A",
+              "on-tertiary-container": "#004291",
+              "secondary-container": "#00b954",
+              "on-primary": "#1A1A1A",
+              "on-tertiary-fixed": "#001a42",
+              "tertiary-fixed-dim": "#adc6ff",
+              "tertiary-fixed": "#d8e2ff",
+              "surface-dim": "#151515",
+              "on-tertiary": "#002e6a",
+              "on-background": "#E5E2E1",
+              "on-secondary-fixed-variant": "#005321",
+              "secondary-fixed": "#6bff8f",
+              "on-primary-fixed": "#241a00",
+              "inverse-on-surface": "#313030",
+              outline: "#4D4D4D",
+              "surface-container-lowest": "#0F0F0F",
+              "on-surface-variant": "#A0A0A0",
+              "tertiary-container": "#8eb2ff",
+              "on-secondary": "#003915",
+              "surface-tint": "#D4AF37",
+              secondary: "#4ae176",
+              "outline-variant": "#333333",
+              "error-container": "#93000a",
+              surface: "#1A1A1A",
+              "surface-container": "#1E1E1E",
+              tertiary: "#b9ceff",
+              "surface-variant": "#252525",
+              "primary-fixed-dim": "#D4AF37",
+              "on-tertiary-fixed-variant": "#004395",
+              "on-primary-container": "#554300",
+              "on-error": "#690005",
+              "inverse-primary": "#735c00",
+              "secondary-fixed-dim": "#4ae176",
+              error: "#ffb4ab",
+              "surface-bright": "#333333",
+              "inverse-surface": "#e5e2e1",
+              primary: "#D4AF37",
+              "on-error-container": "#ffdad6",
+              "on-surface": "#E5E2E1",
+              "on-secondary-fixed": "#002109",
+              background: "#0F0F0F",
+              "surface-container-high": "#242424",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+              bento: "24px",
+            },
+            spacing: {
+              xl: "48px",
+              "bento-gap": "16px",
+              xs: "8px",
+              lg: "32px",
+              "container-margin": "24px",
+              base: "4px",
+              sm: "14px",
+              md: "20px",
+            },
+            fontFamily: {
+              "headline-lg-mobile": ["Anta", "sans-serif"],
+              "display-lg": ["Anta", "sans-serif"],
+              "label-sm": ["Anta", "sans-serif"],
+              "headline-md": ["Anta", "sans-serif"],
+              "label-lg": ["Anta", "sans-serif"],
+              "headline-lg": ["Anta", "sans-serif"],
+              "body-lg": ["Anta", "sans-serif"],
+              "body-md": ["Anta", "sans-serif"],
+            },
+            fontSize: {
+              "headline-lg-mobile": ["28px", { lineHeight: "32px", fontWeight: "400" }],
+              "display-lg": [
+                "48px",
+                { lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "400" },
+              ],
+              "label-sm": [
+                "11px",
+                { lineHeight: "14px", letterSpacing: "0.05em", fontWeight: "400" },
+              ],
+              "headline-md": ["24px", { lineHeight: "28px", fontWeight: "400" }],
+              "label-lg": [
+                "13px",
+                { lineHeight: "16px", letterSpacing: "0.04em", fontWeight: "400" },
+              ],
+              "headline-lg": [
+                "32px",
+                { lineHeight: "36px", letterSpacing: "-0.01em", fontWeight: "400" },
+              ],
+              "body-lg": ["17px", { lineHeight: "24px", fontWeight: "400" }],
+              "body-md": ["15px", { lineHeight: "20px", fontWeight: "400" }],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        background-color: #0f0f0f;
+        background-image:
+          linear-gradient(to bottom, rgba(15, 15, 15, 0.4), rgba(15, 15, 15, 0.85)),
+          url("https://lh3.googleusercontent.com/aida/AP1WRLuF0eRL9PCMph4Zj755O_n42jVLK-BqtvU2PyCWoY_bl8GLgdfgTZ9NNQH25m3FjrrA0uZQT4fUfUR6t5ycREAzDR16XrX55UzRVxSEMDIeEIMx1pL1IrPUH4IZZ44CBEky-rBaMYUD-slms2jqlRBTXZqiZ_lMQOalXwLptSGMJA1vOA5rOaF13R9oBZF6PxRT-Bngvci6u-bqj-Te8YOULhF-mEI_uTL-wq7PCWh0ytfAFyVsZVzl5w");
+        background-attachment: fixed;
+        background-size: cover;
+        background-position: center;
+        color: #e5e2e1;
+        font-family: "Anta", sans-serif;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+
+      .bg-overlay {
+        position: fixed;
+        inset: 0;
+        background-image: url("https://lh3.googleusercontent.com/aida/AP1WRLu24nWykqZgevYWrQMAhU9O5LgBS6uhrv8kZkt-qWLqrh5ajV_SDAiglamnC3NvDMH372x4edKvbx-k-j25zf8loO3IpIH3g7jM30OqlaJ2uKaJCG4QX00E_wGUNrrE40-OQguDWv4lOa1w3f_83zHHR0vrk2-8bRDM3D9-V6CLshfW3OKB5q5wee_qT1yPfdtHL_YUU3tq5YfS0gCMGjqORk8K2HKT9bwdoeqgTW0bhM_XHw44gEaW9xg");
+        background-size: cover;
+        background-position: center;
+        opacity: 0.15;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      /* Particle System Container */
+      #particle-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .gold-dust {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        background: #d4af37;
+        border-radius: 50%;
+        box-shadow: 0 0 5px #d4af37;
+        opacity: 0.6;
+      }
+
+      .font-anta {
+        font-family: "Anta", sans-serif;
+      }
+
+      .glass-card {
+        background: rgba(28, 28, 28, 0.8);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border-radius: 28px;
+        border: 1px solid transparent;
+        background-clip: padding-box;
+        position: relative;
+        z-index: 10;
+      }
+
+      .glass-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 28px;
+        padding: 1px;
+        background: linear-gradient(
+          135deg,
+          rgba(212, 175, 55, 0.3) 0%,
+          rgba(212, 175, 55, 0.05) 50%,
+          transparent 100%
+        );
+        -webkit-mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+        mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      /* Entrance Animations */
+      @keyframes slideUpFade {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .stagger-load > * {
+        opacity: 0;
+        animation: slideUpFade 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      }
+
+      .stagger-load > *:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .stagger-load > *:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .stagger-load > *:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      .stagger-load > *:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+      .stagger-load > *:nth-child(5) {
+        animation-delay: 0.5s;
+      }
+      .stagger-load > *:nth-child(6) {
+        animation-delay: 0.6s;
+      }
+
+      .shimmer-card {
+        overflow: hidden;
+      }
+
+      .shimmer-card::after {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -150%;
+        width: 50%;
+        height: 200%;
+        background: linear-gradient(
+          to right,
+          transparent 0%,
+          rgba(212, 175, 55, 0.05) 45%,
+          rgba(212, 175, 55, 0.1) 50%,
+          rgba(212, 175, 55, 0.05) 55%,
+          transparent 100%
+        );
+        transform: rotate(25deg);
+        animation: shimmer 8s infinite linear;
+        pointer-events: none;
+      }
+
+      @keyframes shimmer {
+        0% {
+          left: -150%;
+        }
+        20% {
+          left: 150%;
+        }
+        100% {
+          left: 150%;
+        }
+      }
+
+      /* Shimmer for Progress Bar */
+      @keyframes progressShimmer {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+
+      .progress-shimmer {
+        background: linear-gradient(90deg, #d4af37 0%, #ffe088 50%, #d4af37 100%);
+        background-size: 200% 100%;
+        animation: progressShimmer 3s infinite linear;
+      }
+
+      @keyframes breathing {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 1;
+          filter: drop-shadow(0 0 0px rgba(74, 225, 118, 0));
+        }
+        50% {
+          transform: scale(1.3);
+          opacity: 0.6;
+          filter: drop-shadow(0 0 8px rgba(74, 225, 118, 0.8));
+        }
+      }
+
+      .status-pulse {
+        animation: breathing 2s infinite ease-in-out;
+      }
+
+      /* Interactive Buttons */
+      .interactive-scale {
+        transition:
+          transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+          box-shadow 0.3s ease;
+      }
+
+      .interactive-scale:active {
+        transform: scale(0.92);
+        box-shadow: 0 0 30px rgba(212, 175, 55, 0.6) !important;
+      }
+
+      .matte-gold-btn {
+        background: linear-gradient(135deg, #e5c158 0%, #d4af37 100%);
+        color: #1a1a1a;
+        box-shadow:
+          0 10px 25px -5px rgba(212, 175, 55, 0.4),
+          inset 0 1px 2px rgba(255, 255, 255, 0.4),
+          inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .matte-gold-btn::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), transparent);
+        pointer-events: none;
+      }
+
+      .section-glow {
+        position: relative;
+      }
+      .section-glow::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 160%;
+        height: 160%;
+        background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+
+      .premium-burger {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .burger-line {
+        height: 2px;
+        background-color: #d4af37;
+        border-radius: 1px;
+        transition: width 0.3s ease;
+      }
+
+      .text-gold-accent {
+        color: #d4af37;
+        text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+      }
+
+      .inter-section-glow {
+        height: 1px;
+        width: 100%;
+        background: radial-gradient(circle, rgba(212, 175, 55, 0.2) 0%, transparent 80%);
+        margin: 20px 0;
+      }
+
+      .text-shadow-glow {
+        text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+      }
+    </style>
+    <style>
+      *,
+      ::before,
+      ::after {
+        --tw-border-spacing-x: 0;
+        --tw-border-spacing-y: 0;
+        --tw-translate-x: 0;
+        --tw-translate-y: 0;
+        --tw-rotate: 0;
+        --tw-skew-x: 0;
+        --tw-skew-y: 0;
+        --tw-scale-x: 1;
+        --tw-scale-y: 1;
+        --tw-pan-x: ;
+        --tw-pan-y: ;
+        --tw-pinch-zoom: ;
+        --tw-scroll-snap-strictness: proximity;
+        --tw-gradient-from-position: ;
+        --tw-gradient-via-position: ;
+        --tw-gradient-to-position: ;
+        --tw-ordinal: ;
+        --tw-slashed-zero: ;
+        --tw-numeric-figure: ;
+        --tw-numeric-spacing: ;
+        --tw-numeric-fraction: ;
+        --tw-ring-inset: ;
+        --tw-ring-offset-width: 0px;
+        --tw-ring-offset-color: #fff;
+        --tw-ring-color: rgb(59 130 246 / 0.5);
+        --tw-ring-offset-shadow: 0 0 #0000;
+        --tw-ring-shadow: 0 0 #0000;
+        --tw-shadow: 0 0 #0000;
+        --tw-shadow-colored: 0 0 #0000;
+        --tw-blur: ;
+        --tw-brightness: ;
+        --tw-contrast: ;
+        --tw-grayscale: ;
+        --tw-hue-rotate: ;
+        --tw-invert: ;
+        --tw-saturate: ;
+        --tw-sepia: ;
+        --tw-drop-shadow: ;
+        --tw-backdrop-blur: ;
+        --tw-backdrop-brightness: ;
+        --tw-backdrop-contrast: ;
+        --tw-backdrop-grayscale: ;
+        --tw-backdrop-hue-rotate: ;
+        --tw-backdrop-invert: ;
+        --tw-backdrop-opacity: ;
+        --tw-backdrop-saturate: ;
+        --tw-backdrop-sepia: ;
+        --tw-contain-size: ;
+        --tw-contain-layout: ;
+        --tw-contain-paint: ;
+        --tw-contain-style: ;
+      }
+      ::backdrop {
+        --tw-border-spacing-x: 0;
+        --tw-border-spacing-y: 0;
+        --tw-translate-x: 0;
+        --tw-translate-y: 0;
+        --tw-rotate: 0;
+        --tw-skew-x: 0;
+        --tw-skew-y: 0;
+        --tw-scale-x: 1;
+        --tw-scale-y: 1;
+        --tw-pan-x: ;
+        --tw-pan-y: ;
+        --tw-pinch-zoom: ;
+        --tw-scroll-snap-strictness: proximity;
+        --tw-gradient-from-position: ;
+        --tw-gradient-via-position: ;
+        --tw-gradient-to-position: ;
+        --tw-ordinal: ;
+        --tw-slashed-zero: ;
+        --tw-numeric-figure: ;
+        --tw-numeric-spacing: ;
+        --tw-numeric-fraction: ;
+        --tw-ring-inset: ;
+        --tw-ring-offset-width: 0px;
+        --tw-ring-offset-color: #fff;
+        --tw-ring-color: rgb(59 130 246 / 0.5);
+        --tw-ring-offset-shadow: 0 0 #0000;
+        --tw-ring-shadow: 0 0 #0000;
+        --tw-shadow: 0 0 #0000;
+        --tw-shadow-colored: 0 0 #0000;
+        --tw-blur: ;
+        --tw-brightness: ;
+        --tw-contrast: ;
+        --tw-grayscale: ;
+        --tw-hue-rotate: ;
+        --tw-invert: ;
+        --tw-saturate: ;
+        --tw-sepia: ;
+        --tw-drop-shadow: ;
+        --tw-backdrop-blur: ;
+        --tw-backdrop-brightness: ;
+        --tw-backdrop-contrast: ;
+        --tw-backdrop-grayscale: ;
+        --tw-backdrop-hue-rotate: ;
+        --tw-backdrop-invert: ;
+        --tw-backdrop-opacity: ;
+        --tw-backdrop-saturate: ;
+        --tw-backdrop-sepia: ;
+        --tw-contain-size: ;
+        --tw-contain-layout: ;
+        --tw-contain-paint: ;
+        --tw-contain-style: ;
+      } /* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */
+      *,
+      ::after,
+      ::before {
+        box-sizing: border-box;
+        border-width: 0;
+        border-style: solid;
+        border-color: #e5e7eb;
+      }
+      ::after,
+      ::before {
+        --tw-content: "";
+      }
+      :host,
+      html {
+        line-height: 1.5;
+        -webkit-text-size-adjust: 100%;
+        -moz-tab-size: 4;
+        tab-size: 4;
+        font-family:
+          ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+          "Segoe UI Symbol", "Noto Color Emoji";
+        font-feature-settings: normal;
+        font-variation-settings: normal;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        margin: 0;
+        line-height: inherit;
+      }
+      hr {
+        height: 0;
+        color: inherit;
+        border-top-width: 1px;
+      }
+      abbr:where([title]) {
+        -webkit-text-decoration: underline dotted;
+        text-decoration: underline dotted;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-size: inherit;
+        font-weight: inherit;
+      }
+      a {
+        color: inherit;
+        text-decoration: inherit;
+      }
+      b,
+      strong {
+        font-weight: bolder;
+      }
+      code,
+      kbd,
+      pre,
+      samp {
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+          monospace;
+        font-feature-settings: normal;
+        font-variation-settings: normal;
+        font-size: 1em;
+      }
+      small {
+        font-size: 80%;
+      }
+      sub,
+      sup {
+        font-size: 75%;
+        line-height: 0;
+        position: relative;
+        vertical-align: baseline;
+      }
+      sub {
+        bottom: -0.25em;
+      }
+      sup {
+        top: -0.5em;
+      }
+      table {
+        text-indent: 0;
+        border-color: inherit;
+        border-collapse: collapse;
+      }
+      button,
+      input,
+      optgroup,
+      select,
+      textarea {
+        font-family: inherit;
+        font-feature-settings: inherit;
+        font-variation-settings: inherit;
+        font-size: 100%;
+        font-weight: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        margin: 0;
+        padding: 0;
+      }
+      button,
+      select {
+        text-transform: none;
+      }
+      button,
+      input:where([type="button"]),
+      input:where([type="reset"]),
+      input:where([type="submit"]) {
+        -webkit-appearance: button;
+        background-color: transparent;
+        background-image: none;
+      }
+      :-moz-focusring {
+        outline: auto;
+      }
+      :-moz-ui-invalid {
+        box-shadow: none;
+      }
+      progress {
+        vertical-align: baseline;
+      }
+      ::-webkit-inner-spin-button,
+      ::-webkit-outer-spin-button {
+        height: auto;
+      }
+      [type="search"] {
+        -webkit-appearance: textfield;
+        outline-offset: -2px;
+      }
+      ::-webkit-search-decoration {
+        -webkit-appearance: none;
+      }
+      ::-webkit-file-upload-button {
+        -webkit-appearance: button;
+        font: inherit;
+      }
+      summary {
+        display: list-item;
+      }
+      blockquote,
+      dd,
+      dl,
+      figure,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      hr,
+      p,
+      pre {
+        margin: 0;
+      }
+      fieldset {
+        margin: 0;
+        padding: 0;
+      }
+      legend {
+        padding: 0;
+      }
+      menu,
+      ol,
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      dialog {
+        padding: 0;
+      }
+      textarea {
+        resize: vertical;
+      }
+      input::placeholder,
+      textarea::placeholder {
+        opacity: 1;
+        color: #9ca3af;
+      }
+      [role="button"],
+      button {
+        cursor: pointer;
+      }
+      :disabled {
+        cursor: default;
+      }
+      audio,
+      canvas,
+      embed,
+      iframe,
+      img,
+      object,
+      svg,
+      video {
+        display: block;
+        vertical-align: middle;
+      }
+      img,
+      video {
+        max-width: 100%;
+        height: auto;
+      }
+      [hidden]:where(:not([hidden="until-found"])) {
+        display: none;
+      }
+      [type="text"],
+      input:where(:not([type])),
+      [type="email"],
+      [type="url"],
+      [type="password"],
+      [type="number"],
+      [type="date"],
+      [type="datetime-local"],
+      [type="month"],
+      [type="search"],
+      [type="tel"],
+      [type="time"],
+      [type="week"],
+      [multiple],
+      textarea,
+      select {
+        -webkit-appearance: none;
+        appearance: none;
+        background-color: #fff;
+        border-color: #6b7280;
+        border-width: 1px;
+        border-radius: 0px;
+        padding-top: 0.5rem;
+        padding-right: 0.75rem;
+        padding-bottom: 0.5rem;
+        padding-left: 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        --tw-shadow: 0 0 #0000;
+      }
+      [type="text"]:focus,
+      input:where(:not([type])):focus,
+      [type="email"]:focus,
+      [type="url"]:focus,
+      [type="password"]:focus,
+      [type="number"]:focus,
+      [type="date"]:focus,
+      [type="datetime-local"]:focus,
+      [type="month"]:focus,
+      [type="search"]:focus,
+      [type="tel"]:focus,
+      [type="time"]:focus,
+      [type="week"]:focus,
+      [multiple]:focus,
+      textarea:focus,
+      select:focus {
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+        --tw-ring-inset: var(--tw-empty, /*!*/ /*!*/);
+        --tw-ring-offset-width: 0px;
+        --tw-ring-offset-color: #fff;
+        --tw-ring-color: #2563eb;
+        --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width)
+          var(--tw-ring-offset-color);
+        --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width))
+          var(--tw-ring-color);
+        box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+        border-color: #2563eb;
+      }
+      input::placeholder,
+      textarea::placeholder {
+        color: #6b7280;
+        opacity: 1;
+      }
+      ::-webkit-datetime-edit-fields-wrapper {
+        padding: 0;
+      }
+      ::-webkit-date-and-time-value {
+        min-height: 1.5em;
+        text-align: inherit;
+      }
+      ::-webkit-datetime-edit {
+        display: inline-flex;
+      }
+      ::-webkit-datetime-edit,
+      ::-webkit-datetime-edit-year-field,
+      ::-webkit-datetime-edit-month-field,
+      ::-webkit-datetime-edit-day-field,
+      ::-webkit-datetime-edit-hour-field,
+      ::-webkit-datetime-edit-minute-field,
+      ::-webkit-datetime-edit-second-field,
+      ::-webkit-datetime-edit-millisecond-field,
+      ::-webkit-datetime-edit-meridiem-field {
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+      select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+        print-color-adjust: exact;
+      }
+      [multiple],
+      [size]:where(select:not([size="1"])) {
+        background-image: initial;
+        background-position: initial;
+        background-repeat: unset;
+        background-size: initial;
+        padding-right: 0.75rem;
+        print-color-adjust: unset;
+      }
+      [type="checkbox"],
+      [type="radio"] {
+        -webkit-appearance: none;
+        appearance: none;
+        padding: 0;
+        print-color-adjust: exact;
+        display: inline-block;
+        vertical-align: middle;
+        background-origin: border-box;
+        -webkit-user-select: none;
+        user-select: none;
+        flex-shrink: 0;
+        height: 1rem;
+        width: 1rem;
+        color: #2563eb;
+        background-color: #fff;
+        border-color: #6b7280;
+        border-width: 1px;
+        --tw-shadow: 0 0 #0000;
+      }
+      [type="checkbox"] {
+        border-radius: 0px;
+      }
+      [type="radio"] {
+        border-radius: 100%;
+      }
+      [type="checkbox"]:focus,
+      [type="radio"]:focus {
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+        --tw-ring-inset: var(--tw-empty, /*!*/ /*!*/);
+        --tw-ring-offset-width: 2px;
+        --tw-ring-offset-color: #fff;
+        --tw-ring-color: #2563eb;
+        --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width)
+          var(--tw-ring-offset-color);
+        --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width))
+          var(--tw-ring-color);
+        box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+      }
+      [type="checkbox"]:checked,
+      [type="radio"]:checked {
+        border-color: transparent;
+        background-color: currentColor;
+        background-size: 100% 100%;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+      [type="checkbox"]:checked {
+        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+      }
+      @media (forced-colors: active) {
+        [type="checkbox"]:checked {
+          -webkit-appearance: auto;
+          appearance: auto;
+        }
+      }
+      [type="radio"]:checked {
+        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
+      }
+      @media (forced-colors: active) {
+        [type="radio"]:checked {
+          -webkit-appearance: auto;
+          appearance: auto;
+        }
+      }
+      [type="checkbox"]:checked:hover,
+      [type="checkbox"]:checked:focus,
+      [type="radio"]:checked:hover,
+      [type="radio"]:checked:focus {
+        border-color: transparent;
+        background-color: currentColor;
+      }
+      [type="checkbox"]:indeterminate {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3e%3cpath stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8h8'/%3e%3c/svg%3e");
+        border-color: transparent;
+        background-color: currentColor;
+        background-size: 100% 100%;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+      @media (forced-colors: active) {
+        [type="checkbox"]:indeterminate {
+          -webkit-appearance: auto;
+          appearance: auto;
+        }
+      }
+      [type="checkbox"]:indeterminate:hover,
+      [type="checkbox"]:indeterminate:focus {
+        border-color: transparent;
+        background-color: currentColor;
+      }
+      [type="file"] {
+        background: unset;
+        border-color: inherit;
+        border-width: 0;
+        border-radius: 0;
+        padding: 0;
+        font-size: unset;
+        line-height: inherit;
+      }
+      [type="file"]:focus {
+        outline: 1px solid ButtonText;
+        outline: 1px auto -webkit-focus-ring-color;
+      }
+      .pointer-events-none {
+        pointer-events: none;
+      }
+      .pointer-events-auto {
+        pointer-events: auto;
+      }
+      .fixed {
+        position: fixed;
+      }
+      .absolute {
+        position: absolute;
+      }
+      .relative {
+        position: relative;
+      }
+      .-bottom-1 {
+        bottom: -0.25rem;
+      }
+      .-right-1 {
+        right: -0.25rem;
+      }
+      .bottom-0 {
+        bottom: 0px;
+      }
+      .left-0 {
+        left: 0px;
+      }
+      .right-0 {
+        right: 0px;
+      }
+      .z-10 {
+        z-index: 10;
+      }
+      .z-50 {
+        z-index: 50;
+      }
+      .z-\[60\] {
+        z-index: 60;
+      }
+      .mx-auto {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .mb-0\.5 {
+        margin-bottom: 0.125rem;
+      }
+      .mb-1 {
+        margin-bottom: 0.25rem;
+      }
+      .mb-1\.5 {
+        margin-bottom: 0.375rem;
+      }
+      .mb-4 {
+        margin-bottom: 1rem;
+      }
+      .mb-6 {
+        margin-bottom: 1.5rem;
+      }
+      .mb-\[-32px\] {
+        margin-bottom: -32px;
+      }
+      .mb-lg {
+        margin-bottom: 32px;
+      }
+      .mb-md {
+        margin-bottom: 20px;
+      }
+      .mt-1 {
+        margin-top: 0.25rem;
+      }
+      .mt-1\.5 {
+        margin-top: 0.375rem;
+      }
+      .mt-\[-4px\] {
+        margin-top: -4px;
+      }
+      .flex {
+        display: flex;
+      }
+      .grid {
+        display: grid;
+      }
+      .h-1\.5 {
+        height: 0.375rem;
+      }
+      .h-11 {
+        height: 2.75rem;
+      }
+      .h-12 {
+        height: 3rem;
+      }
+      .h-16 {
+        height: 4rem;
+      }
+      .h-2 {
+        height: 0.5rem;
+      }
+      .h-2\.5 {
+        height: 0.625rem;
+      }
+      .h-20 {
+        height: 5rem;
+      }
+      .h-6 {
+        height: 1.5rem;
+      }
+      .h-8 {
+        height: 2rem;
+      }
+      .h-\[1px\] {
+        height: 1px;
+      }
+      .h-\[3px\] {
+        height: 3px;
+      }
+      .h-full {
+        height: 100%;
+      }
+      .min-h-\[80px\] {
+        min-height: 80px;
+      }
+      .w-1\.5 {
+        width: 0.375rem;
+      }
+      .w-11 {
+        width: 2.75rem;
+      }
+      .w-12 {
+        width: 3rem;
+      }
+      .w-16 {
+        width: 4rem;
+      }
+      .w-2 {
+        width: 0.5rem;
+      }
+      .w-2\.5 {
+        width: 0.625rem;
+      }
+      .w-5 {
+        width: 1.25rem;
+      }
+      .w-6 {
+        width: 1.5rem;
+      }
+      .w-7 {
+        width: 1.75rem;
+      }
+      .w-8 {
+        width: 2rem;
+      }
+      .w-\[1px\] {
+        width: 1px;
+      }
+      .w-full {
+        width: 100%;
+      }
+      .min-w-\[44px\] {
+        min-width: 44px;
+      }
+      .max-w-md {
+        max-width: 28rem;
+      }
+      .flex-1 {
+        flex: 1 1 0%;
+      }
+      @keyframes pulse {
+        50% {
+          opacity: 0.5;
+        }
+      }
+      .animate-pulse {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      .cursor-pointer {
+        cursor: pointer;
+      }
+      .grid-cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+      .flex-col {
+        flex-direction: column;
+      }
+      .items-start {
+        align-items: flex-start;
+      }
+      .items-center {
+        align-items: center;
+      }
+      .justify-start {
+        justify-content: flex-start;
+      }
+      .justify-center {
+        justify-content: center;
+      }
+      .justify-between {
+        justify-content: space-between;
+      }
+      .justify-around {
+        justify-content: space-around;
+      }
+      .gap-1 {
+        gap: 0.25rem;
+      }
+      .gap-1\.5 {
+        gap: 0.375rem;
+      }
+      .gap-2 {
+        gap: 0.5rem;
+      }
+      .gap-5 {
+        gap: 1.25rem;
+      }
+      .gap-6 {
+        gap: 1.5rem;
+      }
+      .gap-md {
+        gap: 20px;
+      }
+      .gap-sm {
+        gap: 14px;
+      }
+      .gap-xs {
+        gap: 8px;
+      }
+      .space-y-1\.5 > :not([hidden]) ~ :not([hidden]) {
+        --tw-space-y-reverse: 0;
+        margin-top: calc(0.375rem * calc(1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(0.375rem * var(--tw-space-y-reverse));
+      }
+      .space-y-md > :not([hidden]) ~ :not([hidden]) {
+        --tw-space-y-reverse: 0;
+        margin-top: calc(20px * calc(1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(20px * var(--tw-space-y-reverse));
+      }
+      .overflow-hidden {
+        overflow: hidden;
+      }
+      .overflow-x-auto {
+        overflow-x: auto;
+      }
+      .\!rounded-\[32px\] {
+        border-radius: 32px !important;
+      }
+      .rounded-2xl {
+        border-radius: 1rem;
+      }
+      .rounded-full {
+        border-radius: 9999px;
+      }
+      .rounded-xl {
+        border-radius: 0.75rem;
+      }
+      .border {
+        border-width: 1px;
+      }
+      .border-2 {
+        border-width: 2px;
+      }
+      .border-background {
+        --tw-border-opacity: 1;
+        border-color: rgb(15 15 15 / var(--tw-border-opacity, 1));
+      }
+      .border-primary {
+        --tw-border-opacity: 1;
+        border-color: rgb(212 175 55 / var(--tw-border-opacity, 1));
+      }
+      .border-primary\/20 {
+        border-color: rgb(212 175 55 / 0.2);
+      }
+      .border-primary\/40 {
+        border-color: rgb(212 175 55 / 0.4);
+      }
+      .border-white\/10 {
+        border-color: rgb(255 255 255 / 0.1);
+      }
+      .border-white\/20 {
+        border-color: rgb(255 255 255 / 0.2);
+      }
+      .border-white\/5 {
+        border-color: rgb(255 255 255 / 0.05);
+      }
+      .bg-black\/30 {
+        background-color: rgb(0 0 0 / 0.3);
+      }
+      .bg-black\/60 {
+        background-color: rgb(0 0 0 / 0.6);
+      }
+      .bg-primary {
+        --tw-bg-opacity: 1;
+        background-color: rgb(212 175 55 / var(--tw-bg-opacity, 1));
+      }
+      .bg-primary\/10 {
+        background-color: rgb(212 175 55 / 0.1);
+      }
+      .bg-primary\/20 {
+        background-color: rgb(212 175 55 / 0.2);
+      }
+      .bg-primary\/80 {
+        background-color: rgb(212 175 55 / 0.8);
+      }
+      .bg-secondary {
+        --tw-bg-opacity: 1;
+        background-color: rgb(74 225 118 / var(--tw-bg-opacity, 1));
+      }
+      .bg-white\/10 {
+        background-color: rgb(255 255 255 / 0.1);
+      }
+      .bg-white\/5 {
+        background-color: rgb(255 255 255 / 0.05);
+      }
+      .bg-gradient-to-r {
+        background-image: linear-gradient(to right, var(--tw-gradient-stops));
+      }
+      .from-transparent {
+        --tw-gradient-from: transparent var(--tw-gradient-from-position);
+        --tw-gradient-to: rgb(0 0 0 / 0) var(--tw-gradient-to-position);
+        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+      }
+      .via-white\/10 {
+        --tw-gradient-to: rgb(255 255 255 / 0) var(--tw-gradient-to-position);
+        --tw-gradient-stops:
+          var(--tw-gradient-from), rgb(255 255 255 / 0.1) var(--tw-gradient-via-position),
+          var(--tw-gradient-to);
+      }
+      .to-transparent {
+        --tw-gradient-to: transparent var(--tw-gradient-to-position);
+      }
+      .object-cover {
+        object-fit: cover;
+      }
+      .p-0\.5 {
+        padding: 0.125rem;
+      }
+      .p-2 {
+        padding: 0.5rem;
+      }
+      .p-md {
+        padding: 20px;
+      }
+      .px-0\.5 {
+        padding-left: 0.125rem;
+        padding-right: 0.125rem;
+      }
+      .px-1 {
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+      }
+      .px-2 {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+      }
+      .px-3 {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+      }
+      .px-container-margin {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+      .px-sm {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+      .py-0\.5 {
+        padding-top: 0.125rem;
+        padding-bottom: 0.125rem;
+      }
+      .py-1 {
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+      }
+      .py-3 {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+      }
+      .py-md {
+        padding-top: 20px;
+        padding-bottom: 20px;
+      }
+      .pb-2 {
+        padding-bottom: 0.5rem;
+      }
+      .pb-24 {
+        padding-bottom: 6rem;
+      }
+      .pb-8 {
+        padding-bottom: 2rem;
+      }
+      .pt-sm {
+        padding-top: 14px;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .text-right {
+        text-align: right;
+      }
+      .\!text-2xl {
+        font-size: 1.5rem !important;
+        line-height: 2rem !important;
+      }
+      .\!text-4xl {
+        font-size: 2.25rem !important;
+        line-height: 2.5rem !important;
+      }
+      .\!text-\[18px\] {
+        font-size: 18px !important;
+      }
+      .text-2xl {
+        font-size: 1.5rem;
+        line-height: 2rem;
+      }
+      .text-\[10px\] {
+        font-size: 10px;
+      }
+      .text-\[11px\] {
+        font-size: 11px;
+      }
+      .text-\[12px\] {
+        font-size: 12px;
+      }
+      .text-\[44px\] {
+        font-size: 44px;
+      }
+      .text-\[8px\] {
+        font-size: 8px;
+      }
+      .text-\[9px\] {
+        font-size: 9px;
+      }
+      .text-body-lg {
+        font-size: 17px;
+        line-height: 24px;
+        font-weight: 400;
+      }
+      .text-headline-md {
+        font-size: 24px;
+        line-height: 28px;
+        font-weight: 400;
+      }
+      .text-label-lg {
+        font-size: 13px;
+        line-height: 16px;
+        letter-spacing: 0.04em;
+        font-weight: 400;
+      }
+      .text-label-sm {
+        font-size: 11px;
+        line-height: 14px;
+        letter-spacing: 0.05em;
+        font-weight: 400;
+      }
+      .text-lg {
+        font-size: 1.125rem;
+        line-height: 1.75rem;
+      }
+      .text-xl {
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+      }
+      .text-xs {
+        font-size: 0.75rem;
+        line-height: 1rem;
+      }
+      .font-bold {
+        font-weight: 700;
+      }
+      .uppercase {
+        text-transform: uppercase;
+      }
+      .leading-none {
+        line-height: 1;
+      }
+      .leading-tight {
+        line-height: 1.25;
+      }
+      .tracking-\[0\.15em\] {
+        letter-spacing: 0.15em;
+      }
+      .tracking-\[0\.18em\] {
+        letter-spacing: 0.18em;
+      }
+      .tracking-\[0\.1em\] {
+        letter-spacing: 0.1em;
+      }
+      .tracking-\[0\.2em\] {
+        letter-spacing: 0.2em;
+      }
+      .tracking-\[0\.35em\] {
+        letter-spacing: 0.35em;
+      }
+      .tracking-\[0\.3em\] {
+        letter-spacing: 0.3em;
+      }
+      .tracking-\[0\.4em\] {
+        letter-spacing: 0.4em;
+      }
+      .tracking-tight {
+        letter-spacing: -0.025em;
+      }
+      .tracking-tighter {
+        letter-spacing: -0.05em;
+      }
+      .tracking-wide {
+        letter-spacing: 0.025em;
+      }
+      .tracking-wider {
+        letter-spacing: 0.05em;
+      }
+      .tracking-widest {
+        letter-spacing: 0.1em;
+      }
+      .text-on-background {
+        --tw-text-opacity: 1;
+        color: rgb(229 226 225 / var(--tw-text-opacity, 1));
+      }
+      .text-on-primary {
+        --tw-text-opacity: 1;
+        color: rgb(26 26 26 / var(--tw-text-opacity, 1));
+      }
+      .text-on-surface-variant {
+        --tw-text-opacity: 1;
+        color: rgb(160 160 160 / var(--tw-text-opacity, 1));
+      }
+      .text-primary {
+        --tw-text-opacity: 1;
+        color: rgb(212 175 55 / var(--tw-text-opacity, 1));
+      }
+      .text-primary\/20 {
+        color: rgb(212 175 55 / 0.2);
+      }
+      .text-primary\/60 {
+        color: rgb(212 175 55 / 0.6);
+      }
+      .text-primary\/70 {
+        color: rgb(212 175 55 / 0.7);
+      }
+      .text-primary\/80 {
+        color: rgb(212 175 55 / 0.8);
+      }
+      .text-secondary {
+        --tw-text-opacity: 1;
+        color: rgb(74 225 118 / var(--tw-text-opacity, 1));
+      }
+      .opacity-30 {
+        opacity: 0.3;
+      }
+      .opacity-40 {
+        opacity: 0.4;
+      }
+      .opacity-50 {
+        opacity: 0.5;
+      }
+      .opacity-60 {
+        opacity: 0.6;
+      }
+      .opacity-90 {
+        opacity: 0.9;
+      }
+      .shadow-2xl {
+        --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+        --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
+        box-shadow:
+          var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+          var(--tw-shadow);
+      }
+      .shadow-\[0_0_12px_rgba\(212\2c 175\2c 55\2c 0\.8\)\] {
+        --tw-shadow: 0 0 12px rgba(212, 175, 55, 0.8);
+        --tw-shadow-colored: 0 0 12px var(--tw-shadow-color);
+        box-shadow:
+          var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+          var(--tw-shadow);
+      }
+      .shadow-\[0_0_20px_rgba\(212\2c 175\2c 55\2c 0\.3\)\] {
+        --tw-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        --tw-shadow-colored: 0 0 20px var(--tw-shadow-color);
+        box-shadow:
+          var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+          var(--tw-shadow);
+      }
+      .shadow-\[0_0_6px_rgba\(74\2c 225\2c 118\2c 0\.5\)\] {
+        --tw-shadow: 0 0 6px rgba(74, 225, 118, 0.5);
+        --tw-shadow-colored: 0 0 6px var(--tw-shadow-color);
+        box-shadow:
+          var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+          var(--tw-shadow);
+      }
+      .shadow-\[0_0_8px_rgba\(212\2c 175\2c 55\2c 0\.6\)\] {
+        --tw-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+        --tw-shadow-colored: 0 0 8px var(--tw-shadow-color);
+        box-shadow:
+          var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+          var(--tw-shadow);
+      }
+      .shadow-\[0_12px_40px_rgba\(212\2c 175\2c 55\2c 0\.5\)\] {
+        --tw-shadow: 0 12px 40px rgba(212, 175, 55, 0.5);
+        --tw-shadow-colored: 0 12px 40px var(--tw-shadow-color);
+        box-shadow:
+          var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+          var(--tw-shadow);
+      }
+      .shadow-inner {
+        --tw-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+        --tw-shadow-colored: inset 0 2px 4px 0 var(--tw-shadow-color);
+        box-shadow:
+          var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+          var(--tw-shadow);
+      }
+      .shadow-lg {
+        --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --tw-shadow-colored:
+          0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+        box-shadow:
+          var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+          var(--tw-shadow);
+      }
+      .shadow-primary\/20 {
+        --tw-shadow-color: rgb(212 175 55 / 0.2);
+        --tw-shadow: var(--tw-shadow-colored);
+      }
+      .ring-4 {
+        --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width)
+          var(--tw-ring-offset-color);
+        --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(4px + var(--tw-ring-offset-width))
+          var(--tw-ring-color);
+        box-shadow:
+          var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+      }
+      .ring-primary\/5 {
+        --tw-ring-color: rgb(212 175 55 / 0.05);
+      }
+      .backdrop-blur-md {
+        --tw-backdrop-blur: blur(12px);
+        -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness)
+          var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate)
+          var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate)
+          var(--tw-backdrop-sepia);
+        backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness)
+          var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate)
+          var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate)
+          var(--tw-backdrop-sepia);
+      }
+      .transition-all {
+        transition-property: all;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+      }
+      .transition-colors {
+        transition-property:
+          color,
+          background-color,
+          border-color,
+          fill,
+          stroke,
+          -webkit-text-decoration-color;
+        transition-property:
+          color, background-color, border-color, text-decoration-color, fill, stroke;
+        transition-property:
+          color,
+          background-color,
+          border-color,
+          text-decoration-color,
+          fill,
+          stroke,
+          -webkit-text-decoration-color;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+      }
+      .transition-transform {
+        transition-property: transform;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+      }
+      .duration-300 {
+        transition-duration: 300ms;
+      }
+      .duration-700 {
+        transition-duration: 700ms;
+      }
+      .ease-in-out {
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .hover\:text-primary:hover {
+        --tw-text-opacity: 1;
+        color: rgb(212 175 55 / var(--tw-text-opacity, 1));
+      }
+      .hover\:opacity-100:hover {
+        opacity: 1;
+      }
+      .active\:scale-90:active {
+        --tw-scale-x: 0.9;
+        --tw-scale-y: 0.9;
+        transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate))
+          skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x))
+          scaleY(var(--tw-scale-y));
+      }
+      .active\:scale-95:active {
+        --tw-scale-x: 0.95;
+        --tw-scale-y: 0.95;
+        transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate))
+          skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x))
+          scaleY(var(--tw-scale-y));
+      }
+      .group:hover .group-hover\:w-5 {
+        width: 1.25rem;
+      }
+      .group:hover .group-hover\:w-7 {
+        width: 1.75rem;
+      }
+      .group:hover .group-hover\:border-primary\/20 {
+        border-color: rgb(212 175 55 / 0.2);
+      }
+      .group:hover .group-hover\:border-primary\/30 {
+        border-color: rgb(212 175 55 / 0.3);
+      }
+      .group:hover .group-hover\:bg-primary\/10 {
+        background-color: rgb(212 175 55 / 0.1);
+      }
+    </style>
+  </head>
+  <body class="px-container-margin pt-sm pb-24 font-anta" data-mode="connect">
+    <div class="bg-overlay"></div>
+    <div id="particle-container">
+      <div
+        class="gold-dust"
+        style="
+          width: 3.17334px;
+          height: 3.17334px;
+          left: 1.07963%;
+          top: 21.8036%;
+          transition:
+            transform 35.3413s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 2.65334px;
+          height: 2.65334px;
+          left: 78.5755%;
+          top: 41.4129%;
+          transition:
+            transform 36.9556s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 3.28052px;
+          height: 3.28052px;
+          left: 23.5584%;
+          top: 10.7787%;
+          transition:
+            transform 30.9273s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 3.06502px;
+          height: 3.06502px;
+          left: 89.2175%;
+          top: 91.8398%;
+          transition:
+            transform 39.4384s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 2.05359px;
+          height: 2.05359px;
+          left: 40.4872%;
+          top: 74.6143%;
+          transition:
+            transform 37.3627s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 2.55685px;
+          height: 2.55685px;
+          left: 55.8609%;
+          top: 88.4237%;
+          transition:
+            transform 44.5869s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 1.85154px;
+          height: 1.85154px;
+          left: 62.0706%;
+          top: 78.627%;
+          transition:
+            transform 35.6456s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 2.01318px;
+          height: 2.01318px;
+          left: 5.84834%;
+          top: 8.42741%;
+          transition:
+            transform 34.7402s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 3.60879px;
+          height: 3.60879px;
+          left: 59.5615%;
+          top: 43.4282%;
+          transition:
+            transform 38.8454s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 3.15605px;
+          height: 3.15605px;
+          left: 65.5874%;
+          top: 50.0797%;
+          transition:
+            transform 43.8158s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 2.32392px;
+          height: 2.32392px;
+          left: 30.6224%;
+          top: 9.25528%;
+          transition:
+            transform 46.237s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 2.2853px;
+          height: 2.2853px;
+          left: 83.3707%;
+          top: 20.8992%;
+          transition:
+            transform 40.3474s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 1.36625px;
+          height: 1.36625px;
+          left: 69.191%;
+          top: 74.384%;
+          transition:
+            transform 37.3374s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 1.94588px;
+          height: 1.94588px;
+          left: 5.58772%;
+          top: 63.6694%;
+          transition:
+            transform 42.6752s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 1.54753px;
+          height: 1.54753px;
+          left: 0.513989%;
+          top: 44.694%;
+          transition:
+            transform 44.9112s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 3.38433px;
+          height: 3.38433px;
+          left: 77.8081%;
+          top: 19.0594%;
+          transition:
+            transform 42.4642s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 3.70525px;
+          height: 3.70525px;
+          left: 63.0896%;
+          top: 79.8428%;
+          transition:
+            transform 31.6882s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 3.93493px;
+          height: 3.93493px;
+          left: 45.3088%;
+          top: 94.4895%;
+          transition:
+            transform 44.1925s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 3.36733px;
+          height: 3.36733px;
+          left: 25.9462%;
+          top: 77.6471%;
+          transition:
+            transform 40.8734s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+      <div
+        class="gold-dust"
+        style="
+          width: 3.00486px;
+          height: 3.00486px;
+          left: 85.4081%;
+          top: 56.2343%;
+          transition:
+            transform 35.4516s linear,
+            opacity 2s;
+          transform: translateY(-884px);
+        "
+      ></div>
+    </div>
+    <main class="stagger-load">
+      <!-- 1. Header Section -->
+      <header class="flex justify-between items-center py-md mb-md">
+        <div class="w-12 h-12 flex items-center justify-start cursor-pointer group">
+          <div class="premium-burger">
+            <div class="burger-line w-7"></div>
+            <div class="burger-line w-5 group-hover:w-7 transition-all duration-300"></div>
+            <div class="burger-line w-6 group-hover:w-5 transition-all duration-300"></div>
+          </div>
+        </div>
+        <h1 class="text-headline-md text-on-background tracking-[0.2em] uppercase">Dashboard</h1>
+        <div class="relative">
+          <div
+            class="w-11 h-11 rounded-full border-2 border-primary/40 p-0.5 overflow-hidden ring-4 ring-primary/5 active:scale-95 transition-transform cursor-pointer"
+          >
+            <img
+              alt="Profile"
+              class="w-full h-full rounded-full object-cover"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFYjvh7gzy6AiKmPJTpZZ_wFDahPj0dmlx-e1U_rbZWImwLsPNZ5Rx6t45WbPNrPkKyA2d-yHDUb0TGQxfT284KfPsI0WfKR5LcHGeC0DBjI6mJLU78LcuXXjp6tYPEjuABSy1ztkPKmA_gTbPFYzILTZUTNsKdLjZRVEyULOJWiZrIbSvfCBIHMV6wiSjk8tl1fVuvSlkZTX_Gm2uYc7Dq95ln5caLCCVw8LhZGqhDTfHCYvA8QLvriApsx-wAs53I4KnX96mk8U"
+            />
+          </div>
+          <div
+            class="absolute -bottom-1 -right-1 bg-primary text-on-primary text-[10px] px-2 py-0.5 rounded-full border-2 border-background shadow-lg"
+          >
+            14
+          </div>
+        </div>
+      </header>
+      <!-- 2. Hero Card -->
+      <section class="section-glow mb-6">
+        <div
+          class="glass-card shimmer-card p-md relative overflow-hidden interactive-scale cursor-pointer"
+        >
+          <div class="flex flex-col gap-5">
+            <div class="flex justify-between items-start">
+              <div class="flex flex-col">
+                <h2 class="text-[10px] text-primary/70 uppercase tracking-[0.3em] mb-1">
+                  Active Session
+                </h2>
+                <div class="flex items-center gap-2">
+                  <span class="text-headline-md text-on-background leading-none tracking-wide"
+                    >LEG DAY</span
+                  >
+                  <span class="w-2 h-2 rounded-full bg-secondary status-pulse"></span>
+                </div>
+              </div>
+              <div
+                class="flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/10 px-3 py-1 rounded-full shadow-lg"
+              >
+                <span
+                  class="w-1.5 h-1.5 rounded-full bg-primary/80 animate-pulse shadow-[0_0_8px_rgba(212,175,55,0.6)]"
+                ></span>
+                <span
+                  class="text-[11px] text-on-surface-variant uppercase tracking-[0.18em] opacity-90"
+                  >Exercise 3/8</span
+                >
+              </div>
+            </div>
+            <div
+              class="flex flex-col items-center justify-center py-3 bg-black/30 rounded-2xl border border-white/5 shadow-inner"
+            >
+              <span class="material-symbols-outlined text-primary/20 text-lg mb-0.5">timer</span>
+              <p class="text-[44px] leading-none text-on-background tracking-tight">
+                00:<span class="text-primary text-shadow-glow">42</span>
+              </p>
+              <p
+                class="text-[9px] text-on-surface-variant uppercase tracking-[0.4em] mt-1.5 opacity-40"
+              >
+                Elapsed Time
+              </p>
+            </div>
+            <div class="space-y-1.5">
+              <div class="flex justify-between items-center px-0.5">
+                <span
+                  class="text-[10px] text-on-surface-variant opacity-50 uppercase tracking-widest"
+                  >Progress</span
+                >
+                <span class="text-[10px] text-primary tracking-wider">38%</span>
+              </div>
+              <div class="h-[3px] w-full bg-white/5 rounded-full overflow-hidden">
+                <div
+                  class="h-full progress-shimmer rounded-full transition-all duration-700 ease-in-out"
+                  style="width: 38%"
+                ></div>
+              </div>
+            </div>
+            <div class="flex items-center justify-center gap-1.5 opacity-30 mt-[-4px]">
+              <span class="text-[9px] uppercase tracking-[0.2em]">Continue Session</span>
+              <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="inter-section-glow"></div>
+      <!-- 3. Weekly Calendar -->
+      <section class="mb-6">
+        <div class="flex justify-between items-center mb-md px-1">
+          <h3 class="text-label-lg text-primary uppercase tracking-[0.15em]">Weekly Progress</h3>
+          <span class="text-label-sm text-on-surface-variant opacity-60">AUG 22 - 28</span>
+        </div>
+        <div class="flex justify-between items-center gap-xs overflow-x-auto no-scrollbar pb-2">
+          <!-- Mon -->
+          <div class="flex-1 min-w-[44px] flex flex-col items-center gap-sm">
+            <span class="text-label-sm text-on-surface-variant opacity-60">M</span>
+            <div
+              class="w-11 h-11 rounded-full flex items-center justify-center bg-primary/10 border border-primary/20 active:scale-90 transition-transform"
+            >
+              <div
+                class="w-2.5 h-2.5 bg-primary rounded-full shadow-[0_0_12px_rgba(212,175,55,0.8)]"
+              ></div>
+            </div>
+          </div>
+          <!-- Tue -->
+          <div class="flex-1 min-w-[44px] flex flex-col items-center gap-sm">
+            <span class="text-label-sm text-on-surface-variant opacity-60">T</span>
+            <div
+              class="w-11 h-11 rounded-full flex items-center justify-center bg-primary/10 border border-primary/20 active:scale-90 transition-transform"
+            >
+              <div
+                class="w-2.5 h-2.5 bg-primary rounded-full shadow-[0_0_12px_rgba(212,175,55,0.8)]"
+              ></div>
+            </div>
+          </div>
+          <!-- Wed -->
+          <div class="flex-1 min-w-[44px] flex flex-col items-center gap-sm">
+            <span class="text-label-sm text-on-surface-variant opacity-60">W</span>
+            <div
+              class="w-11 h-11 rounded-full flex items-center justify-center glass-card border-white/5 active:scale-90 transition-transform"
+            ></div>
+          </div>
+          <!-- Thu (Today) -->
+          <div class="flex-1 min-w-[44px] flex flex-col items-center gap-sm">
+            <span class="text-label-sm text-primary">T</span>
+            <div
+              class="w-11 h-11 rounded-full flex items-center justify-center border-2 border-primary bg-primary/20 shadow-[0_0_20px_rgba(212,175,55,0.3)] active:scale-90 transition-transform"
+            >
+              <span class="text-primary">25</span>
+            </div>
+          </div>
+          <!-- Fri -->
+          <div class="flex-1 min-w-[44px] flex flex-col items-center gap-sm">
+            <span class="text-label-sm text-on-surface-variant opacity-60">F</span>
+            <div
+              class="w-11 h-11 rounded-full flex items-center justify-center glass-card border-white/5 opacity-40 active:scale-90 transition-transform"
+            ></div>
+          </div>
+          <!-- Sat -->
+          <div class="flex-1 min-w-[44px] flex flex-col items-center gap-sm">
+            <span class="text-label-sm text-on-surface-variant opacity-60">S</span>
+            <div
+              class="w-11 h-11 rounded-full flex items-center justify-center glass-card border-white/5 opacity-40 active:scale-90 transition-transform"
+            ></div>
+          </div>
+          <!-- Sun -->
+          <div class="flex-1 min-w-[44px] flex flex-col items-center gap-sm">
+            <span class="text-label-sm text-on-surface-variant opacity-60">S</span>
+            <div
+              class="w-11 h-11 rounded-full flex items-center justify-center glass-card border-white/5 opacity-40 active:scale-90 transition-transform"
+            ></div>
+          </div>
+        </div>
+      </section>
+      <div class="inter-section-glow"></div>
+      <!-- 4. Yesterday's Session -->
+      <section class="mb-6">
+        <h3 class="text-headline-md text-on-background mb-lg px-1 tracking-wide uppercase">
+          YESTERDAY
+        </h3>
+        <div
+          class="glass-card shimmer-card p-md relative overflow-hidden group cursor-pointer interactive-scale"
+        >
+          <div class="flex flex-col gap-6 relative z-10">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-md">
+                <div
+                  class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shadow-inner group-hover:border-primary/30 transition-colors"
+                >
+                  <span
+                    class="material-symbols-outlined text-primary text-2xl"
+                    style="font-variation-settings: &quot;FILL&quot; 1"
+                    >vertical_align_bottom</span
+                  >
+                </div>
+                <div class="flex flex-col">
+                  <h4
+                    class="text-lg text-on-background uppercase tracking-[0.15em] leading-none mb-1.5 font-anta"
+                  >
+                    PULL DAY
+                  </h4>
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_6px_rgba(74,225,118,0.5)]"
+                    ></span>
+                    <span class="text-[10px] text-secondary uppercase tracking-[0.1em] font-anta"
+                      >Completed</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <div
+                class="w-8 h-8 rounded-full border border-primary/20 flex items-center justify-center group-hover:bg-primary/10 transition-all"
+              >
+                <span class="material-symbols-outlined text-primary text-xl">chevron_right</span>
+              </div>
+            </div>
+            <div
+              class="h-[1px] w-full bg-gradient-to-r from-transparent via-white/10 to-transparent"
+            ></div>
+            <div class="flex items-center">
+              <div class="flex-1 flex flex-col items-center">
+                <span class="text-xl text-on-background font-anta leading-none">68</span>
+                <span
+                  class="text-[9px] text-on-surface-variant uppercase tracking-widest opacity-60 font-anta mt-1"
+                  >MIN</span
+                >
+              </div>
+              <div class="w-[1px] h-6 bg-white/10"></div>
+              <div class="flex-1 flex flex-col items-center">
+                <span class="text-xl text-on-background font-anta leading-none">18</span>
+                <span
+                  class="text-[9px] text-on-surface-variant uppercase tracking-widest opacity-60 font-anta mt-1"
+                  >SETS</span
+                >
+              </div>
+              <div class="w-[1px] h-6 bg-white/10"></div>
+              <div class="flex-1 flex flex-col items-center">
+                <span class="text-xl text-on-background font-anta leading-none">12,450</span>
+                <span
+                  class="text-[9px] text-on-surface-variant uppercase tracking-widest opacity-60 font-anta mt-1"
+                  >KG</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="inter-section-glow"></div>
+      <!-- 5. Performance Snapshot Bento -->
+      <section class="section-glow mb-4">
+        <h3 class="text-[11px] text-primary/80 uppercase tracking-[0.35em] mb-4 px-1">
+          Performance Snapshot
+        </h3>
+        <div class="grid grid-cols-4 gap-2">
+          <div
+            class="glass-card p-2 flex flex-col items-center justify-center text-center gap-1 min-h-[80px] interactive-scale cursor-pointer"
+          >
+            <span
+              class="material-symbols-outlined text-primary/60 !text-[18px]"
+              style="font-variation-settings: &quot;FILL&quot; 1"
+              >calendar_month</span
+            >
+            <div class="flex flex-col">
+              <p class="text-[10px] text-on-background leading-none">04</p>
+              <p
+                class="text-[8px] text-on-surface-variant uppercase tracking-tighter opacity-50 leading-tight"
+              >
+                Workouts
+              </p>
+            </div>
+          </div>
+          <div
+            class="glass-card p-2 flex flex-col items-center justify-center text-center gap-1 min-h-[80px] bg-primary/10 interactive-scale cursor-pointer"
+          >
+            <span
+              class="material-symbols-outlined text-primary !text-[18px] shadow-primary/20"
+              style="font-variation-settings: &quot;FILL&quot; 1"
+              >local_fire_department</span
+            >
+            <div class="flex flex-col">
+              <p class="text-[10px] text-primary leading-none">14D</p>
+              <p class="text-[8px] text-primary uppercase tracking-tighter leading-tight">Streak</p>
+            </div>
+          </div>
+          <div
+            class="glass-card p-2 flex flex-col items-center justify-center text-center gap-1 min-h-[80px] interactive-scale cursor-pointer"
+          >
+            <span
+              class="material-symbols-outlined text-primary/60 !text-[18px]"
+              style="font-variation-settings: &quot;FILL&quot; 1"
+              >timer</span
+            >
+            <div class="flex flex-col">
+              <p class="text-[10px] text-on-background leading-none">18.5H</p>
+              <p
+                class="text-[8px] text-on-surface-variant uppercase tracking-tighter opacity-50 leading-tight"
+              >
+                Total Time
+              </p>
+            </div>
+          </div>
+          <div
+            class="glass-card p-2 flex flex-col items-center justify-center text-center gap-1 min-h-[80px] interactive-scale cursor-pointer"
+          >
+            <span
+              class="material-symbols-outlined text-primary/60 !text-[18px]"
+              style="font-variation-settings: &quot;FILL&quot; 1"
+              >monitoring</span
+            >
+            <div class="flex flex-col">
+              <p class="text-[10px] text-on-background leading-none">42.5T</p>
+              <p
+                class="text-[8px] text-on-surface-variant uppercase tracking-tighter opacity-50 leading-tight"
+              >
+                Volume
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="inter-section-glow"></div>
+      <!-- 6. Recent Sessions -->
+      <section class="mb-6">
+        <div class="flex justify-between items-center mb-lg px-1">
+          <h3 class="text-headline-md text-on-background uppercase tracking-wide">
+            RECENT SESSIONS
+          </h3>
+          <span
+            class="material-symbols-outlined text-primary/60 !text-2xl hover:text-primary transition-colors cursor-pointer active:scale-90"
+            >arrow_forward</span
+          >
+        </div>
+        <div class="space-y-md">
+          <div
+            class="glass-card p-md flex items-center justify-between group cursor-pointer interactive-scale"
+          >
+            <div class="flex items-center gap-md">
+              <div
+                class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-primary/20 transition-all"
+              >
+                <span class="material-symbols-outlined text-primary/60 text-2xl"
+                  >directions_run</span
+                >
+              </div>
+              <div>
+                <p class="text-on-background uppercase tracking-wider text-body-lg">LEG DAY</p>
+                <p class="text-xs text-on-surface-variant uppercase opacity-60">AUG 22 • 72 MIN</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-body-lg text-on-background">14,200 KG</p>
+              <p class="text-xs text-secondary">+2% VOL</p>
+            </div>
+          </div>
+          <div
+            class="glass-card p-md flex items-center justify-between group cursor-pointer interactive-scale"
+          >
+            <div class="flex items-center gap-md">
+              <div
+                class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-primary/20 transition-all"
+              >
+                <span class="material-symbols-outlined text-primary/60 text-2xl"
+                  >accessibility_new</span
+                >
+              </div>
+              <div>
+                <p class="text-on-background uppercase tracking-wider text-body-lg">UPPER BODY</p>
+                <p class="text-xs text-on-surface-variant uppercase opacity-60">AUG 20 • 58 MIN</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-body-lg text-on-background">9,800 KG</p>
+              <p class="text-xs text-on-surface-variant opacity-60 tracking-wider uppercase">
+                ON TRACK
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <!-- FAB and Nav Container -->
+    <div class="fixed bottom-0 left-0 right-0 px-container-margin pb-8 pointer-events-none z-50">
+      <div class="relative max-w-md mx-auto flex flex-col items-center">
+        <!-- Floating FAB: Quick Add -->
+        <button
+          class="pointer-events-auto w-16 h-16 matte-gold-btn rounded-full flex items-center justify-center mb-[-32px] z-[60] interactive-scale shadow-[0_12px_40px_rgba(212,175,55,0.5)] border border-white/20"
+        >
+          <span class="material-symbols-outlined !text-4xl font-bold">add</span>
+        </button>
+        <!-- 7. Navigation & Shell -->
+        <nav
+          class="pointer-events-auto glass-card h-20 w-full flex justify-around items-center px-sm shadow-2xl bg-black/60 !rounded-[32px]"
+        >
+          <div
+            class="flex-1 flex flex-col items-center text-primary cursor-pointer active:scale-95 transition-transform"
+          >
+            <span
+              class="material-symbols-outlined !text-2xl"
+              style="font-variation-settings: &quot;FILL&quot; 1"
+              >home</span
+            >
+            <span class="text-[10px] uppercase mt-1 tracking-[0.2em]">Home</span>
+          </div>
+          <div
+            class="flex-1 flex flex-col items-center text-on-surface-variant opacity-50 hover:opacity-100 transition-all cursor-pointer active:scale-95 transition-transform"
+          >
+            <span class="material-symbols-outlined !text-2xl">history</span>
+            <span class="text-[10px] uppercase mt-1 tracking-[0.2em]">History</span>
+          </div>
+          <!-- Middle Spacer for FAB -->
+          <div class="flex-1"></div>
+          <div
+            class="flex-1 flex flex-col items-center text-on-surface-variant opacity-50 hover:opacity-100 transition-all cursor-pointer active:scale-95 transition-transform"
+          >
+            <span class="material-symbols-outlined !text-2xl">monitoring</span>
+            <span class="text-[10px] uppercase mt-1 tracking-[0.2em]">Stats</span>
+          </div>
+          <div
+            class="flex-1 flex flex-col items-center text-on-surface-variant opacity-50 hover:opacity-100 transition-all cursor-pointer active:scale-95 transition-transform"
+          >
+            <span class="material-symbols-outlined !text-2xl">person</span>
+            <span class="text-[10px] uppercase mt-1 tracking-[0.2em]">Profile</span>
+          </div>
+        </nav>
+      </div>
+    </div>
+    <script>
+      // Kinetic Particle System
+      const particleContainer = document.getElementById("particle-container");
+      const particleCount = 20;
+
+      function createParticle() {
+        const p = document.createElement("div");
+        p.className = "gold-dust";
+
+        const size = Math.random() * 3 + 1;
+        p.style.width = `${size}px`;
+        p.style.height = `${size}px`;
+        p.style.left = `${Math.random() * 100}%`;
+        p.style.top = `${Math.random() * 100}%`;
+
+        // Random speed for vertical motion
+        const speed = Math.random() * 20 + 30; // 30-50s per full loop
+        p.style.transition = `transform ${speed}s linear, opacity 2s ease`;
+
+        particleContainer.appendChild(p);
+
+        // Trigger animation
+        setTimeout(() => {
+          p.style.transform = `translateY(-${window.innerHeight}px)`;
+        }, 100);
+
+        // Remove and recreate when finished
+        setTimeout(
+          () => {
+            p.style.opacity = "0";
+            setTimeout(() => {
+              p.remove();
+              createParticle();
+            }, 2000);
+          },
+          speed * 1000 - 2000,
+        );
+      }
+
+      // Initialize particles
+      for (let i = 0; i < particleCount; i++) {
+        setTimeout(createParticle, i * 500);
+      }
+
+      // Haptic feedback feel for interactions
+      document.querySelectorAll(".interactive-scale").forEach((btn) => {
+        btn.addEventListener("touchstart", () => {
+          if (window.navigator && window.navigator.vibrate) {
+            window.navigator.vibrate(5);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -10,9 +10,7 @@ export function LibraryScreen() {
           <Pressable className="p-2 rounded-lg active:bg-surface-variant transition-colors">
             <MaterialIcons name="menu" size={24} color="#cdc7aa" />
           </Pressable>
-          <Text className="font-display-lg text-2xl tracking-tighter text-primary-fixed">
-            FORGE
-          </Text>
+          <Text className="font-display-lg text-2xl tracking-tighter text-primary-fixed">GRIT</Text>
         </View>
         <View className="flex-row items-center gap-4">
           <View className="w-10 h-10 rounded-full border border-border-subtle overflow-hidden">

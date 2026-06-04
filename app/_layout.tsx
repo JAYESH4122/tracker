@@ -7,6 +7,7 @@ import {
 } from "@expo-google-fonts/archivo-narrow";
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from "@expo-google-fonts/inter";
 import { SpecialGothicExpandedOne_400Regular } from "@expo-google-fonts/special-gothic-expanded-one";
+import { Anta_400Regular } from "@expo-google-fonts/anta";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { DarkTheme, ThemeProvider } from "expo-router/react-navigation";
 import { useFonts } from "expo-font";
@@ -41,6 +42,7 @@ export default function RootLayout() {
     Inter_500Medium,
     Inter_600SemiBold,
     SpecialGothicExpandedOne_400Regular,
+    Anta_400Regular,
   });
 
   useEffect(() => {
