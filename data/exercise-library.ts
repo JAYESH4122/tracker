@@ -270,6 +270,62 @@ export const DEFAULT_EXERCISE_LIBRARY: Exercise[] = [
     createdAt: SEED_DATE,
     updatedAt: null,
   },
+  {
+    id: "cable-chest-press",
+    name: "Cable Chest Press",
+    muscleGroup: "Chest",
+    youtubeUrl: "https://www.youtube.com/watch?v=SCVCLChPQgy",
+    isCustom: false,
+    createdAt: SEED_DATE,
+    updatedAt: null,
+  },
+  // Legs Additions
+  {
+    id: "barbell-leg-squat",
+    name: "Barbell Leg Squat",
+    muscleGroup: "Legs",
+    youtubeUrl: "https://www.youtube.com/watch?v=MeIiIdhvXT4",
+    isCustom: false,
+    createdAt: SEED_DATE,
+    updatedAt: null,
+  },
+  {
+    id: "super-squat-machine",
+    name: "Super Squat Machine",
+    muscleGroup: "Legs",
+    youtubeUrl: "https://www.youtube.com/watch?v=MeIiIdhvXT4",
+    isCustom: false,
+    createdAt: SEED_DATE,
+    updatedAt: null,
+  },
+  {
+    id: "machine-leg-press",
+    name: "Machine Leg Press",
+    muscleGroup: "Legs",
+    youtubeUrl: "https://www.youtube.com/watch?v=2C-uNgKwPLE",
+    isCustom: false,
+    createdAt: SEED_DATE,
+    updatedAt: null,
+  },
+  {
+    id: "front-leg-extension",
+    name: "Front Leg Extension",
+    muscleGroup: "Legs",
+    youtubeUrl: "https://www.youtube.com/watch?v=2C-uNgKwPLE",
+    isCustom: false,
+    createdAt: SEED_DATE,
+    updatedAt: null,
+  },
+  // Biceps Additions
+  {
+    id: "preacher-curl-bar",
+    name: "Preacher Curl Bar",
+    muscleGroup: "Biceps",
+    youtubeUrl: "https://www.youtube.com/watch?v=FL0t4s1p3Q0",
+    isCustom: false,
+    createdAt: SEED_DATE,
+    updatedAt: null,
+  },
 ];
 
 export const MUSCLE_GROUPS = [

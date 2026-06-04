@@ -64,6 +64,12 @@ export const useExerciseStore = create<ExerciseStore>()(
     {
       name: "fitness-exercise-store",
       storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: () => (state, error) => {
+        if (!error && state) {
+          const customExercises = (state.exerciseList || []).filter((e) => e.isCustom);
+          state.exerciseList = [...DEFAULT_EXERCISE_LIBRARY, ...customExercises];
+        }
+      },
     },
   ),
 );

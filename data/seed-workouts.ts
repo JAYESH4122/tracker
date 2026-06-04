@@ -45,7 +45,7 @@ function compileExercise(
 
 const RAW_WORKOUTS = [
   {
-    id: "workout-seed-monday",
+    id: "workout-prod-week1-monday",
     name: "Monday - Chest & Shoulders",
     date: "2026-05-25",
     startedAt: "2026-05-25T18:00:00.000Z",
@@ -61,7 +61,7 @@ const RAW_WORKOUTS = [
     ],
   },
   {
-    id: "workout-seed-tuesday",
+    id: "workout-prod-week1-tuesday",
     name: "Tuesday - Biceps & Back",
     date: "2026-05-26",
     startedAt: "2026-05-26T18:00:00.000Z",
@@ -76,7 +76,7 @@ const RAW_WORKOUTS = [
     ],
   },
   {
-    id: "workout-seed-wednesday",
+    id: "workout-prod-week1-wednesday",
     name: "Wednesday - Shoulders & Triceps",
     date: "2026-05-27",
     startedAt: "2026-05-27T18:00:00.000Z",
@@ -92,7 +92,7 @@ const RAW_WORKOUTS = [
     ],
   },
   {
-    id: "workout-seed-thursday",
+    id: "workout-prod-week1-thursday",
     name: "Thursday - Back & Forearms",
     date: "2026-05-28",
     startedAt: "2026-05-28T18:00:00.000Z",
@@ -108,7 +108,7 @@ const RAW_WORKOUTS = [
     ],
   },
   {
-    id: "workout-seed-friday",
+    id: "workout-prod-week1-friday",
     name: "Friday - Chest & Triceps",
     date: "2026-05-29",
     startedAt: "2026-05-29T18:00:00.000Z",
@@ -123,16 +123,50 @@ const RAW_WORKOUTS = [
     ],
   },
   {
-    id: "workout-seed-saturday",
+    id: "workout-prod-week1-saturday",
     name: "Saturday - Legs",
     date: "2026-05-30",
     startedAt: "2026-05-30T10:00:00.000Z",
     endedAt: "2026-05-30T11:15:00.000Z",
     durationSeconds: 4500,
     exercises: [
-      { id: "goblet-squat", weights: [16, 20, 20] },
-      { id: "bulgarian-split-squat", weights: [10, 12, 12] },
-      { id: "romanian-deadlift", weights: [50, 60, 60] },
+      { id: "barbell-leg-squat", weights: [20, 20, 30] },
+      { id: "super-squat-machine", weights: [120, 140, 160] },
+      { id: "machine-leg-press", weights: [140, 160, 160] },
+      { id: "goblet-squat", weights: [40, 40, 40] },
+      { id: "front-leg-extension", weights: [20, 20, 20] },
+    ],
+  },
+  {
+    id: "workout-prod-week2-monday",
+    name: "Monday - Chest & Shoulders",
+    date: "2026-06-01",
+    startedAt: "2026-06-01T18:00:00.000Z",
+    endedAt: "2026-06-01T19:15:00.000Z",
+    durationSeconds: 4500,
+    exercises: [
+      { id: "flat-bench", weights: [10, 20, 20] },
+      { id: "decline-bench", weights: [10, 20, 20] },
+      { id: "machine-flys", weights: [35, 40, 40] },
+      { id: "cable-chest-press", weights: [15, 15, 20] },
+      { id: "shoulder-press-machine", weights: [7.5, 7.5, 10] },
+      { id: "lateral-raise", weights: [10, 10, 12.5] },
+    ],
+  },
+  {
+    id: "workout-prod-week2-wednesday",
+    name: "Wednesday - Biceps & Back",
+    date: "2026-06-03",
+    startedAt: "2026-06-03T18:00:00.000Z",
+    endedAt: "2026-06-03T19:15:00.000Z",
+    durationSeconds: 4500,
+    exercises: [
+      { id: "hammer-curl", weights: [10, 10, 12] },
+      { id: "cable-bicep-curl", weights: [20, 20, 30] },
+      { id: "preacher-curl-bar", weights: [10, 10, 10] },
+      { id: "barbell-curl", weights: [10, 10, 10] },
+      { id: "bentover-row", weights: [10, 10, 10] },
+      { id: "lat-pulldown", weights: [20, 20, 20] },
     ],
   },
 ];

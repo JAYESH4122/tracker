@@ -39,8 +39,18 @@ export const useHistoryStore = create<HistoryStore>()(
       name: "fitness-history-store",
       storage: createJSONStorage(() => AsyncStorage),
       onRehydrateStorage: () => (state, error) => {
-        if (!error && state && (!state.workouts || state.workouts.length === 0)) {
-          state.workouts = INITIAL_SEED_WORKOUTS;
+        if (!error && state) {
+          const hasOldSeeds = state.workouts?.some((w) => w.id.startsWith("workout-seed-"));
+          const hasNewSeeds = state.workouts?.some((w) => w.id.startsWith("workout-prod-"));
+
+          if (hasOldSeeds || !hasNewSeeds || !state.workouts || state.workouts.length === 0) {
+            const userWorkouts = (state.workouts || []).filter(
+              (w) => !w.id.startsWith("workout-seed-") && !w.id.startsWith("workout-prod-"),
+            );
+            state.workouts = [...INITIAL_SEED_WORKOUTS, ...userWorkouts].sort((a, b) =>
+              b.startedAt.localeCompare(a.startedAt),
+            );
+          }
         }
       },
     },
