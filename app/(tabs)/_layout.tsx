@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { BottomTabBarProps } from "expo-router/js-tabs";
 import { LinearGradient } from "expo-linear-gradient";
 import { Tabs, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -7,7 +7,6 @@ import { Keyboard, Pressable, StyleSheet, Text, useWindowDimensions, View } from
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useWorkoutStore } from "@/store/use-workout-store";
-import { theme } from "@/theme";
 
 const GOLD = "#D4AF37";
 const GOLD_LIGHT = "#E5C158";
@@ -170,10 +169,6 @@ export default function TabsLayout() {
 
 const styles = StyleSheet.create({
   bottomShell: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
     paddingHorizontal: 24,
     zIndex: 50,
   },
@@ -183,6 +178,9 @@ const styles = StyleSheet.create({
   bottomShellInner: {
     alignItems: "center",
     justifyContent: "flex-end",
+    width: "100%",
+    maxWidth: 640,
+    alignSelf: "center",
   },
   fab: {
     width: 64,

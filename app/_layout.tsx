@@ -1,12 +1,6 @@
 import "../global.css";
 import "react-native-reanimated";
 
-import {
-  ArchivoNarrow_600SemiBold,
-  ArchivoNarrow_700Bold,
-} from "@expo-google-fonts/archivo-narrow";
-import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from "@expo-google-fonts/inter";
-import { SpecialGothicExpandedOne_400Regular } from "@expo-google-fonts/special-gothic-expanded-one";
 import { Anta_400Regular } from "@expo-google-fonts/anta";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { DarkTheme, ThemeProvider } from "expo-router/react-navigation";
@@ -36,12 +30,6 @@ const navigationTheme = {
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    ArchivoNarrow_600SemiBold,
-    ArchivoNarrow_700Bold,
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    SpecialGothicExpandedOne_400Regular,
     Anta_400Regular,
   });
 

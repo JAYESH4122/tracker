@@ -8,7 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "EXPO_ROUTER_DISABLE_RN_NAVIGATION_CHECK=1 expo start --web",
-    "lint": "eslint app components features store services utils types theme expo-env.d.ts --ext .ts,.tsx",
+    "lint": "eslint app components features store services utils types theme --ext .ts,.tsx",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

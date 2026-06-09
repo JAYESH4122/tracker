@@ -51,7 +51,7 @@ export function SetInputRow({
       <View style={{ width: 32, alignItems: "center" }}>
         <Text
           style={{
-            fontFamily: "ArchivoNarrow_700Bold",
+            fontFamily: "Anta_400Regular",
             fontSize: 13,
             color: isCompleted ? "#4AE176" : "#E5E2E1",
           }}
@@ -64,7 +64,7 @@ export function SetInputRow({
       <View style={{ flex: 1, paddingLeft: 8 }}>
         <Text
           style={{
-            fontFamily: "Inter_400Regular",
+            fontFamily: "Anta_400Regular",
             fontSize: 12,
             color: isCompleted ? "rgba(74, 225, 118, 0.7)" : "rgba(255, 255, 255, 0.5)",
           }}
@@ -93,7 +93,7 @@ export function SetInputRow({
             backgroundColor: "rgba(255, 255, 255, 0.05)",
             borderRadius: 6,
             textAlign: "center",
-            fontFamily: "Inter_400Regular",
+            fontFamily: "Anta_400Regular",
             fontSize: 14,
             color: "#E5E2E1",
             padding: 0,
@@ -120,7 +120,7 @@ export function SetInputRow({
             backgroundColor: "rgba(255, 255, 255, 0.05)",
             borderRadius: 6,
             textAlign: "center",
-            fontFamily: "Inter_400Regular",
+            fontFamily: "Anta_400Regular",
             fontSize: 14,
             color: "#E5E2E1",
             padding: 0,

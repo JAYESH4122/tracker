@@ -569,11 +569,12 @@ export function HomeScreen() {
       <View style={[s.contentFrame, { paddingTop: insets.top + 14 }]}>
         <ScrollView
           ref={scrollRef}
+          style={s.scrollViewport}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             s.scrollContent,
             isCompact && s.scrollContentCompact,
-            { paddingBottom: 170 + Math.max(insets.bottom, 16) },
+            { paddingBottom: 32 + Math.max(insets.bottom, 16) },
           ]}
         >
           <Animated.View
@@ -934,7 +935,13 @@ const s = StyleSheet.create({
   contentFrame: {
     flex: 1,
   },
+  scrollViewport: {
+    marginBottom: 32,
+  },
   scrollContent: {
+    width: "100%",
+    maxWidth: 640,
+    alignSelf: "center",
     paddingHorizontal: 24,
     gap: 20,
   },

@@ -1,7 +1,15 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import * as Linking from "expo-linking";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import Animated, {
   FadeInDown,
   FadeInRight,
@@ -9,7 +17,9 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { PremiumBackground, PremiumDivider } from "@/components";
 import { useExerciseStore } from "@/store/use-exercise-store";
 import { useHistoryStore } from "@/store/use-history-store";
 import { useWorkoutStore } from "@/store/use-workout-store";
@@ -18,19 +28,21 @@ import { formatDateLabel, formatWorkoutValue, getYouTubeThumbnailUrl } from "@/u
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 // ─── Design Tokens (Matches home-screen) ─────────────────────────────────────
-const GOLD = "#fde400";
-const DARK_BG = "#131313";
-const SURFACE = "#1e1e1e";
-const SURFACE_HIGH = "#272727";
-const BORDER = "#3a3a3a";
+const GOLD = "#D4AF37";
+const DARK_BG = "#0F0F0F";
+const SURFACE = "rgba(28, 28, 28, 0.84)";
+const SURFACE_HIGH = "rgba(36, 36, 36, 0.9)";
+const BORDER = "rgba(255, 255, 255, 0.08)";
 const TEXT = "#e5e2e1";
-const TEXT_SUB = "#cdc7aa";
-const TEXT_DIM = "#636565";
+const TEXT_SUB = "#A0A0A0";
+const TEXT_DIM = "rgba(255, 255, 255, 0.45)";
 const DARK_GOLD = "#201c00";
-const CARD_R = 12;
+const CARD_R = 20;
 
 export function ExerciseDetailScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
   const params = useLocalSearchParams<{ exerciseId?: string }>();
   const exerciseId = params.exerciseId ?? "";
   const exercise = useExerciseStore((state) => state.getExerciseById(exerciseId));
@@ -47,18 +59,20 @@ export function ExerciseDetailScreen() {
 
   if (!exercise) {
     return (
-      <View style={s.emptyRoot}>
-        <Animated.View entering={FadeInDown.springify()} style={s.emptyCard}>
-          <MaterialIcons name="error-outline" size={44} color={GOLD} />
-          <Text style={s.emptyTitle}>Movement Not Found</Text>
-          <Text style={s.emptySub}>
-            The selected exercise could not be loaded from the catalog.
-          </Text>
-          <Pressable onPress={() => router.back()} style={s.backBtnPreset}>
-            <Text style={s.backBtnPresetText}>RETURN TO LIBRARY</Text>
-          </Pressable>
-        </Animated.View>
-      </View>
+      <PremiumBackground>
+        <View style={s.emptyRoot}>
+          <Animated.View entering={FadeInDown.springify()} style={s.emptyCard}>
+            <MaterialIcons name="error-outline" size={44} color={GOLD} />
+            <Text style={s.emptyTitle}>Movement Not Found</Text>
+            <Text style={s.emptySub}>
+              The selected exercise could not be loaded from the catalog.
+            </Text>
+            <Pressable onPress={() => router.back()} style={s.backBtnPreset}>
+              <Text style={s.backBtnPresetText}>RETURN TO LIBRARY</Text>
+            </Pressable>
+          </Animated.View>
+        </View>
+      </PremiumBackground>
     );
   }
 
@@ -124,20 +138,30 @@ export function ExerciseDetailScreen() {
   };
 
   return (
-    <View style={s.root}>
+    <PremiumBackground style={s.root}>
       {/* ── App Header ─────────────────────────────────── */}
-      <Animated.View entering={FadeInDown.duration(350)} style={s.appBar}>
+      <Animated.View
+        entering={FadeInDown.duration(350)}
+        style={[s.appBar, { height: 58 + insets.top, paddingTop: insets.top }]}
+      >
         <Pressable
           onPress={() => router.back()}
           style={({ pressed }) => [s.iconBtn, pressed && s.iconBtnActive]}
         >
           <MaterialIcons name="chevron-left" size={24} color={GOLD} />
         </Pressable>
-        <Text style={s.logo}>GRIT PROFILE</Text>
+        <Text style={s.logo}>MOVEMENT</Text>
         <View style={{ width: 40 }} />
       </Animated.View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scroll}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          s.scroll,
+          width >= 720 ? s.scrollWide : null,
+          { paddingBottom: 72 + Math.max(insets.bottom, 16) },
+        ]}
+      >
         {/* ── Title Block ── */}
         <Animated.View entering={FadeInDown.delay(60).springify()} style={s.headerContainer}>
           <Text style={s.subtitleLabel}>{exercise.muscleGroup.toUpperCase()} MOVEMENT</Text>
@@ -226,6 +250,8 @@ export function ExerciseDetailScreen() {
             </AnimatedPressable>
           ) : null}
         </View>
+
+        <PremiumDivider />
 
         {/* ── Performance Stats Grid ── */}
         <Animated.View entering={FadeInDown.delay(180).springify()}>
@@ -331,7 +357,7 @@ export function ExerciseDetailScreen() {
           )}
         </View>
       </ScrollView>
-    </View>
+    </PremiumBackground>
   );
 }
 
@@ -341,20 +367,19 @@ const s = StyleSheet.create({
     backgroundColor: DARK_BG,
   },
   appBar: {
-    height: 58,
     paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: BORDER,
-    backgroundColor: DARK_BG,
+    backgroundColor: "rgba(15, 15, 15, 0.34)",
   },
   logo: {
-    fontFamily: "SpecialGothicExpandedOne_400Regular",
-    fontSize: 15,
-    color: GOLD,
-    letterSpacing: 1.5,
+    fontFamily: "Anta_400Regular",
+    fontSize: 18,
+    color: TEXT,
+    letterSpacing: 3,
   },
   iconBtn: {
     width: 36,
@@ -369,7 +394,12 @@ const s = StyleSheet.create({
   scroll: {
     paddingHorizontal: 16,
     paddingTop: 20,
-    paddingBottom: 60,
+    width: "100%",
+    maxWidth: 640,
+    alignSelf: "center",
+  },
+  scrollWide: {
+    paddingHorizontal: 24,
   },
 
   // Header Title
@@ -377,18 +407,19 @@ const s = StyleSheet.create({
     marginBottom: 20,
   },
   subtitleLabel: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 10,
-    color: TEXT_SUB,
+    color: GOLD,
     letterSpacing: 1.5,
     marginBottom: 4,
   },
   mainTitle: {
-    fontFamily: "SpecialGothicExpandedOne_400Regular",
-    fontSize: 22,
-    color: TEXT,
+    fontFamily: "Anta_400Regular",
+    fontSize: 30,
+    color: GOLD,
     letterSpacing: 0.5,
-    lineHeight: 28,
+    lineHeight: 34,
+    textTransform: "uppercase",
   },
 
   // Media Cover Card
@@ -448,11 +479,11 @@ const s = StyleSheet.create({
   fallbackGrid: {
     ...StyleSheet.absoluteFill,
     borderWidth: 1,
-    borderColor: "rgba(253, 228, 0, 0.03)",
+    borderColor: "rgba(212, 175, 55, 0.06)",
     borderStyle: "dashed",
   },
   fallbackText: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 11,
     color: TEXT_DIM,
     letterSpacing: 1.5,
@@ -478,8 +509,8 @@ const s = StyleSheet.create({
     borderColor: BORDER,
   },
   badgeCustom: {
-    backgroundColor: "rgba(253, 228, 0, 0.05)",
-    borderColor: "rgba(253, 228, 0, 0.25)",
+    backgroundColor: "rgba(212, 175, 55, 0.08)",
+    borderColor: "rgba(212, 175, 55, 0.25)",
   },
   badgeSecondary: {
     backgroundColor: SURFACE_HIGH,
@@ -498,7 +529,7 @@ const s = StyleSheet.create({
     backgroundColor: GOLD,
   },
   badgeText: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 9,
     letterSpacing: 0.5,
   },
@@ -509,7 +540,7 @@ const s = StyleSheet.create({
     color: GOLD,
   },
   badgeTextSecondary: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 9,
     color: TEXT,
     letterSpacing: 0.5,
@@ -531,7 +562,7 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   btnStartText: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 12,
     color: DARK_GOLD,
     letterSpacing: 1.2,
@@ -549,7 +580,7 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   btnCustomText: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 12,
     color: TEXT,
     letterSpacing: 1,
@@ -557,12 +588,13 @@ const s = StyleSheet.create({
 
   // Section Headers
   secTitle: {
-    fontFamily: "SpecialGothicExpandedOne_400Regular",
-    fontSize: 13,
+    fontFamily: "Anta_400Regular",
+    fontSize: 18,
     color: TEXT,
-    letterSpacing: 1.2,
+    letterSpacing: 0.8,
     marginBottom: 12,
     marginTop: 10,
+    textTransform: "uppercase",
   },
 
   // Performance Stats Bento Grid
@@ -573,6 +605,7 @@ const s = StyleSheet.create({
   },
   statCard: {
     flex: 1,
+    minWidth: 100,
     backgroundColor: SURFACE,
     borderWidth: 1,
     borderColor: BORDER,
@@ -582,7 +615,7 @@ const s = StyleSheet.create({
     alignItems: "center",
   },
   statLabel: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 8,
     color: TEXT_DIM,
     letterSpacing: 1,
@@ -591,13 +624,13 @@ const s = StyleSheet.create({
     marginBottom: 6,
   },
   statValue: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 16,
     color: GOLD,
     textAlign: "center",
   },
   statDetail: {
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Anta_400Regular",
     fontSize: 9,
     color: TEXT_SUB,
     textAlign: "center",
@@ -615,14 +648,14 @@ const s = StyleSheet.create({
     borderColor: BORDER,
   },
   emptyHistoryTitle: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 14,
     color: TEXT_SUB,
     marginTop: 12,
     marginBottom: 4,
   },
   emptyHistorySub: {
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Anta_400Regular",
     fontSize: 11,
     color: TEXT_DIM,
     textAlign: "center",
@@ -647,15 +680,15 @@ const s = StyleSheet.create({
     alignItems: "center",
   },
   emptyTitle: {
-    fontFamily: "SpecialGothicExpandedOne_400Regular",
-    fontSize: 16,
+    fontFamily: "Anta_400Regular",
+    fontSize: 18,
     color: TEXT,
     marginTop: 14,
     marginBottom: 6,
     textAlign: "center",
   },
   emptySub: {
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Anta_400Regular",
     fontSize: 12,
     color: TEXT_SUB,
     textAlign: "center",
@@ -669,7 +702,7 @@ const s = StyleSheet.create({
     borderRadius: 8,
   },
   backBtnPresetText: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 12,
     color: DARK_GOLD,
     letterSpacing: 1.2,
@@ -735,28 +768,28 @@ const s = StyleSheet.create({
     marginBottom: 10,
   },
   historyCardDate: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 10,
     color: TEXT_SUB,
     marginBottom: 2,
   },
   historyCardName: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 13,
     color: TEXT,
   },
   bestSetBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(253, 228, 0, 0.08)",
+    backgroundColor: "rgba(212, 175, 55, 0.08)",
     borderWidth: 0.5,
-    borderColor: "rgba(253, 228, 0, 0.2)",
+    borderColor: "rgba(212, 175, 55, 0.2)",
     borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 3,
   },
   bestSetBadgeText: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 8,
     color: GOLD,
     letterSpacing: 0.5,
@@ -779,13 +812,13 @@ const s = StyleSheet.create({
     paddingVertical: 4,
   },
   setDetailsPillIndex: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 8,
     color: TEXT_DIM,
     marginRight: 6,
   },
   setDetailsPillText: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 11,
     color: TEXT,
   },

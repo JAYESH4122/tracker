@@ -1,11 +1,32 @@
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
-import { AppText, Button, Card, SectionHeader } from "@/components";
+import {
+  AppText,
+  PremiumCard,
+  PremiumDivider,
+  PremiumHeader,
+  PremiumMetricTile,
+  PremiumPrimaryAction,
+  PremiumScrollScreen,
+} from "@/components";
 import { useHistoryStore } from "@/store/use-history-store";
-import { theme } from "@/theme";
 import { formatDateLabel, formatDuration } from "@/utils/workout";
+
+function formatDateTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
+}
 
 export function WorkoutDetailScreen() {
   const router = useRouter();
@@ -15,77 +36,100 @@ export function WorkoutDetailScreen() {
 
   if (!workout) {
     return (
-      <View style={styles.empty}>
-        <AppText variant="sectionTitle">Workout not found</AppText>
-        <Button onPress={() => router.back()}>Go back</Button>
-      </View>
+      <PremiumScrollScreen reserveBottomDock={false}>
+        <PremiumHeader title="Workout" leftIcon="chevron-left" onLeftPress={() => router.back()} />
+        <PremiumCard style={styles.emptyCard}>
+          <MaterialIcons name="error-outline" size={36} color="#D4AF37" />
+          <AppText variant="sectionTitle" style={styles.emptyTitle}>
+            Workout not found
+          </AppText>
+          <AppText variant="body" color="subtext" style={styles.emptyText}>
+            The selected saved session could not be loaded.
+          </AppText>
+          <PremiumPrimaryAction icon="arrow-back" onPress={() => router.back()}>
+            Go Back
+          </PremiumPrimaryAction>
+        </PremiumCard>
+      </PremiumScrollScreen>
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <View style={styles.topRow}>
-        <View style={styles.copy}>
-          <AppText variant="caption" color="subtext">
-            Saved workout
-          </AppText>
-          <AppText variant="display">{workout.name}</AppText>
-          <AppText variant="body" color="subtext">
-            {formatDateLabel(workout.date)} • {formatDuration(workout.durationSeconds)}
-          </AppText>
-        </View>
-        <Button variant="ghost" onPress={() => router.back()}>
-          Back
-        </Button>
+    <PremiumScrollScreen bottomInset={72} reserveBottomDock={false}>
+      <PremiumHeader title="Workout" leftIcon="chevron-left" onLeftPress={() => router.back()} />
+
+      <PremiumCard accent style={styles.heroCard}>
+        <AppText variant="caption" color="primary" style={styles.eyebrow}>
+          Saved Workout
+        </AppText>
+        <AppText variant="display" style={styles.heroTitle}>
+          {workout.name}
+        </AppText>
+        <AppText variant="body" color="subtext" style={styles.heroSub}>
+          {formatDateLabel(workout.date)} / {formatDuration(workout.durationSeconds)}
+        </AppText>
+      </PremiumCard>
+
+      <View style={styles.metrics}>
+        <PremiumMetricTile
+          icon="fitness-center"
+          label="Exercises"
+          value={String(workout.exerciseCount)}
+          style={styles.metricTile}
+        />
+        <PremiumMetricTile
+          icon="reorder"
+          label="Sets"
+          value={String(workout.setCount)}
+          style={styles.metricTile}
+        />
+        <PremiumMetricTile
+          icon="analytics"
+          label="Volume"
+          value={`${workout.totalVolume.toLocaleString()}kg`}
+          accent
+          style={styles.metricTile}
+        />
       </View>
 
-      <Card elevated>
-        <View style={styles.metrics}>
-          <View style={styles.metric}>
-            <AppText variant="caption" color="subtext">
-              Exercises
-            </AppText>
-            <AppText variant="sectionTitle">{workout.exerciseCount}</AppText>
-          </View>
-          <View style={styles.metric}>
-            <AppText variant="caption" color="subtext">
-              Sets
-            </AppText>
-            <AppText variant="sectionTitle">{workout.setCount}</AppText>
-          </View>
-          <View style={styles.metric}>
-            <AppText variant="caption" color="subtext">
-              Volume
-            </AppText>
-            <AppText variant="sectionTitle">{workout.totalVolume.toLocaleString()} kg</AppText>
-          </View>
-        </View>
-      </Card>
+      <PremiumDivider />
+
+      <View style={styles.sectionHeader}>
+        <AppText variant="caption" color="primary" style={styles.eyebrow}>
+          Exercise Log
+        </AppText>
+        <AppText variant="title">Completed Movements</AppText>
+      </View>
 
       <View style={styles.exerciseList}>
         {workout.exercises.map((exercise) => (
-          <Card key={exercise.id}>
+          <PremiumCard key={exercise.id} style={styles.exerciseCard}>
             <View style={styles.exerciseHeader}>
               <View style={styles.exerciseTitle}>
-                <AppText variant="sectionTitle">{exercise.exerciseName}</AppText>
-                <AppText variant="caption" color="subtext">
+                <AppText variant="sectionTitle" style={styles.exerciseName}>
+                  {exercise.exerciseName}
+                </AppText>
+                <AppText variant="caption" color="subtext" style={styles.exerciseMeta}>
                   {exercise.muscleGroup}
                 </AppText>
               </View>
               <View style={styles.badges}>
                 {exercise.newPr ? (
                   <View style={styles.prBadge}>
-                    <AppText variant="caption" color="primary">
-                      New PR 🎉
+                    <AppText variant="caption" color="primary" style={styles.prText}>
+                      New PR
                     </AppText>
                   </View>
                 ) : null}
-                <Button
-                  variant="ghost"
+                <Pressable
                   onPress={() => router.push(`/exercise/${exercise.exerciseId}`)}
+                  style={({ pressed }) => [styles.videoPill, pressed ? styles.pressed : null]}
                 >
-                  Video
-                </Button>
+                  <MaterialIcons name="smart-display" size={15} color="#D4AF37" />
+                  <AppText variant="caption" color="primary" style={styles.videoText}>
+                    Video
+                  </AppText>
+                </Pressable>
               </View>
             </View>
 
@@ -93,130 +137,224 @@ export function WorkoutDetailScreen() {
               {exercise.sets.map((setItem, index) => (
                 <View key={setItem.id} style={styles.setRow}>
                   <View style={styles.setMeta}>
-                    <Ionicons
-                      name={setItem.isCompleted ? "checkmark-circle" : "ellipse-outline"}
+                    <MaterialIcons
+                      name={setItem.isCompleted ? "check-circle" : "radio-button-unchecked"}
                       size={18}
-                      color={setItem.isCompleted ? theme.colors.primary : theme.colors.subtext}
+                      color={setItem.isCompleted ? "#D4AF37" : "rgba(160, 160, 160, 0.8)"}
                     />
-                    <AppText variant="caption" color="subtext">
+                    <AppText variant="caption" color="subtext" style={styles.setLabel}>
                       Set {index + 1}
                     </AppText>
                   </View>
-                  <AppText variant="body">
-                    {setItem.reps ?? "-"} reps • {setItem.weight ?? "-"} kg
+                  <AppText variant="body" style={styles.setValue}>
+                    {setItem.reps ?? "-"} reps / {setItem.weight ?? "-"} kg
                   </AppText>
                 </View>
               ))}
             </View>
-          </Card>
+          </PremiumCard>
         ))}
       </View>
 
-      <Card>
-        <SectionHeader title="Summary" subtitle="Saved workout snapshot" />
-        <View style={styles.summaryRow}>
-          <AppText variant="body" color="subtext">
-            Started
+      <PremiumCard style={styles.summaryCard}>
+        <View style={styles.sectionHeader}>
+          <AppText variant="caption" color="primary" style={styles.eyebrow}>
+            Summary
           </AppText>
-          <AppText variant="body">{workout.startedAt}</AppText>
+          <AppText variant="title">Saved Snapshot</AppText>
         </View>
-        <View style={styles.summaryRow}>
-          <AppText variant="body" color="subtext">
-            Ended
-          </AppText>
-          <AppText variant="body">{workout.endedAt}</AppText>
+        <View style={styles.summaryRows}>
+          <View style={styles.summaryRow}>
+            <AppText variant="body" color="subtext">
+              Started
+            </AppText>
+            <AppText variant="body" style={styles.summaryValue}>
+              {formatDateTime(workout.startedAt)}
+            </AppText>
+          </View>
+          <View style={styles.summaryRow}>
+            <AppText variant="body" color="subtext">
+              Ended
+            </AppText>
+            <AppText variant="body" style={styles.summaryValue}>
+              {formatDateTime(workout.endedAt)}
+            </AppText>
+          </View>
+          <View style={styles.summaryRow}>
+            <AppText variant="body" color="subtext">
+              Notes
+            </AppText>
+            <AppText variant="body" style={styles.summaryValue}>
+              {workout.notes ?? "No notes saved"}
+            </AppText>
+          </View>
         </View>
-        <View style={styles.summaryRow}>
-          <AppText variant="body" color="subtext">
-            Notes
-          </AppText>
-          <AppText variant="body">{workout.notes ?? "No notes saved"}</AppText>
-        </View>
-      </Card>
-    </ScrollView>
+      </PremiumCard>
+    </PremiumScrollScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
-    padding: theme.spacing.lg,
-    paddingBottom: theme.spacing.xxl,
-    gap: theme.spacing.lg,
+  heroCard: {
+    gap: 4,
   },
-  empty: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: theme.spacing.lg,
-    backgroundColor: theme.colors.background,
+  eyebrow: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 10,
+    lineHeight: 14,
+    letterSpacing: 1.4,
+    textTransform: "uppercase",
   },
-  topRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: theme.spacing.sm,
+  heroTitle: {
+    color: "#D4AF37",
+    fontSize: 32,
+    lineHeight: 36,
   },
-  copy: {
-    flex: 1,
-    gap: theme.spacing.xs,
+  heroSub: {
+    fontSize: 14,
+    lineHeight: 21,
   },
   metrics: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: theme.spacing.sm,
+    gap: 12,
   },
-  metric: {
-    flex: 1,
-    minWidth: 100,
-    padding: theme.spacing.sm,
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.cardElevated,
+  metricTile: {
+    width: "31%",
+    minWidth: 132,
+    flexGrow: 1,
+  },
+  sectionHeader: {
+    gap: 4,
   },
   exerciseList: {
-    gap: theme.spacing.sm,
+    gap: 14,
+  },
+  exerciseCard: {
+    gap: 14,
   },
   exerciseHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    gap: theme.spacing.sm,
+    gap: 12,
   },
   exerciseTitle: {
     flex: 1,
+    minWidth: 0,
     gap: 4,
+  },
+  exerciseName: {
+    textTransform: "uppercase",
+  },
+  exerciseMeta: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 10,
+    lineHeight: 14,
+    letterSpacing: 1,
+    textTransform: "uppercase",
   },
   badges: {
     alignItems: "flex-end",
-    gap: theme.spacing.xs,
+    gap: 8,
   },
   prBadge: {
     paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(212, 175, 55, 0.26)",
+    backgroundColor: "rgba(212, 175, 55, 0.08)",
+  },
+  prText: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 10,
+    lineHeight: 12,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  videoPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(212, 175, 55, 0.2)",
+    backgroundColor: "rgba(212, 175, 55, 0.06)",
+    paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: theme.radius.pill,
-    backgroundColor: "rgba(0, 255, 136, 0.08)",
+  },
+  videoText: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 10,
+    lineHeight: 12,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  pressed: {
+    opacity: 0.82,
+    transform: [{ scale: 0.96 }],
   },
   setList: {
-    gap: theme.spacing.sm,
-    marginTop: theme.spacing.md,
+    gap: 8,
   },
   setRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: theme.spacing.sm,
-    padding: theme.spacing.sm,
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.cardElevated,
+    gap: 10,
+    padding: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.07)",
+    backgroundColor: "rgba(255, 255, 255, 0.035)",
   },
   setMeta: {
     flexDirection: "row",
     alignItems: "center",
-    gap: theme.spacing.xs,
+    gap: 8,
+  },
+  setLabel: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 10,
+    lineHeight: 14,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  setValue: {
+    flexShrink: 1,
+    textAlign: "right",
+  },
+  summaryCard: {
+    gap: 16,
+  },
+  summaryRows: {
+    gap: 10,
   },
   summaryRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
+    alignItems: "flex-start",
+    gap: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.07)",
+    backgroundColor: "rgba(255, 255, 255, 0.035)",
+    padding: 12,
+  },
+  summaryValue: {
+    flex: 1,
+    textAlign: "right",
+  },
+  emptyCard: {
+    alignItems: "center",
+    gap: 12,
+  },
+  emptyTitle: {
+    textAlign: "center",
+    textTransform: "uppercase",
+  },
+  emptyText: {
+    textAlign: "center",
   },
 });

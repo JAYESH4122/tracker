@@ -18,12 +18,12 @@ import {
   View,
 } from "react-native";
 import Animated, {
-  FadeInDown,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { SetInputRow } from "@/components/set-input-row";
 import { MUSCLE_GROUPS } from "@/data/exercise-library";
@@ -48,7 +48,6 @@ const GLASS_BG = "rgba(28, 28, 28, 0.8)";
 const GLASS_BORDER = "rgba(255, 255, 255, 0.08)";
 const TEXT_MAIN = "#E5E2E1";
 const TEXT_MUTED = "#A0A0A0";
-const ACCENT_GREEN = "#4AE176";
 const DARK_GOLD = "#1A1A1A";
 const BORDER = "rgba(255, 255, 255, 0.08)";
 const TEXT = "#E5E2E1";
@@ -181,8 +180,11 @@ type InputRefMap = Record<string, { weight: TextInput | null; reps: TextInput | 
 
 export function WorkoutScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const isWide = width >= 720;
   const activeWorkout = useWorkoutStore((s) => s.activeWorkout);
-  const exercises = activeWorkout?.exercises ?? [];
+  const exercises = useMemo(() => activeWorkout?.exercises ?? [], [activeWorkout?.exercises]);
   const startWorkout = useWorkoutStore((s) => s.startWorkout);
   const discardWorkout = useWorkoutStore((s) => s.discardWorkout);
   const addExercise = useWorkoutStore((s) => s.addExercise);
@@ -389,7 +391,7 @@ export function WorkoutScreen() {
       <GoldDustParticles />
 
       {/* ── App Bar ── */}
-      <View style={s.appBar}>
+      <View style={[s.appBar, { height: 64 + insets.top, paddingTop: insets.top }]}>
         <View style={s.appBarLeft}>
           <Pressable
             onPress={handleDiscard}
@@ -420,9 +422,14 @@ export function WorkoutScreen() {
       </View>
 
       <ScrollView
+        style={s.scrollViewport}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={s.scroll}
+        contentContainerStyle={[
+          s.scroll,
+          isWide ? s.scrollWide : null,
+          { paddingBottom: 48 + Math.max(insets.bottom, 16) },
+        ]}
       >
         <Text style={s.screenTitle}>{activeWorkout?.name ?? "Strength Session"}</Text>
         <Text style={s.screenSub}>
@@ -451,7 +458,7 @@ export function WorkoutScreen() {
                   />
                   <Text style={s.statTileVal}>
                     {formatWorkoutValue(volume)}
-                    <Text style={{ fontSize: 12, fontFamily: "Inter_600SemiBold" }}>kg</Text>
+                    <Text style={{ fontSize: 12, fontFamily: "Anta_400Regular" }}>kg</Text>
                   </Text>
                   <Text style={s.statTileLbl}>VOLUME</Text>
                 </View>
@@ -1004,7 +1011,7 @@ const s = StyleSheet.create({
     backgroundColor: "rgba(212,175,55,0.08)",
   },
   finishChipText: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 10,
     color: GOLD,
     letterSpacing: 1,
@@ -1023,16 +1030,28 @@ const s = StyleSheet.create({
   },
 
   // Scroll
-  scroll: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 200 },
+  scrollViewport: {
+    marginBottom: 32,
+  },
+  scroll: {
+    width: "100%",
+    maxWidth: 640,
+    alignSelf: "center",
+    paddingHorizontal: 16,
+    paddingTop: 20,
+  },
+  scrollWide: {
+    paddingHorizontal: 24,
+  },
   screenTitle: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 32,
     color: GOLD,
     letterSpacing: -0.5,
     marginBottom: 4,
   },
   screenSub: {
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Anta_400Regular",
     fontSize: 14,
     color: TEXT_MUTED,
     marginBottom: 20,
@@ -1062,7 +1081,7 @@ const s = StyleSheet.create({
     alignItems: "center",
   },
   exName: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 18,
     color: TEXT_MAIN,
     textTransform: "uppercase",
@@ -1075,7 +1094,7 @@ const s = StyleSheet.create({
     paddingVertical: 2,
   },
   setsCountBadgeText: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 9,
     color: "rgba(255, 255, 255, 0.6)",
     textTransform: "uppercase",
@@ -1087,7 +1106,7 @@ const s = StyleSheet.create({
     paddingVertical: 2,
   },
   prBadgeText: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 9,
     color: GOLD,
     letterSpacing: 0.5,
@@ -1106,7 +1125,7 @@ const s = StyleSheet.create({
     marginBottom: 24,
   },
   emptyWorkoutPromptTitle: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 18,
     color: TEXT_MAIN,
     marginTop: 12,
@@ -1115,7 +1134,7 @@ const s = StyleSheet.create({
     letterSpacing: 0.5,
   },
   emptyWorkoutPromptText: {
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Anta_400Regular",
     fontSize: 13,
     lineHeight: 20,
     color: TEXT_MUTED,
@@ -1132,7 +1151,7 @@ const s = StyleSheet.create({
     paddingVertical: 10,
   },
   addFirstExerciseText: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 12,
     color: "#1A1A1A",
     letterSpacing: 1,
@@ -1151,7 +1170,7 @@ const s = StyleSheet.create({
     borderBottomColor: GLASS_BORDER,
   },
   tableHeadTxt: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 9,
     color: TEXT_MUTED,
     textTransform: "uppercase",
@@ -1174,7 +1193,7 @@ const s = StyleSheet.create({
     backgroundColor: "transparent",
   },
   addSetTxt: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 11,
     color: "rgba(255, 255, 255, 0.6)",
     letterSpacing: 1,
@@ -1206,7 +1225,7 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   addExerciseText: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 18,
     color: GOLD,
     letterSpacing: 0.5,
@@ -1237,7 +1256,7 @@ const s = StyleSheet.create({
     elevation: 4,
   },
   statTileLbl: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 10,
     color: "rgba(255, 255, 255, 0.4)",
     textTransform: "uppercase",
@@ -1263,7 +1282,7 @@ const s = StyleSheet.create({
   },
   exerciseCompletedText: {
     flex: 1,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Anta_400Regular",
     fontSize: 12,
     lineHeight: 18,
     color: TEXT_DIM,
@@ -1283,7 +1302,7 @@ const s = StyleSheet.create({
     elevation: 5,
   },
   emptyTitle: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 22,
     color: GOLD,
     letterSpacing: 0.5,
@@ -1292,7 +1311,7 @@ const s = StyleSheet.create({
     marginBottom: 8,
   },
   emptySub: {
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Anta_400Regular",
     fontSize: 13,
     color: TEXT_MUTED,
     textAlign: "center",
@@ -1310,7 +1329,7 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   startBtnTxt: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 14,
     color: "#1A1A1A",
     letterSpacing: 1,
@@ -1341,7 +1360,7 @@ const s = StyleSheet.create({
   },
   completeBtnDisabled: { opacity: 0.4 },
   completeBtnTxt: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 16,
     color: "#1A1A1A",
     letterSpacing: 0.5,
@@ -1352,6 +1371,9 @@ const s = StyleSheet.create({
   modalOverlay: { flex: 1, backgroundColor: "rgba(0, 0, 0, 0.8)", justifyContent: "flex-end" },
   modalSheet: {
     maxHeight: "92%",
+    width: "100%",
+    maxWidth: 640,
+    alignSelf: "center",
     backgroundColor: "#161616",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
@@ -1370,14 +1392,14 @@ const s = StyleSheet.create({
     marginBottom: 16,
   },
   modalTitle: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 20,
     color: GOLD,
     letterSpacing: 0.5,
     textTransform: "uppercase",
     marginBottom: 4,
   },
-  modalSub: { fontFamily: "Inter_400Regular", fontSize: 13, color: TEXT_MUTED, marginBottom: 16 },
+  modalSub: { fontFamily: "Anta_400Regular", fontSize: 13, color: TEXT_MUTED, marginBottom: 16 },
 
   // Search
   searchRow: {
@@ -1392,7 +1414,7 @@ const s = StyleSheet.create({
     height: 44,
   },
   searchIcon: { marginRight: 8 },
-  searchInput: { flex: 1, fontFamily: "Inter_400Regular", fontSize: 14, color: TEXT, height: 44 },
+  searchInput: { flex: 1, fontFamily: "Anta_400Regular", fontSize: 14, color: TEXT, height: 44 },
 
   // Chips
   chipScroll: { marginBottom: 12, flexGrow: 0 },
@@ -1409,7 +1431,7 @@ const s = StyleSheet.create({
     alignItems: "center",
   },
   chipActive: { backgroundColor: GOLD, borderColor: GOLD },
-  chipTxt: { fontFamily: "Inter_600SemiBold", fontSize: 11, color: TEXT_MUTED },
+  chipTxt: { fontFamily: "Anta_400Regular", fontSize: 11, color: TEXT_MUTED },
   chipTxtActive: { color: "#1A1A1A" },
 
   // Exercise list in modal
@@ -1432,22 +1454,22 @@ const s = StyleSheet.create({
   },
   exRowLeft: { flex: 1, marginRight: 12 },
   exRowName: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 16,
     color: TEXT_MAIN,
     letterSpacing: 0.5,
     marginBottom: 2,
   },
-  exRowGroup: { fontFamily: "Inter_400Regular", fontSize: 11, color: TEXT_MUTED },
+  exRowGroup: { fontFamily: "Anta_400Regular", fontSize: 11, color: TEXT_MUTED },
   addBadge: {
     backgroundColor: "rgba(212, 175, 55, 0.15)",
     borderRadius: 99,
     paddingHorizontal: 12,
     paddingVertical: 5,
   },
-  addBadgeTxt: { fontFamily: "ArchivoNarrow_700Bold", fontSize: 11, color: GOLD },
+  addBadgeTxt: { fontFamily: "Anta_400Regular", fontSize: 11, color: GOLD },
   noResults: { alignItems: "center", paddingVertical: 32 },
-  noResultsTxt: { fontFamily: "Inter_400Regular", fontSize: 14, color: TEXT_DIM },
+  noResultsTxt: { fontFamily: "Anta_400Regular", fontSize: 14, color: TEXT_DIM },
 
   // Sliding Tab Bar in Modal
   modalTabContainer: {
@@ -1472,7 +1494,7 @@ const s = StyleSheet.create({
     backgroundColor: GOLD,
   },
   modalTabText: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 11,
     color: TEXT_MUTED,
     letterSpacing: 1,
@@ -1491,7 +1513,7 @@ const s = StyleSheet.create({
     gap: 6,
   },
   formLabel: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 9,
     color: TEXT_DIM,
     letterSpacing: 1.2,
@@ -1511,7 +1533,7 @@ const s = StyleSheet.create({
   },
   formInput: {
     flex: 1,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Anta_400Regular",
     fontSize: 14,
     color: TEXT_MAIN,
     height: 48,
@@ -1539,7 +1561,7 @@ const s = StyleSheet.create({
     borderColor: GOLD,
   },
   formChipTxt: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 11,
     color: TEXT_SUB,
   },
@@ -1559,7 +1581,7 @@ const s = StyleSheet.create({
     opacity: 0.9,
   },
   formSubmitBtnText: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 13,
     color: "#1A1A1A",
     letterSpacing: 1,
@@ -1588,7 +1610,7 @@ const s = StyleSheet.create({
     alignItems: "center",
   },
   exNameMinimal: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 18,
     color: TEXT_MAIN,
     textTransform: "uppercase",
@@ -1596,7 +1618,7 @@ const s = StyleSheet.create({
     opacity: 0.8,
   },
   exStatusMinimal: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 10,
     color: "rgba(255, 255, 255, 0.4)",
     textTransform: "uppercase",
@@ -1619,7 +1641,7 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   startSetBtnTxt: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 12,
     color: "#1A1A1A",
     letterSpacing: 0.5,
@@ -1640,7 +1662,7 @@ const s = StyleSheet.create({
     elevation: 3,
   },
   focusTitle: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 16,
     color: GOLD,
     textTransform: "uppercase",
@@ -1659,13 +1681,13 @@ const s = StyleSheet.create({
     alignItems: "center",
   },
   focusName: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 13,
     color: TEXT_MAIN,
     textTransform: "uppercase",
   },
   focusPercent: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 13,
     color: GOLD,
   },
@@ -1695,7 +1717,7 @@ const s = StyleSheet.create({
     elevation: 3,
   },
   gainsTitle: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 16,
     color: GOLD,
     textTransform: "uppercase",
@@ -1713,7 +1735,7 @@ const s = StyleSheet.create({
     borderColor: "rgba(255, 255, 255, 0.05)",
   },
   gainsSubLabel: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 10,
     color: "rgba(255, 255, 255, 0.4)",
     textTransform: "uppercase",
@@ -1726,7 +1748,7 @@ const s = StyleSheet.create({
     color: TEXT_MAIN,
   },
   gainsUnit: {
-    fontFamily: "ArchivoNarrow_700Bold",
+    fontFamily: "Anta_400Regular",
     fontSize: 16,
     color: "rgba(255, 255, 255, 0.4)",
     marginLeft: 2,
@@ -1737,7 +1759,7 @@ const s = StyleSheet.create({
     gap: 4,
   },
   gainsTrendText: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Anta_400Regular",
     fontSize: 12,
     textTransform: "uppercase",
   },

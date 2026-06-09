@@ -1,11 +1,11 @@
 import { TextStyle } from "react-native";
 
 export const fontFamilies = {
-  regular: "Inter_400Regular",
-  medium: "Inter_500Medium",
-  semibold: "Inter_600SemiBold",
-  narrowBold: "ArchivoNarrow_700Bold",
-  narrowSemiBold: "ArchivoNarrow_600SemiBold",
+  regular: "Anta_400Regular",
+  medium: "Anta_400Regular",
+  semibold: "Anta_400Regular",
+  narrowBold: "Anta_400Regular",
+  narrowSemiBold: "Anta_400Regular",
 } as const;
 
 export const typography = {

@@ -1,17 +1,27 @@
 import { PropsWithChildren } from "react";
-import { StyleProp, StyleSheet, Text, TextStyle } from "react-native";
+import { StyleProp, StyleSheet, Text, TextProps, TextStyle } from "react-native";
 
 import { theme } from "@/theme";
 
-type AppTextProps = PropsWithChildren<{
-  variant?: keyof typeof theme.typography;
-  color?: keyof typeof theme.colors;
-  style?: StyleProp<TextStyle>;
-}>;
+type AppTextProps = PropsWithChildren<
+  TextProps & {
+    variant?: keyof typeof theme.typography;
+    color?: keyof typeof theme.colors;
+    style?: StyleProp<TextStyle>;
+  }
+>;
 
-export function AppText({ children, variant = "body", color = "text", style }: AppTextProps) {
+export function AppText({
+  children,
+  variant = "body",
+  color = "text",
+  style,
+  ...props
+}: AppTextProps) {
   return (
-    <Text style={[styles.base, theme.typography[variant], styles[color], style]}>{children}</Text>
+    <Text style={[styles.base, theme.typography[variant], styles[color], style]} {...props}>
+      {children}
+    </Text>
   );
 }
 

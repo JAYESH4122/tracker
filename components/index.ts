@@ -5,6 +5,7 @@ export * from "./chart-card";
 export * from "./exercise-card";
 export * from "./input-field";
 export * from "./primary-button";
+export * from "./premium-screen";
 export * from "./screen-container";
 export * from "./set-input-row";
 export * from "./section-header";

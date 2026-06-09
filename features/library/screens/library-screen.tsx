@@ -1,155 +1,435 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { ScrollView, View, Text, Pressable, TextInput } from "react-native";
+import { Pressable, StyleSheet, TextInput, useWindowDimensions, View } from "react-native";
+
+import {
+  AppText,
+  PremiumCard,
+  PremiumDivider,
+  PremiumHeader,
+  PremiumPrimaryAction,
+  PremiumScrollScreen,
+} from "@/components";
+
+const ROUTINE_EXERCISES = [
+  { name: "Barbell Back Squat", tag: "Quads", sets: "4 x 8" },
+  { name: "Walking Lunges", tag: "Legs", sets: "3 x 12" },
+  { name: "Leg Extensions", tag: "Isolation", sets: "3 x 15" },
+];
 
 export function LibraryScreen() {
+  const { width } = useWindowDimensions();
+  const isWide = width >= 820;
+
   return (
-    <View className="flex-1 bg-surface">
-      {/* Top App Bar */}
-      <View className="flex-row justify-between items-center px-4 h-16 border-b border-border-subtle bg-surface z-50">
-        <View className="flex-row items-center gap-4">
-          <Pressable className="p-2 rounded-lg active:bg-surface-variant transition-colors">
-            <MaterialIcons name="menu" size={24} color="#cdc7aa" />
-          </Pressable>
-          <Text className="font-display-lg text-2xl tracking-tighter text-primary-fixed">GRIT</Text>
-        </View>
-        <View className="flex-row items-center gap-4">
-          <View className="w-10 h-10 rounded-full border border-border-subtle overflow-hidden">
-            <View className="w-full h-full bg-surface-variant items-center justify-center">
-              <Text className="font-numeric-data text-on-surface">J</Text>
+    <PremiumScrollScreen contentContainerStyle={isWide ? styles.wideContent : null}>
+      <PremiumHeader
+        title="Library"
+        right={
+          <View style={styles.draftPill}>
+            <AppText variant="caption" color="primary" style={styles.draftText}>
+              #04
+            </AppText>
+          </View>
+        }
+      />
+
+      <PremiumCard accent style={styles.heroCard}>
+        <AppText variant="caption" color="primary" style={styles.eyebrow}>
+          Routine Creator
+        </AppText>
+        <AppText variant="display" style={styles.heroTitle}>
+          Build The Next Session
+        </AppText>
+        <AppText variant="body" color="subtext" style={styles.heroSub}>
+          Assemble movements, keep PR tracking on, and save a routine that feels ready before the
+          first set starts.
+        </AppText>
+      </PremiumCard>
+
+      <View style={[styles.builderLayout, isWide ? styles.builderLayoutWide : null]}>
+        <View style={styles.mainColumn}>
+          <PremiumCard style={styles.formCard}>
+            <View style={styles.fieldGroup}>
+              <AppText variant="caption" color="subtext" style={styles.fieldLabel}>
+                Routine Identity
+              </AppText>
+              <TextInput
+                placeholder="e.g. Hypertrophy - Push Day A"
+                placeholderTextColor="rgba(160, 160, 160, 0.75)"
+                style={styles.input}
+              />
             </View>
-          </View>
-        </View>
-      </View>
 
-      <ScrollView
-        contentContainerClassName="pt-6 px-4 pb-24 space-y-8"
-        showsVerticalScrollIndicator={false}
-      >
-        <View className="flex-row justify-between items-center mb-4">
-          <Text className="font-headline-lg text-3xl text-on-background">Routine Creator</Text>
-          <View className="bg-surface-container px-3 py-1 rounded-full border border-border-subtle">
-            <Text className="font-label-md text-xs text-on-surface-variant">DRAFT #04</Text>
-          </View>
-        </View>
-
-        {/* Main Panel */}
-        <View className="bg-surface-card border border-border-subtle p-6 rounded-xl space-y-6">
-          <View className="space-y-2">
-            <Text className="font-label-md text-sm text-on-surface-variant uppercase">
-              Routine Identity
-            </Text>
-            <TextInput
-              className="w-full bg-surface-container-lowest border-b-2 border-border-subtle focus:border-primary-fixed text-on-surface p-3 font-body-lg text-lg"
-              placeholderTextColor="#cdc7aa"
-              placeholder="e.g. Hypertrophy - Push Day A"
-            />
-          </View>
-
-          <View className="flex-row gap-4">
-            <View className="flex-1 space-y-2">
-              <Text className="font-label-md text-sm text-on-surface-variant uppercase">
+            <View style={styles.fieldGroup}>
+              <AppText variant="caption" color="subtext" style={styles.fieldLabel}>
                 Exercise Library
-              </Text>
-              <View className="relative justify-center">
+              </AppText>
+              <View style={styles.inputWithIcon}>
                 <TextInput
-                  className="w-full bg-surface-container-lowest border-b-2 border-border-subtle focus:border-primary-fixed text-on-surface p-3 font-body-md text-base"
-                  placeholderTextColor="#cdc7aa"
-                  placeholder="Select Exercise..."
+                  placeholder="Select exercise"
+                  placeholderTextColor="rgba(160, 160, 160, 0.75)"
+                  style={[styles.input, styles.inputEmbedded]}
                 />
-                <View className="absolute right-3 top-3">
-                  <MaterialIcons name="expand-more" size={24} color="#cdc7aa" />
-                </View>
+                <MaterialIcons name="expand-more" size={24} color="#D4AF37" />
               </View>
             </View>
-          </View>
 
-          <View className="space-y-2">
-            <Text className="font-label-md text-sm text-on-surface-variant uppercase">
-              Custom Variation
-            </Text>
-            <View className="flex-row gap-2">
-              <TextInput
-                className="flex-1 bg-surface-container-lowest border-b-2 border-border-subtle focus:border-primary-fixed text-on-surface p-3 font-body-md text-base"
-                placeholderTextColor="#cdc7aa"
-                placeholder="Type custom exercise..."
-              />
-              <Pressable className="bg-surface-elevated px-4 py-2 flex-row items-center justify-center gap-2 border border-border-subtle active:scale-95">
-                <MaterialIcons name="add" size={20} color="#e5e2e1" />
-                <Text className="font-label-md text-sm text-on-surface">APPEND</Text>
-              </Pressable>
-            </View>
-          </View>
-
-          {/* Exercise List */}
-          <View className="space-y-4 pt-4 border-t border-border-subtle">
-            <View className="flex-row justify-between items-center">
-              <Text className="font-headline-md text-2xl text-on-surface">Exercise Order</Text>
-              <Text className="text-on-surface-variant font-numeric-data text-xs">3 MOVEMENTS</Text>
-            </View>
-            <View className="space-y-3">
-              {[
-                { name: "Barbell Back Squat", tag: "Quads" },
-                { name: "Walking Lunges", tag: "Legs" },
-                { name: "Leg Extensions", tag: "Isolation" },
-              ].map((ex, i) => (
-                <View
-                  key={i}
-                  className="flex-row items-center gap-4 bg-surface-container border border-border-subtle p-4 rounded-lg"
+            <View style={styles.fieldGroup}>
+              <AppText variant="caption" color="subtext" style={styles.fieldLabel}>
+                Custom Variation
+              </AppText>
+              <View style={styles.customRow}>
+                <TextInput
+                  placeholder="Type custom exercise"
+                  placeholderTextColor="rgba(160, 160, 160, 0.75)"
+                  style={[styles.input, styles.customInput]}
+                />
+                <Pressable
+                  onPress={() => {}}
+                  style={({ pressed }) => [
+                    styles.appendButton,
+                    pressed ? styles.appendPressed : null,
+                  ]}
                 >
-                  <MaterialIcons name="drag-indicator" size={24} color="#cdc7aa" />
-                  <View className="flex-1">
-                    <Text className="font-numeric-data text-lg text-on-surface">{ex.name}</Text>
-                    <View className="flex-row gap-2 mt-1">
-                      <View className="border border-border-subtle px-1.5 rounded">
-                        <Text className="text-[10px] font-label-md uppercase text-on-surface-variant">
-                          {ex.tag}
-                        </Text>
+                  <MaterialIcons name="add" size={18} color="#D4AF37" />
+                  <AppText variant="caption" color="primary" style={styles.appendText}>
+                    Append
+                  </AppText>
+                </Pressable>
+              </View>
+            </View>
+          </PremiumCard>
+
+          <PremiumDivider />
+
+          <PremiumCard style={styles.orderCard}>
+            <View style={styles.cardHeader}>
+              <View>
+                <AppText variant="caption" color="primary" style={styles.eyebrow}>
+                  Exercise Order
+                </AppText>
+                <AppText variant="title">3 Movements</AppText>
+              </View>
+              <MaterialIcons name="drag-indicator" size={24} color="#D4AF37" />
+            </View>
+
+            <View style={styles.exerciseList}>
+              {ROUTINE_EXERCISES.map((exercise, index) => (
+                <View key={exercise.name} style={styles.exerciseRow}>
+                  <View style={styles.exerciseIndex}>
+                    <AppText variant="caption" color="primary" style={styles.exerciseIndexText}>
+                      {index + 1}
+                    </AppText>
+                  </View>
+                  <View style={styles.exerciseCopy}>
+                    <AppText variant="sectionTitle" style={styles.exerciseName}>
+                      {exercise.name}
+                    </AppText>
+                    <View style={styles.tagRow}>
+                      <View style={styles.tag}>
+                        <AppText variant="caption" color="subtext" style={styles.tagText}>
+                          {exercise.tag}
+                        </AppText>
+                      </View>
+                      <View style={styles.tag}>
+                        <AppText variant="caption" color="subtext" style={styles.tagText}>
+                          {exercise.sets}
+                        </AppText>
                       </View>
                     </View>
                   </View>
-                  <MaterialIcons name="close" size={24} color="#cdc7aa" />
+                  <MaterialIcons name="close" size={22} color="rgba(229, 226, 225, 0.55)" />
                 </View>
               ))}
             </View>
-          </View>
+          </PremiumCard>
         </View>
 
-        {/* Right Side / Settings Preview */}
-        <View className="space-y-6">
-          <View className="bg-surface-container-high border border-border-subtle rounded-xl p-6">
-            <Text className="font-label-md text-sm text-on-surface-variant uppercase mb-4">
+        <View style={styles.sideColumn}>
+          <PremiumCard style={styles.settingsCard}>
+            <AppText variant="caption" color="primary" style={styles.eyebrow}>
               Routine Settings
-            </Text>
-            <View className="space-y-4">
-              <View className="flex-row items-center justify-between">
-                <Text className="font-body-md text-base text-on-surface">Public Routine</Text>
-                <View className="w-10 h-6 bg-surface-container-lowest rounded-full p-1 border border-border-subtle">
-                  <View className="w-4 h-4 bg-on-surface-variant rounded-full" />
+            </AppText>
+            <View style={styles.settingRows}>
+              <View style={styles.settingRow}>
+                <View>
+                  <AppText variant="body">Public Routine</AppText>
+                  <AppText variant="caption" color="subtext" style={styles.settingHint}>
+                    Keep private while drafting
+                  </AppText>
+                </View>
+                <View style={styles.toggle}>
+                  <View style={styles.toggleDot} />
                 </View>
               </View>
-              <View className="flex-row items-center justify-between">
-                <Text className="font-body-md text-base text-on-surface">Track PRs</Text>
-                <View className="w-10 h-6 bg-primary-fixed rounded-full p-1 border border-border-subtle">
-                  <View className="w-4 h-4 bg-on-primary-fixed rounded-full translate-x-4" />
+              <View style={styles.settingRow}>
+                <View>
+                  <AppText variant="body">Track PRs</AppText>
+                  <AppText variant="caption" color="subtext" style={styles.settingHint}>
+                    Watch best sets automatically
+                  </AppText>
+                </View>
+                <View style={[styles.toggle, styles.toggleActive]}>
+                  <View style={[styles.toggleDot, styles.toggleDotActive]} />
                 </View>
               </View>
             </View>
-          </View>
+          </PremiumCard>
 
-          <View className="h-48 rounded-xl overflow-hidden border border-border-subtle relative bg-surface-container-lowest">
-            <View className="absolute inset-0 bg-gradient-to-t from-surface to-transparent flex-col justify-end p-4 z-10">
-              <Text className="font-display-lg text-2xl text-on-surface font-bold">
-                PUSH YOUR LIMITS
-              </Text>
-            </View>
-          </View>
+          <PremiumCard accent style={styles.previewCard}>
+            <MaterialIcons name="bolt" size={28} color="#D4AF37" />
+            <AppText variant="title" style={styles.previewTitle}>
+              Push Your Limits
+            </AppText>
+            <AppText variant="body" color="subtext" style={styles.previewText}>
+              Draft routines should feel as polished as a finished workout summary.
+            </AppText>
+          </PremiumCard>
 
-          <Pressable className="w-full bg-primary-fixed py-4 rounded-xl flex-row items-center justify-center gap-3 active:scale-95 shadow-xl">
-            <MaterialIcons name="save" size={24} color="#201c00" />
-            <Text className="font-display-lg text-2xl text-on-primary-fixed">SAVE ROUTINE</Text>
-          </Pressable>
+          <PremiumPrimaryAction icon="save" onPress={() => {}}>
+            Save Routine
+          </PremiumPrimaryAction>
         </View>
-      </ScrollView>
-    </View>
+      </View>
+    </PremiumScrollScreen>
   );
 }
+
+const styles = StyleSheet.create({
+  wideContent: {
+    maxWidth: 980,
+  },
+  draftPill: {
+    minWidth: 42,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 1,
+    borderColor: "rgba(212, 175, 55, 0.26)",
+    backgroundColor: "rgba(212, 175, 55, 0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  draftText: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 11,
+    letterSpacing: 1,
+  },
+  heroCard: {
+    gap: 4,
+  },
+  eyebrow: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 10,
+    lineHeight: 14,
+    letterSpacing: 1.4,
+    textTransform: "uppercase",
+  },
+  heroTitle: {
+    color: "#D4AF37",
+    fontSize: 32,
+    lineHeight: 36,
+  },
+  heroSub: {
+    fontSize: 14,
+    lineHeight: 21,
+  },
+  builderLayout: {
+    gap: 20,
+  },
+  builderLayoutWide: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  mainColumn: {
+    flex: 1,
+    gap: 20,
+    minWidth: 0,
+  },
+  sideColumn: {
+    gap: 16,
+  },
+  formCard: {
+    gap: 18,
+  },
+  fieldGroup: {
+    gap: 8,
+  },
+  fieldLabel: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 10,
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+  },
+  input: {
+    minHeight: 52,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.08)",
+    backgroundColor: "rgba(0, 0, 0, 0.24)",
+    color: "#E5E2E1",
+    fontFamily: "Anta_400Regular",
+    fontSize: 15,
+    paddingHorizontal: 14,
+  },
+  inputWithIcon: {
+    minHeight: 52,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.08)",
+    backgroundColor: "rgba(0, 0, 0, 0.24)",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingRight: 12,
+  },
+  inputEmbedded: {
+    flex: 1,
+    minHeight: 50,
+    borderWidth: 0,
+    backgroundColor: "transparent",
+  },
+  customRow: {
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "stretch",
+  },
+  customInput: {
+    flex: 1,
+    minWidth: 0,
+  },
+  appendButton: {
+    minWidth: 102,
+    paddingHorizontal: 12,
+    paddingVertical: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: 6,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(212, 175, 55, 0.16)",
+    backgroundColor: "rgba(212, 175, 55, 0.08)",
+  },
+  appendPressed: {
+    opacity: 0.86,
+    transform: [{ scale: 0.97 }],
+  },
+  appendText: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 10,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  orderCard: {
+    gap: 16,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  exerciseList: {
+    gap: 10,
+  },
+  exerciseRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.08)",
+    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    padding: 12,
+  },
+  exerciseIndex: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(212, 175, 55, 0.24)",
+    backgroundColor: "rgba(212, 175, 55, 0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  exerciseIndexText: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 12,
+  },
+  exerciseCopy: {
+    flex: 1,
+    minWidth: 0,
+    gap: 6,
+  },
+  exerciseName: {
+    textTransform: "uppercase",
+  },
+  tagRow: {
+    flexDirection: "row",
+    gap: 6,
+    flexWrap: "wrap",
+  },
+  tag: {
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.08)",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  tagText: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 9,
+    lineHeight: 12,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  settingsCard: {
+    gap: 16,
+  },
+  settingRows: {
+    gap: 14,
+  },
+  settingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  settingHint: {
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  toggle: {
+    width: 44,
+    height: 26,
+    borderRadius: 13,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.12)",
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    padding: 3,
+  },
+  toggleActive: {
+    borderColor: "rgba(212, 175, 55, 0.42)",
+    backgroundColor: "rgba(212, 175, 55, 0.2)",
+  },
+  toggleDot: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: "rgba(229, 226, 225, 0.45)",
+  },
+  toggleDotActive: {
+    backgroundColor: "#D4AF37",
+    transform: [{ translateX: 18 }],
+  },
+  previewCard: {
+    gap: 8,
+  },
+  previewTitle: {
+    color: "#D4AF37",
+    textTransform: "uppercase",
+  },
+  previewText: {
+    fontSize: 13,
+    lineHeight: 20,
+  },
+});
