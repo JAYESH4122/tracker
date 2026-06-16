@@ -29,8 +29,7 @@ const BG_HERO_IMAGE =
   "https://lh3.googleusercontent.com/aida/AP1WRLu24nWykqZgevYWrQMAhU9O5LgBS6uhrv8kZkt-qWLqrh5ajV_SDAiglamnC3NvDMH372x4edKvbx-k-j25zf8loO3IpIH3g7jM30OqlaJ2uKaJCG4QX00E_wGUNrrE40-OQguDWv4lOa1w3f_83zHHR0vrk2-8bRDM3D9-V6CLshfW3OKB5q5wee_qT1yPfdtHL_YUU3tq5YfS0gCMGjqORk8K2HKT9bwdoeqgTW0bhM_XHw44gEaW9xg";
 const BG_PATTERN_OVERLAY =
   "https://lh3.googleusercontent.com/aida/AP1WRLuF0eRL9PCMph4Zj755O_n42jVLK-BqtvU2PyCWoY_bl8GLgdfgTZ9NNQH25m3FjrrA0uZQT4fUfUR6t5ycREAzDR16XrX55UzRVxSEMDIeEIMx1pL1IrPUH4IZZ44CBEky-rBaMYUD-slms2jqlRBTXZqiZ_lMQOalXwLptSGMJA1vOA5rOaF13R9oBZF6PxRT-Bngvci6u-bqj-Te8YOULhF-mEI_uTL-wq7PCWh0ytfAFyVsZVzl5w";
-const AVATAR_IMAGE =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuBFYjvh7gzy6AiKmPJTpZZ_wFDahPj0dmlx-e1U_rbZWImwLsPNZ5Rx6t45WbPNrPkKyA2d-yHDUb0TGQxfT284KfPsI0WfKR5LcHGeC0DBjI6mJLU78LcuXXjp6tYPEjuABSy1ztkPKmA_gTbPFYzILTZUTNsKdLjZRVEyULOJWiZrIbSvfCBIHMV6wiSjk8tl1fVuvSlkZTX_Gm2uYc7Dq95ln5caLCCVw8LhZGqhDTfHCYvA8QLvriApsx-wAs53I4KnX96mk8U";
+const LOGO_IMAGE = require("@/assets/images/logo.png");
 
 type PremiumBackgroundProps = PropsWithChildren<{
   particles?: boolean;
@@ -185,7 +184,7 @@ export function PremiumHeader({
   const renderRight = right || (
     <Pressable style={({ pressed }) => [styles.avatarWrap, pressed && styles.pressed]}>
       <View style={styles.avatarRing}>
-        <Image source={{ uri: AVATAR_IMAGE }} style={styles.avatar} />
+        <Image source={LOGO_IMAGE} style={styles.avatar} />
       </View>
       <View style={styles.avatarBadge}>
         <AppText variant="caption" style={styles.avatarBadgeText}>
@@ -218,12 +217,15 @@ export function PremiumHeader({
       </Pressable>
 
       <View pointerEvents="none" style={styles.headerTitleContainer}>
-        <AppText
-          variant="caption"
-          style={[styles.headerTitle, isCompact ? styles.headerTitleCompact : null]}
-        >
-          {title}
-        </AppText>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+          <Image source={LOGO_IMAGE} style={styles.headerLogo} />
+          <AppText
+            variant="caption"
+            style={[styles.headerTitle, isCompact ? styles.headerTitleCompact : null]}
+          >
+            {title}
+          </AppText>
+        </View>
       </View>
 
       <View style={styles.headerRight} pointerEvents="box-none">
@@ -422,6 +424,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     letterSpacing: 2.2,
   },
+  headerLogo: {
+    width: 24,
+    height: 24,
+    resizeMode: "contain",
+    borderRadius: 24,
+  },
   headerRight: {
     minWidth: 44,
     minHeight: 44,
@@ -447,6 +455,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     resizeMode: "cover",
+    borderRadius: 24,
   },
   avatarBadge: {
     position: "absolute",
