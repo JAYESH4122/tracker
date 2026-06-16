@@ -44,16 +44,7 @@ export function HistoryScreen() {
 
   return (
     <PremiumScrollScreen>
-      <PremiumHeader
-        title="History"
-        right={
-          <View style={styles.headerBadge}>
-            <AppText variant="caption" color="primary" style={styles.headerBadgeText}>
-              {String(workouts.length).padStart(2, "0")}
-            </AppText>
-          </View>
-        }
-      />
+      <PremiumHeader title="History" leftIcon="menu" onLeftPress={() => {}} />
 
       <PremiumCard accent style={styles.heroCard}>
         <View style={styles.heroTop}>

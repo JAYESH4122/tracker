@@ -13,6 +13,7 @@ import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { theme } from "@/theme";
+import { Toast } from "@/components";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -53,6 +54,7 @@ export default function RootLayout() {
             <Stack.Screen name="history/[workoutId]" />
             <Stack.Screen name="exercise/[exerciseId]" />
           </Stack>
+          <Toast />
         </BottomSheetModalProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

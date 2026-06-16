@@ -19,7 +19,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { PremiumBackground, PremiumDivider } from "@/components";
+import { PremiumBackground, PremiumDivider, PremiumHeader } from "@/components";
 import { useExerciseStore } from "@/store/use-exercise-store";
 import { useHistoryStore } from "@/store/use-history-store";
 import { useWorkoutStore } from "@/store/use-workout-store";
@@ -140,19 +140,9 @@ export function ExerciseDetailScreen() {
   return (
     <PremiumBackground style={s.root}>
       {/* ── App Header ─────────────────────────────────── */}
-      <Animated.View
-        entering={FadeInDown.duration(350)}
-        style={[s.appBar, { height: 58 + insets.top, paddingTop: insets.top }]}
-      >
-        <Pressable
-          onPress={() => router.back()}
-          style={({ pressed }) => [s.iconBtn, pressed && s.iconBtnActive]}
-        >
-          <MaterialIcons name="chevron-left" size={24} color={GOLD} />
-        </Pressable>
-        <Text style={s.logo}>MOVEMENT</Text>
-        <View style={{ width: 40 }} />
-      </Animated.View>
+      <View style={{ paddingTop: insets.top, paddingHorizontal: 16 }}>
+        <PremiumHeader title="MOVEMENT" leftIcon="chevron-left" onLeftPress={() => router.back()} />
+      </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}

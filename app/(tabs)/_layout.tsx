@@ -169,6 +169,10 @@ export default function TabsLayout() {
 
 const styles = StyleSheet.create({
   bottomShell: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
     paddingHorizontal: 24,
     zIndex: 50,
   },

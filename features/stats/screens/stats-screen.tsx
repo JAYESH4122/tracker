@@ -53,16 +53,7 @@ export function StatsScreen() {
 
   return (
     <PremiumScrollScreen>
-      <PremiumHeader
-        title="Stats"
-        right={
-          <View style={styles.headerBadge}>
-            <AppText variant="caption" color="primary" style={styles.headerBadgeText}>
-              PR
-            </AppText>
-          </View>
-        }
-      />
+      <PremiumHeader title="Stats" leftIcon="menu" onLeftPress={() => {}} />
 
       <PremiumCard accent style={styles.heroCard}>
         <AppText variant="caption" color="primary" style={styles.eyebrow}>

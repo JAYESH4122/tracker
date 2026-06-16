@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, memo } from "react";
 import {
   Alert,
   Image,
@@ -17,6 +17,7 @@ import {
   Vibration,
   View,
 } from "react-native";
+import { PremiumHeader } from "@/components";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -29,12 +30,11 @@ import { SetInputRow } from "@/components/set-input-row";
 import { MUSCLE_GROUPS } from "@/data/exercise-library";
 import { useExerciseStore } from "@/store/use-exercise-store";
 import { useHistoryStore } from "@/store/use-history-store";
+import { useToastStore } from "@/store/use-toast-store";
 import { useWorkoutStore } from "@/store/use-workout-store";
+import type { Workout } from "@/types/workout";
 import {
-  computeWorkoutVolume,
-  formatDuration,
   formatSetPreview,
-  formatWorkoutValue,
   getExercisePreviousSetPreview,
   getWorkoutSetCount,
   toIsoDate,
@@ -62,7 +62,7 @@ const BG_PATTERN_OVERLAY =
 const AVATAR_IMAGE =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuBFYjvh7gzy6AiKmPJTpZZ_wFDahPj0dmlx-e1U_rbZWImwLsPNZ5Rx6t45WbPNrPkKyA2d-yHDUb0TGQxfT284KfPsI0WfKR5LcHGeC0DBjI6mJLU78LcuXXjp6tYPEjuABSy1ztkPKmA_gTbPFYzILTZUTNsKdLjZRVEyULOJWiZrIbSvfCBIHMV6wiSjk8tl1fVuvSlkZTX_Gm2uYc7Dq95ln5caLCCVw8LhZGqhDTfHCYvA8QLvriApsx-wAs53I4KnX96mk8U";
 
-function Particle({ delay, height }: { delay: number; height: number }) {
+const Particle = memo(function Particle({ delay, height }: { delay: number; height: number }) {
   const left = useMemo(() => Math.random() * 100, []);
   const top = useMemo(() => Math.random() * 100, []);
   const size = useMemo(() => Math.random() * 3 + 1, []);
@@ -101,9 +101,9 @@ function Particle({ delay, height }: { delay: number; height: number }) {
       ]}
     />
   );
-}
+});
 
-function GoldDustParticles() {
+const GoldDustParticles = memo(function GoldDustParticles() {
   const { height } = useWindowDimensions();
 
   return (
@@ -113,68 +113,7 @@ function GoldDustParticles() {
       ))}
     </View>
   );
-}
-
-function PulsingDot() {
-  const pulse = useSharedValue(1);
-
-  useEffect(() => {
-    pulse.value = withRepeat(withTiming(1.8, { duration: 1500 }), -1, true);
-  }, [pulse]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: pulse.value }],
-    opacity: 1 - (pulse.value - 1) / 0.8,
-  }));
-
-  return (
-    <View
-      style={{
-        width: 14,
-        height: 14,
-        justifyContent: "center",
-        alignItems: "center",
-        marginRight: 8,
-      }}
-    >
-      <Animated.View
-        style={[
-          {
-            position: "absolute",
-            width: 8,
-            height: 8,
-            borderRadius: 4,
-            backgroundColor: "#4AE176",
-          },
-          animatedStyle,
-        ]}
-      />
-      <View
-        style={{
-          width: 8,
-          height: 8,
-          borderRadius: 4,
-          backgroundColor: "#4AE176",
-          zIndex: 1,
-        }}
-      />
-    </View>
-  );
-}
-
-function GlowingDivider() {
-  return (
-    <LinearGradient
-      colors={["transparent", "rgba(212, 175, 55, 0.14)", "transparent"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
-      style={{
-        height: 1,
-        marginVertical: 24,
-      }}
-    />
-  );
-}
+});
 
 type InputRefMap = Record<string, { weight: TextInput | null; reps: TextInput | null }>;
 
@@ -193,13 +132,15 @@ export function WorkoutScreen() {
   const toggleSetComplete = useWorkoutStore((s) => s.toggleSetComplete);
   const removeSet = useWorkoutStore((s) => s.removeSet);
   const completeWorkout = useWorkoutStore((s) => s.completeWorkout);
+  const resumeWorkout = useWorkoutStore((s) => s.resumeWorkout);
   const exerciseList = useExerciseStore((s) => s.exerciseList);
   const workouts = useHistoryStore((s) => s.workouts);
 
-  const [elapsed, setElapsed] = useState(0);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [groupFilter, setGroupFilter] = useState<(typeof MUSCLE_GROUPS)[number]>("All");
+  const [completedExerciseIds, setCompletedExerciseIds] = useState<Record<string, boolean>>({});
+  const lastActiveWorkoutIdRef = useRef<string | null>(null);
   const inputRefs = useRef<InputRefMap>({});
 
   // ─── Custom Exercise Creator States ────────────────────────────────────────
@@ -240,10 +181,51 @@ export function WorkoutScreen() {
     startWorkout(defaultName);
   };
 
+  const handleResumeWorkout = (workout: Workout) => {
+    resumeWorkout(workout);
+    Vibration.vibrate(40);
+  };
+
+  useEffect(() => {
+    const activeId = activeWorkout?.id ?? null;
+    if (activeId !== lastActiveWorkoutIdRef.current) {
+      lastActiveWorkoutIdRef.current = activeId;
+      if (!activeWorkout) {
+        setCompletedExerciseIds({});
+        return;
+      }
+      const completed: Record<string, boolean> = {};
+      activeWorkout.exercises.forEach((ex) => {
+        if (ex.sets.length > 0 && ex.sets.every((s) => s.isCompleted)) {
+          completed[ex.id] = true;
+        }
+      });
+      setCompletedExerciseIds(completed);
+    }
+  }, [activeWorkout]);
+
+  const handleCompleteExercise = (exerciseId: string) => {
+    setCompletedExerciseIds((prev) => ({ ...prev, [exerciseId]: true }));
+    Vibration.vibrate(40);
+  };
+
+  const handleEditExercise = (exerciseId: string) => {
+    setCompletedExerciseIds((prev) => {
+      const copy = { ...prev };
+      delete copy[exerciseId];
+      return copy;
+    });
+    Vibration.vibrate(40);
+  };
+
   const handleCreateCustomAndAdd = () => {
     const nameTrimmed = customName.trim();
     if (!nameTrimmed) {
-      Alert.alert("Invalid Input", "Please enter a movement name.");
+      useToastStore.getState().show({
+        title: "Invalid Input",
+        message: "Please enter a movement name.",
+        type: "error",
+      });
       return;
     }
 
@@ -265,20 +247,6 @@ export function WorkoutScreen() {
     handleAddExercise(newEx.id);
   };
 
-  useEffect(() => {
-    if (!activeWorkout) {
-      setElapsed(0);
-      return;
-    }
-    const tick = () =>
-      setElapsed(
-        Math.max(0, Math.round((Date.now() - new Date(activeWorkout.startedAt).getTime()) / 1000)),
-      );
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [activeWorkout]);
-
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return exerciseList.filter((e) => {
@@ -288,25 +256,12 @@ export function WorkoutScreen() {
     });
   }, [exerciseList, groupFilter, search]);
 
-  const completedSetsCount = useMemo(() => {
-    return exercises.reduce((sum, ex) => sum + ex.sets.filter((s) => s.isCompleted).length, 0);
-  }, [exercises]);
-
-  const totalSetsCount = useMemo(() => {
-    return exercises.reduce((sum, ex) => sum + ex.sets.length, 0);
-  }, [exercises]);
-
-  const volume = computeWorkoutVolume({ exercises });
   const isLive = Boolean(activeWorkout);
   const hasExercises = exercises.length > 0;
   const currentExercise = exercises[exercises.length - 1] ?? null;
   const currentSetIndex = currentExercise
     ? currentExercise.sets.findIndex((set) => !set.isCompleted)
     : -1;
-  const workoutComplete =
-    isLive &&
-    hasExercises &&
-    exercises.every((exercise) => exercise.sets.every((set) => set.isCompleted));
 
   const [startedExerciseIds, setStartedExerciseIds] = useState<Record<string, boolean>>({});
 
@@ -314,39 +269,6 @@ export function WorkoutScreen() {
     setStartedExerciseIds((prev) => ({ ...prev, [exerciseId]: true }));
     Vibration.vibrate(40);
   };
-
-  const muscleFocusData = useMemo(() => {
-    if (exercises.length === 0) return [];
-    const counts: Record<string, number> = {};
-    let total = 0;
-    exercises.forEach((ex) => {
-      const muscle = ex.muscleGroup || "Other";
-      counts[muscle] = (counts[muscle] || 0) + ex.sets.length;
-      total += ex.sets.length;
-    });
-    if (total === 0) return [];
-    return Object.entries(counts)
-      .map(([muscle, count]) => ({
-        muscle,
-        percentage: Math.round((count / total) * 100),
-      }))
-      .sort((a, b) => b.percentage - a.percentage);
-  }, [exercises]);
-
-  const volumeComparison = useMemo(() => {
-    if (workouts.length === 0 || volume === 0) {
-      return { percentChange: 12, trend: "up" };
-    }
-    const lastWorkout = workouts[0];
-    if (!lastWorkout) return { percentChange: 12, trend: "up" };
-    const lastVolume = computeWorkoutVolume({ exercises: lastWorkout.exercises });
-    if (lastVolume === 0) return { percentChange: 12, trend: "up" };
-    const change = ((volume - lastVolume) / lastVolume) * 100;
-    return {
-      percentChange: Math.round(Math.abs(change)),
-      trend: change >= 0 ? "up" : "down",
-    };
-  }, [volume, workouts]);
 
   const handleAddExercise = (exerciseId: string) => {
     const workout = activeWorkout ?? startWorkout("Strength Session");
@@ -361,22 +283,39 @@ export function WorkoutScreen() {
   const handleFinish = () => {
     const w = completeWorkout();
     if (!w) {
-      Alert.alert("No workout saved", "Add at least one exercise first.");
+      useToastStore.getState().show({
+        title: "No workout saved",
+        message: "Add at least one exercise first.",
+        type: "info",
+      });
       return;
     }
     const prs = w.exercises.filter((e) => e.newPr).length;
-    Alert.alert(
-      "Workout saved! 💪",
-      `${w.name} • ${w.exerciseCount} exercises • ${getWorkoutSetCount(w)} sets${prs > 0 ? `\n${prs} new PR${prs > 1 ? "s" : ""}` : ""}`,
-      [{ text: "View", onPress: () => router.push(`/history/${w.id}`) }, { text: "OK" }],
-    );
+    const msg = `${w.name} • ${w.exerciseCount} exercises • ${getWorkoutSetCount(w)} sets${prs > 0 ? ` • ${prs} new PR${prs > 1 ? "s" : ""}` : ""}`;
+
+    useToastStore.getState().show({
+      title: "Workout saved",
+      message: msg,
+      type: "success",
+      action: {
+        label: "View",
+        onPress: () => router.push(`/history/${w.id}`),
+      },
+    });
   };
 
   const handleDiscard = () => {
-    Alert.alert("Discard workout?", "This will clear the active session.", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Discard", style: "destructive", onPress: discardWorkout },
-    ]);
+    if (Platform.OS === "web") {
+      const confirm = window.confirm("Discard workout? This will clear the active session.");
+      if (confirm) {
+        discardWorkout();
+      }
+    } else {
+      Alert.alert("Discard workout?", "This will clear the active session.", [
+        { text: "Cancel", style: "cancel" },
+        { text: "Discard", style: "destructive", onPress: discardWorkout },
+      ]);
+    }
   };
 
   return (
@@ -391,34 +330,33 @@ export function WorkoutScreen() {
       <GoldDustParticles />
 
       {/* ── App Bar ── */}
-      <View style={[s.appBar, { height: 64 + insets.top, paddingTop: insets.top }]}>
-        <View style={s.appBarLeft}>
-          <Pressable
-            onPress={handleDiscard}
-            style={({ pressed }) => [s.iconBtn, pressed && s.iconBtnActive]}
-          >
-            <MaterialIcons name="close" size={22} color={TEXT_MAIN} />
-          </Pressable>
-          {isLive && (
-            <View style={s.timerRow}>
-              <PulsingDot />
-              <Text style={s.timerText}>{formatDuration(elapsed)}</Text>
+      <View
+        style={[
+          s.headerWrapper,
+          { paddingTop: insets.top + 14 },
+          width < 390 && s.headerWrapperCompact,
+        ]}
+      >
+        <PremiumHeader
+          title="Workout"
+          leftIcon="close"
+          onLeftPress={handleDiscard}
+          right={
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+              {isLive && hasExercises && (
+                <Pressable
+                  onPress={handleFinish}
+                  style={({ pressed }) => [s.finishChip, pressed && { opacity: 0.8 }]}
+                >
+                  <Text style={s.finishChipText}>FINISH</Text>
+                </Pressable>
+              )}
+              <View style={s.avatarRing}>
+                <Image source={{ uri: AVATAR_IMAGE }} style={s.avatarImg} />
+              </View>
             </View>
-          )}
-        </View>
-        <View style={s.appBarRight}>
-          {isLive && (
-            <Pressable
-              onPress={handleFinish}
-              style={({ pressed }) => [s.finishChip, pressed && { opacity: 0.8 }]}
-            >
-              <Text style={s.finishChipText}>FINISH</Text>
-            </Pressable>
-          )}
-          <View style={s.avatarRing}>
-            <Image source={{ uri: AVATAR_IMAGE }} style={s.avatarImg} />
-          </View>
-        </View>
+          }
+        />
       </View>
 
       <ScrollView
@@ -428,62 +366,17 @@ export function WorkoutScreen() {
         contentContainerStyle={[
           s.scroll,
           isWide ? s.scrollWide : null,
-          { paddingBottom: 48 + Math.max(insets.bottom, 16) },
+          { paddingBottom: 114 + Math.max(insets.bottom, 16) },
         ]}
       >
         <Text style={s.screenTitle}>{activeWorkout?.name ?? "Strength Session"}</Text>
-        <Text style={s.screenSub}>
-          {hasWorkoutToday && !activeWorkout
-            ? "You already completed today’s workout."
-            : "Track your sets, reps, and weight."}
-        </Text>
+        {hasWorkoutToday && !activeWorkout && (
+          <Text style={s.screenSub}>You already completed today’s workout.</Text>
+        )}
 
         {/* ── Exercise list or empty state ── */}
         {isLive ? (
           <View>
-            {/* ── Stats Bento Grid ── */}
-            {hasExercises && (
-              <View style={s.statsGrid}>
-                <View style={s.statTile}>
-                  <MaterialIcons name="timer" size={20} color={GOLD} style={{ marginBottom: 6 }} />
-                  <Text style={s.statTileVal}>{formatDuration(elapsed)}</Text>
-                  <Text style={s.statTileLbl}>DURATION</Text>
-                </View>
-                <View style={s.statTile}>
-                  <MaterialIcons
-                    name="fitness-center"
-                    size={20}
-                    color={GOLD}
-                    style={{ marginBottom: 6 }}
-                  />
-                  <Text style={s.statTileVal}>
-                    {formatWorkoutValue(volume)}
-                    <Text style={{ fontSize: 12, fontFamily: "Anta_400Regular" }}>kg</Text>
-                  </Text>
-                  <Text style={s.statTileLbl}>VOLUME</Text>
-                </View>
-                <View style={s.statTile}>
-                  <MaterialIcons
-                    name="reorder"
-                    size={20}
-                    color={GOLD}
-                    style={{ marginBottom: 6 }}
-                  />
-                  <Text style={s.statTileVal}>
-                    {completedSetsCount}/{totalSetsCount}
-                  </Text>
-                  <Text style={s.statTileLbl}>SETS</Text>
-                </View>
-                <View style={s.statTile}>
-                  <MaterialIcons name="bolt" size={20} color={GOLD} style={{ marginBottom: 6 }} />
-                  <Text style={s.statTileVal}>{workoutComplete ? "100%" : "85%"}</Text>
-                  <Text style={s.statTileLbl}>INTENSITY</Text>
-                </View>
-              </View>
-            )}
-
-            {hasExercises && <GlowingDivider />}
-
             {!hasExercises && (
               <View style={s.emptyWorkoutPrompt}>
                 <MaterialIcons name="add-circle-outline" size={32} color={GOLD} />
@@ -504,6 +397,8 @@ export function WorkoutScreen() {
 
             {exercises.map((ex, exIdx) => {
               const isStarted = startedExerciseIds[ex.id] ?? exIdx === 0;
+              const isCompleted = completedExerciseIds[ex.id] ?? false;
+
               if (!isStarted) {
                 return (
                   <View key={ex.id} style={s.exCardMinimal}>
@@ -527,6 +422,43 @@ export function WorkoutScreen() {
                         >
                           <Text style={s.startSetBtnTxt}>START SET</Text>
                         </LinearGradient>
+                      </Pressable>
+                    </View>
+                  </View>
+                );
+              }
+
+              if (isCompleted) {
+                return (
+                  <View key={ex.id} style={s.exCardMinimal}>
+                    <View style={s.exHeaderMinimal}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={s.exNameMinimal}>{ex.exerciseName}</Text>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 6,
+                            marginTop: 4,
+                          }}
+                        >
+                          <View style={s.completedBadge}>
+                            <MaterialIcons
+                              name="check"
+                              size={10}
+                              color={GOLD}
+                              style={{ marginRight: 2 }}
+                            />
+                            <Text style={s.completedBadgeText}>COMPLETED</Text>
+                          </View>
+                        </View>
+                      </View>
+                      <Pressable
+                        onPress={() => handleEditExercise(ex.id)}
+                        style={({ pressed }) => [s.editExerciseBtn, pressed && { opacity: 0.8 }]}
+                      >
+                        <MaterialIcons name="edit" size={12} color={GOLD} />
+                        <Text style={s.editExerciseBtnText}>EDIT</Text>
                       </Pressable>
                     </View>
                   </View>
@@ -632,17 +564,33 @@ export function WorkoutScreen() {
                     })}
                   </View>
 
-                  {/* Add Set Button */}
-                  <View style={{ paddingHorizontal: 10, paddingBottom: 12 }}>
+                  {/* Add Set & Done Buttons Row */}
+                  <View
+                    style={{
+                      paddingHorizontal: 10,
+                      paddingBottom: 12,
+                      flexDirection: "row",
+                      gap: 10,
+                    }}
+                  >
                     <Pressable
                       onPress={() => addSet(ex.id)}
                       style={({ pressed }) => [
                         s.addSetBtn,
+                        { flex: 1 },
                         pressed && { backgroundColor: "rgba(255, 255, 255, 0.05)" },
                       ]}
                     >
                       <MaterialIcons name="add" size={16} color="rgba(255, 255, 255, 0.5)" />
                       <Text style={s.addSetTxt}>ADD SET</Text>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => handleCompleteExercise(ex.id)}
+                      style={({ pressed }) => [s.finishExBtn, pressed && { opacity: 0.8 }]}
+                    >
+                      <MaterialIcons name="check" size={16} color="#1A1A1A" />
+                      <Text style={s.finishExBtnText}>DONE</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -665,80 +613,46 @@ export function WorkoutScreen() {
               </Pressable>
             )}
 
-            {/* Muscle Focus Section */}
-            {hasExercises && muscleFocusData.length > 0 && (
-              <View style={s.focusCard}>
-                <Text style={s.focusTitle}>MUSCLE FOCUS</Text>
-                <View style={s.focusList}>
-                  {muscleFocusData.map((item) => (
-                    <View key={item.muscle} style={s.focusRow}>
-                      <View style={s.focusLabelRow}>
-                        <Text style={s.focusName}>{item.muscle}</Text>
-                        <Text style={s.focusPercent}>{item.percentage}%</Text>
-                      </View>
-                      <View style={s.progressBarTrack}>
-                        <LinearGradient
-                          colors={[GOLD, "#E5C158"]}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 0 }}
-                          style={[s.progressBarFill, { width: `${item.percentage}%` }]}
-                        />
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            )}
-
-            {/* Projected Gains Section */}
+            {/* Complete Workout Button */}
             {hasExercises && (
-              <View style={s.gainsCard}>
-                <Text style={s.gainsTitle}>PROJECTED GAINS</Text>
-                <View style={s.gainsContent}>
-                  <View>
-                    <Text style={s.gainsSubLabel}>EST. TOTAL VOLUME</Text>
-                    <Text style={s.gainsVal}>
-                      {formatWorkoutValue(volume)}
-                      <Text style={s.gainsUnit}>kg</Text>
-                    </Text>
-                  </View>
-                  <View style={s.gainsTrend}>
-                    <MaterialIcons
-                      name={volumeComparison.trend === "up" ? "trending-up" : "trending-down"}
-                      size={20}
-                      color={volumeComparison.trend === "up" ? "#4AE176" : "#FF6B6B"}
-                    />
-                    <Text
-                      style={[
-                        s.gainsTrendText,
-                        { color: volumeComparison.trend === "up" ? "#4AE176" : "#FF6B6B" },
-                      ]}
-                    >
-                      {volumeComparison.trend === "up" ? "+" : "-"}
-                      {volumeComparison.percentChange}% vs last
-                    </Text>
-                  </View>
-                </View>
-              </View>
+              <Pressable
+                onPress={handleFinish}
+                style={({ pressed }) => [
+                  s.completeBtn,
+                  pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+                  { marginTop: 12, marginBottom: 24 },
+                ]}
+              >
+                <LinearGradient
+                  colors={[GOLD_LIGHT, GOLD]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={s.completeBtnInner}
+                >
+                  <MaterialIcons name="check-circle" size={20} color="#1A1A1A" />
+                  <Text style={s.completeBtnTxt}>FINISH WORKOUT</Text>
+                </LinearGradient>
+              </Pressable>
             )}
           </View>
         ) : hasWorkoutToday ? (
-          <View style={s.emptyCard}>
-            <MaterialIcons name="check-circle" size={40} color={GOLD} />
-            <Text style={s.emptyTitle}>Workout complete for today</Text>
-            <Text style={s.emptySub}>
-              You already logged one workout today. Come back tomorrow for the next session.
-            </Text>
-            <Pressable onPress={handleStartWorkout} style={s.startBtn}>
-              <LinearGradient
-                colors={[GOLD_LIGHT, GOLD]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={s.startBtnInner}
+          <View style={s.completedSummaryCard}>
+            <View style={s.completedHeader}>
+              <View style={s.completedCheckIcon}>
+                <MaterialIcons name="check-circle" size={24} color={GOLD} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={s.completedTitle}>Workout Completed</Text>
+                <Text style={s.completedName}>{todayWorkout?.name ?? "Strength Session"}</Text>
+              </View>
+              <Pressable
+                onPress={() => todayWorkout && handleResumeWorkout(todayWorkout)}
+                style={({ pressed }) => [s.editWorkoutBtn, pressed && { opacity: 0.8 }]}
               >
-                <Text style={s.startBtnTxt}>{"VIEW TODAY'S WORKOUT"}</Text>
-              </LinearGradient>
-            </Pressable>
+                <MaterialIcons name="edit" size={16} color={GOLD} />
+                <Text style={s.editWorkoutBtnText}>EDIT</Text>
+              </Pressable>
+            </View>
           </View>
         ) : (
           <View style={s.emptyCard}>
@@ -954,6 +868,16 @@ export function WorkoutScreen() {
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: BG_DARK },
+  headerWrapper: {
+    width: "100%",
+    maxWidth: 640,
+    alignSelf: "center",
+    paddingHorizontal: 24,
+    zIndex: 10,
+  },
+  headerWrapperCompact: {
+    paddingHorizontal: 16,
+  },
   backgroundImage: {
     position: "absolute",
     left: 0,
@@ -1031,7 +955,7 @@ const s = StyleSheet.create({
 
   // Scroll
   scrollViewport: {
-    marginBottom: 32,
+    marginBottom: 0,
   },
   scroll: {
     width: "100%",
@@ -1762,5 +1686,108 @@ const s = StyleSheet.create({
     fontFamily: "Anta_400Regular",
     fontSize: 12,
     textTransform: "uppercase",
+  },
+  completedSummaryCard: {
+    backgroundColor: GLASS_BG,
+    borderWidth: 1,
+    borderColor: GLASS_BORDER,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 24,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  completedHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  completedCheckIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(212, 175, 55, 0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  completedTitle: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 12,
+    color: TEXT_MUTED,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  completedName: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 18,
+    color: TEXT_MAIN,
+    marginTop: 2,
+  },
+  editWorkoutBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    borderWidth: 1,
+    borderColor: "rgba(212, 175, 55, 0.3)",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 99,
+    backgroundColor: "rgba(212, 175, 55, 0.05)",
+  },
+  editWorkoutBtnText: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 13,
+    color: GOLD,
+    letterSpacing: 0.5,
+  },
+  finishExBtn: {
+    backgroundColor: GOLD,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+  },
+  finishExBtnText: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 13,
+    color: "#1A1A1A",
+    letterSpacing: 0.5,
+  },
+  completedBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "rgba(212, 175, 55, 0.1)",
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  completedBadgeText: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 9,
+    color: GOLD,
+    letterSpacing: 0.5,
+  },
+  editExerciseBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    borderWidth: 1,
+    borderColor: "rgba(212, 175, 55, 0.3)",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 99,
+    backgroundColor: "rgba(212, 175, 55, 0.05)",
+  },
+  editExerciseBtnText: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 12,
+    color: GOLD,
+    letterSpacing: 0.5,
   },
 });

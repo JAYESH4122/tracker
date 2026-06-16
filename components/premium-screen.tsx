@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useMemo, type PropsWithChildren, type ReactNode } from "react";
+import { useEffect, useMemo, memo, type PropsWithChildren, type ReactNode } from "react";
 import {
   Image,
   Pressable,
@@ -29,6 +29,8 @@ const BG_HERO_IMAGE =
   "https://lh3.googleusercontent.com/aida/AP1WRLu24nWykqZgevYWrQMAhU9O5LgBS6uhrv8kZkt-qWLqrh5ajV_SDAiglamnC3NvDMH372x4edKvbx-k-j25zf8loO3IpIH3g7jM30OqlaJ2uKaJCG4QX00E_wGUNrrE40-OQguDWv4lOa1w3f_83zHHR0vrk2-8bRDM3D9-V6CLshfW3OKB5q5wee_qT1yPfdtHL_YUU3tq5YfS0gCMGjqORk8K2HKT9bwdoeqgTW0bhM_XHw44gEaW9xg";
 const BG_PATTERN_OVERLAY =
   "https://lh3.googleusercontent.com/aida/AP1WRLuF0eRL9PCMph4Zj755O_n42jVLK-BqtvU2PyCWoY_bl8GLgdfgTZ9NNQH25m3FjrrA0uZQT4fUfUR6t5ycREAzDR16XrX55UzRVxSEMDIeEIMx1pL1IrPUH4IZZ44CBEky-rBaMYUD-slms2jqlRBTXZqiZ_lMQOalXwLptSGMJA1vOA5rOaF13R9oBZF6PxRT-Bngvci6u-bqj-Te8YOULhF-mEI_uTL-wq7PCWh0ytfAFyVsZVzl5w";
+const AVATAR_IMAGE =
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuBFYjvh7gzy6AiKmPJTpZZ_wFDahPj0dmlx-e1U_rbZWImwLsPNZ5Rx6t45WbPNrPkKyA2d-yHDUb0TGQxfT284KfPsI0WfKR5LcHGeC0DBjI6mJLU78LcuXXjp6tYPEjuABSy1ztkPKmA_gTbPFYzILTZUTNsKdLjZRVEyULOJWiZrIbSvfCBIHMV6wiSjk8tl1fVuvSlkZTX_Gm2uYc7Dq95ln5caLCCVw8LhZGqhDTfHCYvA8QLvriApsx-wAs53I4KnX96mk8U";
 
 type PremiumBackgroundProps = PropsWithChildren<{
   particles?: boolean;
@@ -64,7 +66,7 @@ type PremiumMetricTileProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-function Particle({ delay, height }: { delay: number; height: number }) {
+const Particle = memo(function Particle({ delay, height }: { delay: number; height: number }) {
   const left = useMemo(() => Math.random() * 100, []);
   const top = useMemo(() => Math.random() * 100, []);
   const size = useMemo(() => Math.random() * 3 + 1, []);
@@ -102,9 +104,9 @@ function Particle({ delay, height }: { delay: number; height: number }) {
       ]}
     />
   );
-}
+});
 
-function GoldDustParticles() {
+const GoldDustParticles = memo(function GoldDustParticles() {
   const { height } = useWindowDimensions();
 
   return (
@@ -114,7 +116,7 @@ function GoldDustParticles() {
       ))}
     </View>
   );
-}
+});
 
 export function PremiumBackground({ children, particles = true, style }: PremiumBackgroundProps) {
   return (
@@ -140,12 +142,15 @@ export function PremiumScrollScreen({
   children,
   contentContainerStyle,
   particles = true,
-  bottomInset = 32,
+  bottomInset,
   reserveBottomDock = true,
 }: PremiumScrollScreenProps) {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const isCompact = width < 390;
+
+  const resolvedBottomInset =
+    bottomInset !== undefined ? bottomInset : reserveBottomDock ? 106 : 32;
 
   return (
     <PremiumBackground particles={particles}>
@@ -157,7 +162,7 @@ export function PremiumScrollScreen({
           isCompact ? styles.scrollContentCompact : null,
           {
             paddingTop: insets.top + 14,
-            paddingBottom: bottomInset + Math.max(insets.bottom, 16),
+            paddingBottom: resolvedBottomInset + Math.max(insets.bottom, 16),
           },
           contentContainerStyle,
         ]}
@@ -177,24 +182,53 @@ export function PremiumHeader({
   const { width } = useWindowDimensions();
   const isCompact = width < 390;
 
+  const renderRight = right || (
+    <Pressable style={({ pressed }) => [styles.avatarWrap, pressed && styles.pressed]}>
+      <View style={styles.avatarRing}>
+        <Image source={{ uri: AVATAR_IMAGE }} style={styles.avatar} />
+      </View>
+      <View style={styles.avatarBadge}>
+        <AppText variant="caption" style={styles.avatarBadgeText}>
+          14
+        </AppText>
+      </View>
+    </Pressable>
+  );
+
   return (
     <Animated.View entering={FadeInDown.duration(350)} style={styles.header}>
       <Pressable
         onPress={onLeftPress}
         disabled={!onLeftPress}
-        style={({ pressed }) => [styles.iconButton, pressed && onLeftPress ? styles.pressed : null]}
+        style={({ pressed }) => [
+          styles.menuButton,
+          pressed && onLeftPress ? styles.pressed : null,
+          { zIndex: 10 },
+        ]}
       >
-        <MaterialIcons name={leftIcon} size={24} color={theme.colors.primary} />
+        {leftIcon === "menu" ? (
+          <View style={styles.burger}>
+            <View style={[styles.burgerLine, styles.burgerLineWide]} />
+            <View style={[styles.burgerLine, styles.burgerLineShort]} />
+            <View style={[styles.burgerLine, styles.burgerLineMid]} />
+          </View>
+        ) : (
+          <MaterialIcons name={leftIcon} size={24} color={theme.colors.primary} />
+        )}
       </Pressable>
 
-      <AppText
-        variant="caption"
-        style={[styles.headerTitle, isCompact ? styles.headerTitleCompact : null]}
-      >
-        {title}
-      </AppText>
+      <View pointerEvents="none" style={styles.headerTitleContainer}>
+        <AppText
+          variant="caption"
+          style={[styles.headerTitle, isCompact ? styles.headerTitleCompact : null]}
+        >
+          {title}
+        </AppText>
+      </View>
 
-      <View style={styles.headerRight}>{right}</View>
+      <View style={styles.headerRight} pointerEvents="box-none">
+        {renderRight}
+      </View>
     </Animated.View>
   );
 }
@@ -333,7 +367,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   dockReservedScroll: {
-    marginBottom: 32,
+    marginBottom: 0,
   },
   header: {
     minHeight: 56,
@@ -344,12 +378,36 @@ const styles = StyleSheet.create({
   iconButton: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: "rgba(0, 0, 0, 0.28)",
     alignItems: "center",
     justifyContent: "center",
+  },
+  menuButton: {
+    width: 44,
+    height: 44,
+    justifyContent: "center",
+  },
+  burger: {
+    gap: 5,
+  },
+  burgerLine: {
+    height: 2,
+    backgroundColor: theme.colors.primary,
+    borderRadius: 1,
+  },
+  burgerLineWide: {
+    width: 28,
+  },
+  burgerLineShort: {
+    width: 20,
+  },
+  burgerLineMid: {
+    width: 24,
+  },
+  headerTitleContainer: {
+    ...StyleSheet.absoluteFill,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 0,
   },
   headerTitle: {
     color: theme.colors.text,
@@ -359,17 +417,52 @@ const styles = StyleSheet.create({
     letterSpacing: 3,
     textTransform: "uppercase",
     textAlign: "center",
-    flex: 1,
   },
   headerTitleCompact: {
     fontSize: 18,
     letterSpacing: 2.2,
   },
   headerRight: {
-    width: 44,
+    minWidth: 44,
     minHeight: 44,
     alignItems: "flex-end",
     justifyContent: "center",
+    zIndex: 1,
+  },
+  avatarWrap: {
+    position: "relative",
+  },
+  avatarRing: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "rgba(212, 175, 55, 0.22)",
+    backgroundColor: "rgba(212, 175, 55, 0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  avatar: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  avatarBadge: {
+    position: "absolute",
+    bottom: -4,
+    right: -4,
+    backgroundColor: GOLD_LIGHT,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#0F0F0F",
+  },
+  avatarBadgeText: {
+    fontFamily: "Anta_400Regular",
+    fontSize: 9,
+    color: "#0F0F0F",
   },
   divider: {
     height: 1,

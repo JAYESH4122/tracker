@@ -25,16 +25,7 @@ export function ProfileScreen() {
 
   return (
     <PremiumScrollScreen>
-      <PremiumHeader
-        title="Profile"
-        right={
-          <View style={styles.headerBadge}>
-            <AppText variant="caption" color="primary" style={styles.headerBadgeText}>
-              {initials.slice(0, 1)}
-            </AppText>
-          </View>
-        }
-      />
+      <PremiumHeader title="Profile" leftIcon="menu" onLeftPress={() => {}} />
 
       <PremiumCard accent style={styles.profileCard}>
         <View style={styles.avatar}>

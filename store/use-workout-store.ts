@@ -26,6 +26,7 @@ type WorkoutStore = {
   toggleSetComplete: (workoutExerciseId: string, setId: string) => void;
   removeSet: (workoutExerciseId: string, setId: string) => void;
   completeWorkout: () => Workout | null;
+  resumeWorkout: (workout: Workout) => void;
 };
 
 function createEmptySet(): WorkoutSet {
@@ -264,5 +265,20 @@ export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
     useHistoryStore.getState().addWorkout(completedWorkout);
     set({ activeWorkout: null });
     return completedWorkout;
+  },
+
+  resumeWorkout: (workout) => {
+    const history = useHistoryStore.getState().workouts;
+    const filteredHistory = history.filter((w) => w.id !== workout.id);
+    useHistoryStore.setState({ workouts: filteredHistory });
+
+    set({
+      activeWorkout: {
+        id: workout.id,
+        name: workout.name,
+        startedAt: workout.startedAt,
+        exercises: workout.exercises,
+      },
+    });
   },
 }));

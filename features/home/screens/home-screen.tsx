@@ -1,17 +1,17 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, memo, type ReactNode } from "react";
 import {
   Image,
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   useWindowDimensions,
   Vibration,
   View,
 } from "react-native";
+import { PremiumHeader, AppText } from "@/components";
 import Animated, {
   FadeInDown,
   useAnimatedStyle,
@@ -206,7 +206,7 @@ function GlowingDivider() {
   );
 }
 
-function Particle({ delay, height }: { delay: number; height: number }) {
+const Particle = memo(function Particle({ delay, height }: { delay: number; height: number }) {
   const left = useMemo(() => Math.random() * 100, []);
   const top = useMemo(() => Math.random() * 100, []);
   const size = useMemo(() => Math.random() * 3 + 1, []);
@@ -245,9 +245,9 @@ function Particle({ delay, height }: { delay: number; height: number }) {
       ]}
     />
   );
-}
+});
 
-function GoldDustParticles() {
+const GoldDustParticles = memo(function GoldDustParticles() {
   const { height } = useWindowDimensions();
 
   return (
@@ -257,7 +257,7 @@ function GoldDustParticles() {
       ))}
     </View>
   );
-}
+});
 
 function CompletedWorkoutDay({ delay = 0 }: { delay?: number }) {
   const pulse = useSharedValue(1);
@@ -294,7 +294,9 @@ function TodayActiveDay({ dateNum }: { dateNum: number }) {
 
   return (
     <Animated.View style={[s.calendarTodayRing, todayStyle]}>
-      <Text style={s.calendarTodayText}>{dateNum}</Text>
+      <AppText variant="caption" style={s.calendarTodayText}>
+        {dateNum}
+      </AppText>
     </Animated.View>
   );
 }
@@ -322,7 +324,9 @@ function CalendarDay({
 }) {
   return (
     <Animated.View entering={FadeInDown.delay(delay).springify()} style={s.calendarItem}>
-      <Text style={[s.calendarLabel, isToday && s.calendarLabelToday]}>{dayLabel}</Text>
+      <AppText variant="caption" style={[s.calendarLabel, isToday && s.calendarLabelToday]}>
+        {dayLabel}
+      </AppText>
       {hasWorkout ? (
         <CompletedWorkoutDay delay={delay} />
       ) : isToday ? (
@@ -334,70 +338,12 @@ function CalendarDay({
   );
 }
 
-function SnapshotCard({
-  icon,
-  label,
-  value,
-  accent = false,
-  delay = 0,
-  compact = false,
-}: {
-  icon: keyof typeof MaterialIcons.glyphMap;
-  label: string;
-  value: string;
-  accent?: boolean;
-  delay?: number;
-  compact?: boolean;
-}) {
-  return (
-    <PressScaleCard
-      delay={delay}
-      style={[s.snapshotCard, compact && s.snapshotCardCompact, accent && s.snapshotCardAccent]}
-      onPress={() => {}}
-    >
-      <MaterialIcons
-        name={icon}
-        size={compact ? 16 : 20}
-        color={accent ? GOLD : "rgba(212, 175, 55, 0.6)"}
-        style={s.snapshotIcon}
-      />
-      <View style={s.snapshotCopy}>
-        <Text
-          style={[
-            s.snapshotValue,
-            compact && s.snapshotValueCompact,
-            accent && s.snapshotValueAccent,
-          ]}
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          minimumFontScale={0.8}
-        >
-          {value}
-        </Text>
-        <Text
-          style={[
-            s.snapshotLabel,
-            compact && s.snapshotLabelCompact,
-            accent && s.snapshotLabelAccent,
-          ]}
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          minimumFontScale={0.7}
-        >
-          {label}
-        </Text>
-      </View>
-    </PressScaleCard>
-  );
-}
-
 export function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
   const isCompact = width < 390;
-  const isSmall = width < 430;
 
   const workouts = useHistoryStore((state) => state.workouts);
   const activeWorkout = useWorkoutStore((state) => state.activeWorkout);
@@ -539,14 +485,6 @@ export function HomeScreen() {
     ? yesterdayWorkout.totalVolume.toLocaleString()
     : "12,450";
 
-  const totalMinutes =
-    sortedWorkouts.reduce((sum, workout) => sum + workout.durationSeconds, 0) / 60;
-  const totalVolume = sortedWorkouts.reduce((sum, workout) => sum + workout.totalVolume, 0);
-  const weeklyVolumeTons = sortedWorkouts.length > 0 ? (totalVolume / 1000).toFixed(1) : "42.5";
-  const weeklyHours = sortedWorkouts.length > 0 ? (totalMinutes / 60).toFixed(1) : "18.5";
-  const workoutCount = sortedWorkouts.length > 0 ? sortedWorkouts.length : 4;
-  const streakDays = sortedWorkouts.length > 0 ? 14 : 14;
-
   const recentSessions = sortedWorkouts.slice(0, 2);
 
   const handleStartSession = () => {
@@ -574,35 +512,29 @@ export function HomeScreen() {
           contentContainerStyle={[
             s.scrollContent,
             isCompact && s.scrollContentCompact,
-            { paddingBottom: 32 + Math.max(insets.bottom, 16) },
+            { paddingBottom: 106 + Math.max(insets.bottom, 16) },
           ]}
         >
-          <Animated.View
-            entering={FadeInDown.duration(400)}
-            style={[s.header, isCompact && s.headerCompact]}
-          >
-            <Pressable style={s.menuButton} onPress={() => {}}>
-              <View style={s.burger}>
-                <View style={[s.burgerLine, s.burgerLineWide]} />
-                <View style={[s.burgerLine, s.burgerLineShort]} />
-                <View style={[s.burgerLine, s.burgerLineMid]} />
-              </View>
-            </Pressable>
-
-            <Text style={[s.headerTitle, isCompact && s.headerTitleCompact]}>DASHBOARD</Text>
-
-            <Pressable
-              onPress={() => router.push("/profile")}
-              style={({ pressed }) => [s.avatarWrap, pressed && s.avatarPressed]}
-            >
-              <View style={s.avatarRing}>
-                <Image source={{ uri: AVATAR_IMAGE }} style={s.avatar} />
-              </View>
-              <View style={s.avatarBadge}>
-                <Text style={s.avatarBadgeText}>14</Text>
-              </View>
-            </Pressable>
-          </Animated.View>
+          <PremiumHeader
+            title="Dashboard"
+            leftIcon="menu"
+            onLeftPress={() => {}}
+            right={
+              <Pressable
+                onPress={() => router.push("/profile")}
+                style={({ pressed }) => [s.avatarWrap, pressed && s.avatarPressed]}
+              >
+                <View style={s.avatarRing}>
+                  <Image source={{ uri: AVATAR_IMAGE }} style={s.avatar} />
+                </View>
+                <View style={s.avatarBadge}>
+                  <AppText variant="caption" style={s.avatarBadgeText}>
+                    14
+                  </AppText>
+                </View>
+              </Pressable>
+            }
+          />
 
           <PressScaleCard
             onPress={
@@ -616,11 +548,17 @@ export function HomeScreen() {
           >
             <View style={s.heroTopRow}>
               <View style={s.heroLeftCol}>
-                <Text style={s.heroCaption}>{sessionCaption}</Text>
+                <AppText variant="caption" style={s.heroCaption}>
+                  {sessionCaption}
+                </AppText>
                 <View style={s.heroTitleRow}>
-                  <Text numberOfLines={1} style={[s.heroTitle, isCompact && s.heroTitleCompact]}>
+                  <AppText
+                    numberOfLines={1}
+                    variant="display"
+                    style={[s.heroTitle, isCompact && s.heroTitleCompact]}
+                  >
                     {sessionTitle}
-                  </Text>
+                  </AppText>
                   {activeWorkout && <View style={s.statusPulse} />}
                   {todayWorkout && !activeWorkout && (
                     <View style={[s.statusPulse, { backgroundColor: GOLD, shadowColor: GOLD }]} />
@@ -647,23 +585,33 @@ export function HomeScreen() {
                       },
                   ]}
                 />
-                <Text style={s.exerciseBadgeText}>{sessionExerciseBadge}</Text>
+                <AppText variant="caption" style={s.exerciseBadgeText}>
+                  {sessionExerciseBadge}
+                </AppText>
               </View>
             </View>
 
             <View style={[s.timerCard, isCompact && s.timerCardCompact]}>
               <MaterialIcons name="timer" size={18} color="rgba(212, 175, 55, 0.2)" />
-              <Text style={[s.timerText, isCompact && s.timerTextCompact]}>
+              <AppText variant="display" style={[s.timerText, isCompact && s.timerTextCompact]}>
                 {sessionTimer.split(":")[0]}:
-                <Text style={s.timerAccent}>{sessionTimer.split(":")[1]}</Text>
-              </Text>
-              <Text style={s.timerLabel}>{sessionTimerLabel}</Text>
+                <AppText variant="display" style={s.timerAccent}>
+                  {sessionTimer.split(":")[1]}
+                </AppText>
+              </AppText>
+              <AppText variant="caption" style={s.timerLabel}>
+                {sessionTimerLabel}
+              </AppText>
             </View>
 
             <View style={s.progressBlock}>
               <View style={s.progressRow}>
-                <Text style={s.progressLabel}>PROGRESS</Text>
-                <Text style={s.progressValue}>{sessionProgress}%</Text>
+                <AppText variant="caption" style={s.progressLabel}>
+                  PROGRESS
+                </AppText>
+                <AppText variant="statValue" style={s.progressValue}>
+                  {sessionProgress}%
+                </AppText>
               </View>
               <View style={s.progressTrack}>
                 <LinearGradient
@@ -676,7 +624,9 @@ export function HomeScreen() {
             </View>
 
             <View style={s.continueRow}>
-              <Text style={s.continueText}>{sessionActionText}</Text>
+              <AppText variant="caption" style={s.continueText}>
+                {sessionActionText}
+              </AppText>
               <MaterialIcons name="chevron-right" size={12} color={TEXT_MAIN} />
             </View>
           </PressScaleCard>
@@ -685,12 +635,15 @@ export function HomeScreen() {
 
           <View style={s.section}>
             <View style={[s.sectionHeaderRow, { marginBottom: 8 }]}>
-              <Text style={[s.sectionTitle, isCompact && s.sectionTitleCompact]}>
+              <AppText
+                variant="sectionTitle"
+                style={[s.sectionTitle, isCompact && s.sectionTitleCompact]}
+              >
                 WEEKLY PROGRESS
-              </Text>
-              <Text style={[s.sectionMeta, isCompact && s.sectionMetaCompact]}>
+              </AppText>
+              <AppText variant="caption" style={[s.sectionMeta, isCompact && s.sectionMetaCompact]}>
                 {weekRangeLabel}
-              </Text>
+              </AppText>
             </View>
 
             <View style={s.calendarRow}>
@@ -710,7 +663,12 @@ export function HomeScreen() {
           <GlowingDivider />
 
           <View style={s.section}>
-            <Text style={[s.yesterdayTitle, isCompact && s.yesterdayTitleCompact]}>YESTERDAY</Text>
+            <AppText
+              variant="display"
+              style={[s.yesterdayTitle, isCompact && s.yesterdayTitleCompact]}
+            >
+              YESTERDAY
+            </AppText>
             <PressScaleCard
               onPress={() =>
                 yesterdayWorkout
@@ -725,15 +683,18 @@ export function HomeScreen() {
                     <MaterialIcons name="vertical-align-bottom" size={24} color={GOLD} />
                   </View>
                   <View style={s.yesterdayCopy}>
-                    <Text
+                    <AppText
+                      variant="body"
                       numberOfLines={1}
                       style={[s.yesterdayWorkoutTitle, isCompact && s.yesterdayWorkoutTitleCompact]}
                     >
                       {yesterdayWorkout ? formatWorkoutHeadline(yesterdayWorkout.name) : "PULL DAY"}
-                    </Text>
+                    </AppText>
                     <View style={s.completedRow}>
                       <View style={s.completedDot} />
-                      <Text style={s.completedText}>COMPLETED</Text>
+                      <AppText variant="caption" style={s.completedText}>
+                        COMPLETED
+                      </AppText>
                     </View>
                   </View>
                 </View>
@@ -747,24 +708,39 @@ export function HomeScreen() {
 
               <View style={s.yesterdayStats}>
                 <View style={s.yesterdayStat}>
-                  <Text style={[s.yesterdayStatValue, isCompact && s.yesterdayStatValueCompact]}>
+                  <AppText
+                    variant="statValue"
+                    style={[s.yesterdayStatValue, isCompact && s.yesterdayStatValueCompact]}
+                  >
                     {yesterdayMinutes}
-                  </Text>
-                  <Text style={s.yesterdayStatLabel}>MIN</Text>
+                  </AppText>
+                  <AppText variant="caption" style={s.yesterdayStatLabel}>
+                    MIN
+                  </AppText>
                 </View>
                 <View style={s.statDivider} />
                 <View style={s.yesterdayStat}>
-                  <Text style={[s.yesterdayStatValue, isCompact && s.yesterdayStatValueCompact]}>
+                  <AppText
+                    variant="statValue"
+                    style={[s.yesterdayStatValue, isCompact && s.yesterdayStatValueCompact]}
+                  >
                     {yesterdaySets}
-                  </Text>
-                  <Text style={s.yesterdayStatLabel}>SETS</Text>
+                  </AppText>
+                  <AppText variant="caption" style={s.yesterdayStatLabel}>
+                    SETS
+                  </AppText>
                 </View>
                 <View style={s.statDivider} />
                 <View style={s.yesterdayStat}>
-                  <Text style={[s.yesterdayStatValue, isCompact && s.yesterdayStatValueCompact]}>
+                  <AppText
+                    variant="statValue"
+                    style={[s.yesterdayStatValue, isCompact && s.yesterdayStatValueCompact]}
+                  >
                     {yesterdayVolume}
-                  </Text>
-                  <Text style={s.yesterdayStatLabel}>KG</Text>
+                  </AppText>
+                  <AppText variant="caption" style={s.yesterdayStatLabel}>
+                    KG
+                  </AppText>
                 </View>
               </View>
             </PressScaleCard>
@@ -773,47 +749,9 @@ export function HomeScreen() {
           <GlowingDivider />
 
           <View style={s.section}>
-            <Text style={[s.snapshotTitle, isSmall && s.snapshotTitleCompact]}>
-              Performance Snapshot
-            </Text>
-            <View style={[s.snapshotGrid, isSmall && s.snapshotGridCompact]}>
-              <SnapshotCard
-                icon="calendar-month"
-                label="Workouts"
-                value={String(workoutCount).padStart(2, "0")}
-                compact={isSmall}
-                delay={80}
-              />
-              <SnapshotCard
-                icon="local-fire-department"
-                label="Streak"
-                value={`${streakDays}D`}
-                accent
-                compact={isSmall}
-                delay={120}
-              />
-              <SnapshotCard
-                icon="timer"
-                label="Total Time"
-                value={`${weeklyHours}H`}
-                compact={isSmall}
-                delay={160}
-              />
-              <SnapshotCard
-                icon="analytics"
-                label="Volume"
-                value={`${weeklyVolumeTons}T`}
-                compact={isSmall}
-                delay={200}
-              />
-            </View>
-          </View>
-
-          <GlowingDivider />
-
-          <View style={s.section}>
             <View style={[s.sectionHeaderRow, { marginBottom: 20 }]}>
-              <Text
+              <AppText
+                variant="display"
                 style={[
                   s.yesterdayTitle,
                   isCompact && s.yesterdayTitleCompact,
@@ -821,7 +759,7 @@ export function HomeScreen() {
                 ]}
               >
                 RECENT SESSIONS
-              </Text>
+              </AppText>
               <Pressable onPress={() => router.push("/history")}>
                 <MaterialIcons name="arrow-forward" size={24} color="rgba(212, 175, 55, 0.7)" />
               </Pressable>
@@ -877,20 +815,30 @@ export function HomeScreen() {
                         />
                       </View>
                       <View style={s.recentCopy}>
-                        <Text style={[s.recentTitle, isCompact && s.recentTitleCompact]}>
+                        <AppText
+                          variant="body"
+                          style={[s.recentTitle, isCompact && s.recentTitleCompact]}
+                        >
                           {title}
-                        </Text>
-                        <Text style={[s.recentMeta, isCompact && s.recentMetaCompact]}>
+                        </AppText>
+                        <AppText
+                          variant="caption"
+                          style={[s.recentMeta, isCompact && s.recentMetaCompact]}
+                        >
                           {date} • {duration}
-                        </Text>
+                        </AppText>
                       </View>
                     </View>
 
                     <View style={[s.recentRight, isCompact && s.recentRightCompact]}>
-                      <Text style={[s.recentVolume, isCompact && s.recentVolumeCompact]}>
+                      <AppText
+                        variant="statValue"
+                        style={[s.recentVolume, isCompact && s.recentVolumeCompact]}
+                      >
                         {volume}
-                      </Text>
-                      <Text
+                      </AppText>
+                      <AppText
+                        variant="caption"
                         style={[
                           s.recentTrend,
                           isCompact && s.recentTrendCompact,
@@ -898,7 +846,7 @@ export function HomeScreen() {
                         ]}
                       >
                         {trendText || fallback.trend}
-                      </Text>
+                      </AppText>
                     </View>
                   </PressScaleCard>
                 );
@@ -935,9 +883,7 @@ const s = StyleSheet.create({
   contentFrame: {
     flex: 1,
   },
-  scrollViewport: {
-    marginBottom: 32,
-  },
+  scrollViewport: {},
   scrollContent: {
     width: "100%",
     maxWidth: 640,
@@ -987,7 +933,6 @@ const s = StyleSheet.create({
     lineHeight: 28,
     letterSpacing: 3.2,
     textTransform: "uppercase",
-    fontFamily: "Anta_400Regular",
   },
   headerTitleCompact: {
     fontSize: 20,
@@ -1037,7 +982,6 @@ const s = StyleSheet.create({
     color: "#1A1A1A",
     fontSize: 10,
     lineHeight: 12,
-    fontFamily: "Anta_400Regular",
   },
   card: {
     borderRadius: 28,
@@ -1075,7 +1019,6 @@ const s = StyleSheet.create({
     letterSpacing: 3,
     textTransform: "uppercase",
     marginBottom: 4,
-    fontFamily: "Anta_400Regular",
   },
   heroTitleRow: {
     flexDirection: "row",
@@ -1089,7 +1032,6 @@ const s = StyleSheet.create({
     lineHeight: 28,
     letterSpacing: 1,
     textTransform: "uppercase",
-    fontFamily: "Anta_400Regular",
     flexShrink: 1,
   },
   heroTitleCompact: {
@@ -1134,7 +1076,6 @@ const s = StyleSheet.create({
     lineHeight: 14,
     letterSpacing: 2.2,
     textTransform: "uppercase",
-    fontFamily: "Anta_400Regular",
   },
   timerCard: {
     alignItems: "center",
@@ -1154,7 +1095,6 @@ const s = StyleSheet.create({
     fontSize: 44,
     lineHeight: 44,
     letterSpacing: -1.5,
-    fontFamily: "Anta_400Regular",
   },
   timerTextCompact: {
     fontSize: 36,
@@ -1175,7 +1115,6 @@ const s = StyleSheet.create({
     letterSpacing: 4,
     textTransform: "uppercase",
     opacity: 0.4,
-    fontFamily: "Anta_400Regular",
   },
   progressBlock: {
     gap: 8,
@@ -1192,14 +1131,12 @@ const s = StyleSheet.create({
     lineHeight: 12,
     letterSpacing: 2.5,
     textTransform: "uppercase",
-    fontFamily: "Anta_400Regular",
   },
   progressValue: {
     color: GOLD,
     fontSize: 10,
     lineHeight: 12,
     letterSpacing: 1.8,
-    fontFamily: "Anta_400Regular",
   },
   progressTrack: {
     height: 3,
@@ -1224,7 +1161,6 @@ const s = StyleSheet.create({
     lineHeight: 12,
     letterSpacing: 2.4,
     textTransform: "uppercase",
-    fontFamily: "Anta_400Regular",
   },
   divider: {
     height: 1,
@@ -1246,7 +1182,6 @@ const s = StyleSheet.create({
     lineHeight: 16,
     letterSpacing: 2.4,
     textTransform: "uppercase",
-    fontFamily: "Anta_400Regular",
   },
   sectionTitleCompact: {
     fontSize: 12,
@@ -1260,7 +1195,6 @@ const s = StyleSheet.create({
     letterSpacing: 2,
     textTransform: "uppercase",
     opacity: 0.6,
-    fontFamily: "Anta_400Regular",
   },
   sectionMetaCompact: {
     fontSize: 10,
@@ -1285,7 +1219,6 @@ const s = StyleSheet.create({
     lineHeight: 14,
     letterSpacing: 1.5,
     opacity: 0.6,
-    fontFamily: "Anta_400Regular",
   },
   calendarLabelToday: {
     color: GOLD,
@@ -1309,7 +1242,6 @@ const s = StyleSheet.create({
     color: GOLD,
     fontSize: 12,
     lineHeight: 14,
-    fontFamily: "Anta_400Regular",
   },
   calendarWorkoutContainer: {
     width: 38,
@@ -1363,7 +1295,6 @@ const s = StyleSheet.create({
     lineHeight: 28,
     letterSpacing: 1.2,
     textTransform: "uppercase",
-    fontFamily: "Anta_400Regular",
   },
   yesterdayTitleCompact: {
     fontSize: 20,
@@ -1406,7 +1337,6 @@ const s = StyleSheet.create({
     letterSpacing: 1.2,
     textTransform: "uppercase",
     marginBottom: 6,
-    fontFamily: "Anta_400Regular",
   },
   yesterdayWorkoutTitleCompact: {
     fontSize: 14,
@@ -1433,7 +1363,6 @@ const s = StyleSheet.create({
     lineHeight: 12,
     letterSpacing: 2,
     textTransform: "uppercase",
-    fontFamily: "Anta_400Regular",
   },
   yesterdayChevron: {
     width: 32,
@@ -1460,7 +1389,6 @@ const s = StyleSheet.create({
     color: TEXT_MAIN,
     fontSize: 20,
     lineHeight: 24,
-    fontFamily: "Anta_400Regular",
   },
   yesterdayStatValueCompact: {
     fontSize: 17,
@@ -1474,93 +1402,13 @@ const s = StyleSheet.create({
     letterSpacing: 2.4,
     textTransform: "uppercase",
     opacity: 0.6,
-    fontFamily: "Anta_400Regular",
   },
   statDivider: {
     width: 1,
     height: 24,
     backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
-  snapshotTitle: {
-    marginLeft: 2,
-    marginBottom: 8,
-    color: "rgba(212, 175, 55, 0.9)",
-    fontSize: 13,
-    lineHeight: 16,
-    letterSpacing: 2.4,
-    textTransform: "uppercase",
-    fontFamily: "Anta_400Regular",
-  },
-  snapshotTitleCompact: {
-    fontSize: 12,
-    lineHeight: 14,
-    letterSpacing: 2,
-  },
-  snapshotGrid: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  snapshotGridCompact: {
-    // keeps spacing neat
-  },
-  snapshotCard: {
-    width: "23.5%",
-    aspectRatio: 1.05,
-    padding: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 4,
-  },
-  snapshotCardCompact: {
-    width: "23.5%",
-    aspectRatio: 1.0,
-    padding: 5,
-    gap: 2,
-  },
-  snapshotCardAccent: {
-    backgroundColor: "rgba(212, 175, 55, 0.12)",
-  },
-  snapshotIcon: {
-    marginBottom: 2,
-  },
-  snapshotCopy: {
-    alignItems: "center",
-    width: "100%",
-  },
-  snapshotValue: {
-    color: TEXT_MAIN,
-    fontSize: 14,
-    lineHeight: 17,
-    fontFamily: "Anta_400Regular",
-  },
-  snapshotValueCompact: {
-    fontSize: 11,
-    lineHeight: 14,
-  },
-  snapshotValueAccent: {
-    color: GOLD,
-  },
-  snapshotLabel: {
-    color: TEXT_MUTED,
-    fontSize: 9,
-    lineHeight: 11,
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
-    opacity: 0.5,
-    textAlign: "center",
-    fontFamily: "Anta_400Regular",
-    width: "100%",
-  },
-  snapshotLabelCompact: {
-    fontSize: 7.5,
-    lineHeight: 9,
-    letterSpacing: 0,
-  },
-  snapshotLabelAccent: {
-    color: GOLD,
-    opacity: 1,
-  },
+
   recentList: {
     gap: 20,
   },
@@ -1609,7 +1457,6 @@ const s = StyleSheet.create({
     lineHeight: 24,
     letterSpacing: 1,
     textTransform: "uppercase",
-    fontFamily: "Anta_400Regular",
   },
   recentTitleCompact: {
     fontSize: 14,
@@ -1623,7 +1470,6 @@ const s = StyleSheet.create({
     letterSpacing: 1,
     textTransform: "uppercase",
     opacity: 0.6,
-    fontFamily: "Anta_400Regular",
   },
   recentMetaCompact: {
     fontSize: 10,
@@ -1642,7 +1488,6 @@ const s = StyleSheet.create({
     color: TEXT_MAIN,
     fontSize: 17,
     lineHeight: 24,
-    fontFamily: "Anta_400Regular",
   },
   recentVolumeCompact: {
     fontSize: 14,
@@ -1654,7 +1499,6 @@ const s = StyleSheet.create({
     lineHeight: 16,
     letterSpacing: 1,
     textTransform: "uppercase",
-    fontFamily: "Anta_400Regular",
   },
   recentTrendCompact: {
     fontSize: 10,
@@ -1741,7 +1585,6 @@ const s = StyleSheet.create({
     lineHeight: 12,
     letterSpacing: 2,
     textTransform: "uppercase",
-    fontFamily: "Anta_400Regular",
   },
   dockLabelCompact: {
     fontSize: 9,
